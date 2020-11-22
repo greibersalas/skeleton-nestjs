@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getConnection } from 'typeorm';
-import { MapperService } from '../../shared/mapper.service';
 import { Role } from '../role/role.entity';
 import { UserDto } from './dto/user.dto';
 import { UserDetails } from './user.details.entity';
@@ -10,12 +9,11 @@ import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(UserRepository) private readonly _userRepository:UserRepository,
-    private readonly _mapperService:MapperService){
+    constructor(@InjectRepository(UserRepository) private readonly _userRepository:UserRepository){
         
     }
 
-    async get(id: number): Promise<UserDto>{
+    async get(id: number): Promise<User>{
         if(!id){
             throw new BadRequestException('id must be send');
         }
@@ -26,15 +24,15 @@ export class UserService {
             throw new NotFoundException();
         }
 
-        return this._mapperService.map<User, UserDto>(user, new UserDto());
+        return user;
     }
 
-    async getAll(): Promise<UserDto[]>{        
+    async getAll(): Promise<User[]>{        
         const users: User[] = await this._userRepository.find({where:{estado:1}});
-        return this._mapperService.mapCollection<User, UserDto>(users, new UserDto());
+        return users;
     }
 
-    async create(user: User): Promise<UserDto>{
+    async create(user: User): Promise<User>{
         const details = new UserDetails;
         user.details = details;
 
@@ -42,7 +40,7 @@ export class UserService {
         const defaultRole: Role = await repo.findOne({where:{idrole:1}});
         user.roles = defaultRole;
         const saveUser: User = await this._userRepository.save(user);
-        return this._mapperService.map<User, UserDto>(saveUser, new UserDto());
+        return saveUser;
     }
 
     async update(id: number, user: User): Promise<void>{
