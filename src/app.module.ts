@@ -11,9 +11,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BusinessLineModule } from './modules/business-line/business-line.module';
 import { CampusModule } from './modules/campus/campus.module';
 import { SpecialtyModule } from './modules/specialty/specialty.module';
+import { TariffModule } from './modules/tariff/tariff.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule],
+  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule],
   controllers: [AppController],
   providers: [AppService],
 })
