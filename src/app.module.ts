@@ -10,9 +10,10 @@ import { RoleModule } from './modules/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BusinessLineModule } from './modules/business-line/business-line.module';
 import { CampusModule } from './modules/campus/campus.module';
+import { SpecialtyModule } from './modules/specialty/specialty.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule],
+  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule],
   controllers: [AppController],
   providers: [AppService],
 })
