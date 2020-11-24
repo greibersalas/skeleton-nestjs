@@ -3,5 +3,6 @@ export enum Configuration{
     HOST= 'HOST',
     USER= 'USER',
     PASSWORD= 'PASSWORD',
-    DATABASE= 'DATABASE'
+    DATABASE= 'DATABASE',
+    JWTSECRET= 'JWT_SECRET'
 }

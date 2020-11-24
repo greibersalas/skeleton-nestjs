@@ -18,7 +18,8 @@ export const databaseProviders = [
                 port : 5444,
                 database: config.get(Configuration.DATABASE),
                 entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-                migrations: [__dirname + '/migrations/*.{.ts,.js}']
+                migrations: [__dirname + '/migrations/*.{.ts,.js}'],
+                //logging: true
             } as ConnectionOptions
         }
     })
