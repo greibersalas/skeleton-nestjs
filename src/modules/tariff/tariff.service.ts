@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection } from 'typeorm';
 import { TariffHistory } from './tariff-history.entity';
 import { TariffHistoryRepository } from './tariff-history.repository';
 import { Tariff } from './tariff.entity';

@@ -12,9 +12,10 @@ import { BusinessLineModule } from './modules/business-line/business-line.module
 import { CampusModule } from './modules/campus/campus.module';
 import { SpecialtyModule } from './modules/specialty/specialty.module';
 import { TariffModule } from './modules/tariff/tariff.module';
+import { EnvironmentDoctorModule } from './modules/environment-doctor/environment-doctor.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule],
+  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule, EnvironmentDoctorModule],
   controllers: [AppController],
   providers: [AppService],
 })
