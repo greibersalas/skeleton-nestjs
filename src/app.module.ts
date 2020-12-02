@@ -15,9 +15,10 @@ import { TariffModule } from './modules/tariff/tariff.module';
 import { EnvironmentDoctorModule } from './modules/environment-doctor/environment-doctor.module';
 import { InsuranceCarrierModule } from './modules/insurance-carrier/insurance-carrier.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
+import { ClinicHistoryModule } from './modules/clinic-history/clinic-history.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule, EnvironmentDoctorModule, InsuranceCarrierModule, DoctorModule],
+  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule, EnvironmentDoctorModule, InsuranceCarrierModule, DoctorModule, ClinicHistoryModule],
   controllers: [AppController],
   providers: [AppService],
 })
