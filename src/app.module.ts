@@ -17,9 +17,26 @@ import { InsuranceCarrierModule } from './modules/insurance-carrier/insurance-ca
 import { DoctorModule } from './modules/doctor/doctor.module';
 import { ClinicHistoryModule } from './modules/clinic-history/clinic-history.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { PaymentMethodModule } from './modules/payment-method/payment-method.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule, BusinessLineModule, CampusModule, SpecialtyModule, TariffModule, EnvironmentDoctorModule, InsuranceCarrierModule, DoctorModule, ClinicHistoryModule, DocumentsModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    UserModule,
+    RoleModule,
+    AuthModule,
+    BusinessLineModule,
+    CampusModule,
+    SpecialtyModule,
+    TariffModule,
+    EnvironmentDoctorModule,
+    InsuranceCarrierModule,
+    DoctorModule,
+    ClinicHistoryModule,
+    DocumentsModule,
+    PaymentMethodModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
