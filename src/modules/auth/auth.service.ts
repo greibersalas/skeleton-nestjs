@@ -29,31 +29,31 @@ export class AuthService {
         return this._authRepository.signup(signupDto);
     }
 
-    async signin(signinDto: SigninDto): Promise<{token: string}>{
+    async signin(signinDto: SigninDto): Promise<any>{
         const { username, password } = signinDto;
         const user: User = await this._authRepository.findOne({
             where: {username}
         });
-
         if(!user){
             throw new NotFoundException('User does not exist');
         }
-
         const isMatch = await compare(password, user.password);
-
         if(!isMatch){
             throw new UnauthorizedException('invalid credentials');
         }
-
         const payload: IJwtPayload = {
             id: user.id,
             email: user.email,
             username: user.username,
             roles: user.roles
         };
-
-        const token = await this._jwtServices.sign(payload);
-
-        return {token};
+        const token = this._jwtServices.sign(payload);
+        return {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            roles: user.roles,
+            token
+        };
     }
 }

@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('insurance_carrier')
 export class InsuranceCarrier extends BaseEntity{
@@ -33,6 +33,6 @@ export class InsuranceCarrier extends BaseEntity{
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 
-    @CreateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 }

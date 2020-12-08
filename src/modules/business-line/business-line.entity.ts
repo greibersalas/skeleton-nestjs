@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('business_line')
 export class BusinessLine extends BaseEntity{
@@ -18,6 +18,6 @@ export class BusinessLine extends BaseEntity{
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 
-    @CreateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 }

@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { BusinessLine } from "../business-line/business-line.entity";
 import { Specialty } from "../specialty/specialty.entity";
 
@@ -79,6 +79,6 @@ export class Doctor extends BaseEntity{
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 
-    @CreateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 }

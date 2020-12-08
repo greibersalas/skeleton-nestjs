@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Campus } from "../campus/campus.entity";
 import { InsuranceCarrier } from "../insurance-carrier/insurance-carrier.entity";
 
@@ -95,6 +95,6 @@ export class ClinicHistory extends BaseEntity{
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 
-    @CreateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 }

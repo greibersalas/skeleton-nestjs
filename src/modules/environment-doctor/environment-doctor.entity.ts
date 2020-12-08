@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { BusinessLine } from "../business-line/business-line.entity";
 import { Campus } from "../campus/campus.entity";
 
@@ -8,7 +8,7 @@ export class EnvironmentDoctor extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type: 'varchar', length: 40, nullable:false, unique: true})
+    @Column({type: 'varchar', length: 40, nullable:false})
     name: string;
 
     @Column({type: 'varchar', nullable: true})
@@ -29,6 +29,6 @@ export class EnvironmentDoctor extends BaseEntity{
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 
-    @CreateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 }
