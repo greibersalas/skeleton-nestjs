@@ -18,6 +18,7 @@ import { DoctorModule } from './modules/doctor/doctor.module';
 import { ClinicHistoryModule } from './modules/clinic-history/clinic-history.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { PaymentMethodModule } from './modules/payment-method/payment-method.module';
+import { CountryModule } from './modules/country/country.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { PaymentMethodModule } from './modules/payment-method/payment-method.mod
     DoctorModule,
     ClinicHistoryModule,
     DocumentsModule,
-    PaymentMethodModule
+    PaymentMethodModule,
+    CountryModule
   ],
   controllers: [AppController],
   providers: [AppService],
