@@ -19,6 +19,8 @@ import { ClinicHistoryModule } from './modules/clinic-history/clinic-history.mod
 import { DocumentsModule } from './modules/documents/documents.module';
 import { PaymentMethodModule } from './modules/payment-method/payment-method.module';
 import { CountryModule } from './modules/country/country.module';
+import { CoinModule } from './modules/coin/coin.module';
+import { ResponsibleModule } from './modules/responsible/responsible.module';
 
 @Module({
   imports: [
@@ -37,7 +39,9 @@ import { CountryModule } from './modules/country/country.module';
     ClinicHistoryModule,
     DocumentsModule,
     PaymentMethodModule,
-    CountryModule
+    CountryModule,
+    CoinModule,
+    ResponsibleModule
   ],
   controllers: [AppController],
   providers: [AppService],
