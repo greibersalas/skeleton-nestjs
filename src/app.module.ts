@@ -21,6 +21,11 @@ import { PaymentMethodModule } from './modules/payment-method/payment-method.mod
 import { CountryModule } from './modules/country/country.module';
 import { CoinModule } from './modules/coin/coin.module';
 import { ResponsibleModule } from './modules/responsible/responsible.module';
+import { DeparmentsModule } from './modules/deparments/deparments.module';
+import { ProvincesModule } from './modules/provinces/provinces.module';
+import { DistrictsModule } from './modules/districts/districts.module';
+import { ExchangeRateModule } from './modules/exchange-rate/exchange-rate.module';
+
 
 @Module({
   imports: [
@@ -41,7 +46,12 @@ import { ResponsibleModule } from './modules/responsible/responsible.module';
     PaymentMethodModule,
     CountryModule,
     CoinModule,
-    ResponsibleModule
+    ResponsibleModule,
+    DeparmentsModule,
+    ProvincesModule,
+    DistrictsModule,
+    ExchangeRateModule,
+    
   ],
   controllers: [AppController],
   providers: [AppService],
