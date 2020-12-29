@@ -13,6 +13,12 @@ export class ClinicHistoryController {
         return clinicHistory;
     }
 
+    @Get('get-patient/:document')
+    async getPatient(@Param('document') document): Promise<ClinicHistory>{
+        const clinicHistory = await this._clinicHistoryService.getByDocumentNumber(document);
+        return clinicHistory;
+    }
+
     @Get()
     async getClinicHistorys(): Promise<ClinicHistory[]>{
         const clinicHistory = await this._clinicHistoryService.getAll();

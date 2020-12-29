@@ -15,13 +15,10 @@ export class ClinicHistoryService {
         if(!id){
             throw new BadRequestException('id must be send.');
         }
-
         const clinicHistory = await this._clinicHistoryRepository.findOne(id,{where:{state:1}});
-
         if(!clinicHistory){
             throw new NotFoundException();
         }
-
         return clinicHistory;
     }
 
@@ -52,5 +49,16 @@ export class ClinicHistoryService {
         }
 
         await this._clinicHistoryRepository.update(id,{state:0});
+    }
+
+    async getByDocumentNumber(document: string): Promise<ClinicHistory>{
+        if(!document){
+            throw new BadRequestException('document number must be send.');
+        }
+        const clinicHistory = await this._clinicHistoryRepository.findOne({where:{documentNumber:document,state:1}});
+        if(!clinicHistory){
+            throw new NotFoundException();
+        }
+        return clinicHistory;
     }
 }
