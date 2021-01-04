@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { UserDetails } from './user.details.entity';
 
@@ -21,7 +21,7 @@ export class User extends BaseEntity{
     @JoinColumn({name:'detail_id'})
     details: UserDetails;
 
-    @OneToOne(type=>Role,{cascade:true,nullable:false,eager:true})
+    @ManyToOne(type=>Role,{cascade:true,nullable:false,eager:true})
     @JoinColumn({name:'role_id'})
     roles: Role
 

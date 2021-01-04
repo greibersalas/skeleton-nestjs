@@ -10,7 +10,7 @@ import { genSalt, hash } from 'bcryptjs';
 export class AuthRepository extends Repository<User>{
 
     async signup(signupDto: SignupDto){
-        const { username, email, password } = signupDto;
+        const { username, email, password, roles, name, lastname } = signupDto;
         const user = new User();
 
         user.username = username;
@@ -18,10 +18,13 @@ export class AuthRepository extends Repository<User>{
 
         const roleRepository: RoleRepository = await getConnection().getRepository(Role);
 
-        const defaultRole: Role = await roleRepository.findOne({where:{idrole:3}});
+        const defaultRole: Role = await roleRepository.findOne({where:{idrole:roles.idrole}});
         user.roles = defaultRole;
 
         const details = new UserDetails();
+        details.name = name;
+        details.lastname = lastname;
+        details.save();
         user.details = details;
 
         const salt = await genSalt(10);

@@ -13,7 +13,7 @@ export class UserController {
         return user;
     }
 
-    @UseGuards(AuthGuard())
+    //@UseGuards(AuthGuard())
     @Get()
     async getUsers(): Promise<User[]>{
         const users = await this._userService.getAll();
