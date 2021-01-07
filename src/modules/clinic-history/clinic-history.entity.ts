@@ -1,5 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Campus } from "../campus/campus.entity";
+import { Districts } from "../districts/districts.entity";
 import { InsuranceCarrier } from "../insurance-carrier/insurance-carrier.entity";
 
 @Entity('clinic_history')
@@ -51,8 +52,9 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 15, nullable: true})
     country: string;
 
-    @Column({type: 'int4', nullable: false})
-    district: number;
+    @ManyToOne(type => Districts, district => district.id,{cascade:true, nullable:false, eager:true})
+    @JoinColumn({name:'district'})
+    district: Districts;
 
     @Column({type: 'varchar', length: 80, nullable: true})
     email: string;
@@ -84,13 +86,12 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'text', nullable: false})
     previousAttentions: string;
 
-    @ManyToOne(type => InsuranceCarrier, ic => ic.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => InsuranceCarrier, ic => ic.id,{cascade:true, nullable:true, eager:true})
     @JoinColumn({name:'insuranceCarrier'})
     insuranceCarrier: InsuranceCarrier;
 
     @Column({type: 'int2', default: 1, nullable:false})
-    state: number;
-    
+    state: number;    
 
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;

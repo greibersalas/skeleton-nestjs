@@ -8,7 +8,7 @@ export class Tariff extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type: 'varchar', length: 40, nullable:false, unique: true})
+    @Column({type: 'varchar', length: 60, nullable:false, unique: true})
     name: string;
 
     @Column({type: 'varchar', nullable: true})
