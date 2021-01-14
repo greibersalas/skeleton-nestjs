@@ -1,5 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { BusinessLine } from "../business-line/business-line.entity";
+import { Districts } from "../districts/districts.entity";
 import { Specialty } from "../specialty/specialty.entity";
 
 @Entity('doctor')
@@ -17,13 +18,16 @@ export class Doctor extends BaseEntity{
     @Column({type: 'varchar', nullable: false})
     address: string;
 
-    @Column({type: 'int4', nullable: false})
-    district: number;
+    /*@Column({type: 'int4', nullable: false})
+    district: number;*/
+    @ManyToOne(type => Districts, district => district.id,{cascade:true, nullable:false, eager:true})
+    @JoinColumn({name:'district'})
+    district: Districts;
 
     @Column({type: 'int8', nullable: false})
     dni: number;
 
-    @Column({type: 'int2', nullable: true})
+    @Column({type: 'int8', nullable: true})
     cop: number;
     
     /*@Column({type: 'int4', nullable: false})
@@ -71,7 +75,7 @@ export class Doctor extends BaseEntity{
     number_hours: number;
 
     @Column({type: 'int2', nullable: false})
-    percentage: number;
+    porcentage: number;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;

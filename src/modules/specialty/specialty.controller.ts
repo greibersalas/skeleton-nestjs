@@ -36,4 +36,10 @@ export class SpecialtyController {
         await this._specialtyService.delete(id);
         return true;
     }
+
+    @Get('get-specialty/:idbusinessline')
+    async getPatient(@Param('idbusinessline') idbusinessline): Promise<Specialty[]>{
+        const specialty = await this._specialtyService.getByBusinessLine(idbusinessline);
+        return specialty;
+    }
 }
