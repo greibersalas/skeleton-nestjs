@@ -53,4 +53,15 @@ export class SpecialtyService {
 
         await this._specialtyRepository.update(id,{state:0});
     }
+
+    async getByBusinessLine(idbusinessline: number): Promise<Specialty[]>{
+        if(!idbusinessline){
+            throw new BadRequestException('idbusinessline must be send.');
+        }
+        const specialty: Specialty[] = await this._specialtyRepository.find({where:{businessLines:idbusinessline,state:1}});
+        if(!specialty){
+            throw new NotFoundException();
+        }
+        return specialty;
+    }
 }
