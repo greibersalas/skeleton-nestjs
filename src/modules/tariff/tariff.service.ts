@@ -68,4 +68,15 @@ export class TariffService {
     async addHistory(tariffHistory: TariffHistory): Promise<void>{
         await this._tariffHistoryRepository.save(tariffHistory);
     }
+
+    async getBySpecialty(idspecialty: number): Promise<Tariff[]>{
+        if(!idspecialty){
+            throw new BadRequestException('idspecialty must be send.');
+        }
+        const tariff: Tariff[] = await this._tariffRepository.find({where:{specialty:idspecialty,state:1}});
+        if(!tariff){
+            throw new NotFoundException();
+        }
+        return tariff;
+    }
 }
