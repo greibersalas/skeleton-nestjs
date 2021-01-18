@@ -1,7 +1,6 @@
-import { BusinessLine } from "src/modules/business-line/business-line.entity";
-import { ClinicHistory } from "src/modules/clinic-history/clinic-history.entity";
-import { Tariff } from "src/modules/tariff/tariff.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { Tariff } from "../../tariff/tariff.entity";
 import { Quotation } from "./quotation.entity";
 
 @Entity('quotation_detail')

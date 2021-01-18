@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { QuotationDto } from './dto/quotation.dto';
+import { QuotationDetail } from './quotation-detail.entity';
+import { QuotationDetailRepository } from './quotation-detail.repository';
 import { Quotation } from './quotation.entity';
 import { QuotationRepository } from './quotation.repository';
 
@@ -8,7 +11,9 @@ export class QuotationService {
 
     constructor(
         @InjectRepository(QuotationRepository)
-        private readonly _quotationRepository: QuotationRepository
+        private readonly _quotationRepository: QuotationRepository,
+        @InjectRepository(QuotationDetailRepository)
+        private readonly _quotationDetailRepository: QuotationDetailRepository
     ){}
 
     async get(id: number): Promise<Quotation>{
@@ -31,7 +36,19 @@ export class QuotationService {
     }
 
     async create(quotation: Quotation): Promise<Quotation>{
+        //insert main data
         const saveQuotation: Quotation = await this._quotationRepository.save(quotation);
+        //insert detail data
+        quotation.detail.forEach(async(det: QuotationDetail) =>{
+            const detail = new QuotationDetail;
+            detail.quotation = saveQuotation;
+            detail.tariff = det.tariff;
+            detail.quantity = det.quantity;
+            detail.price = det.price;
+            detail.discount = det.discount;
+            detail.total = det.total;
+            await this._quotationDetailRepository.save(detail);
+        });
         return saveQuotation;
     }
 

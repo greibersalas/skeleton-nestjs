@@ -1,9 +1,11 @@
-import { BusinessLine } from "src/modules/business-line/business-line.entity";
-import { ClinicHistory } from "src/modules/clinic-history/clinic-history.entity";
-import { Coin } from "src/modules/coin/coin.entity";
-import { Doctor } from "src/modules/doctor/doctor.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { BusinessLine } from "../../business-line/business-line.entity";
+import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
+import { Coin } from "../../coin/coin.entity";
+import { Doctor } from "../../doctor/doctor.entity";
 import { Specialty } from "../../specialty/specialty.entity";
+import { QuotationDetail } from "./quotation-detail.entity";
 
 @Entity('quotation')
 export class Quotation extends BaseEntity{
@@ -11,7 +13,7 @@ export class Quotation extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type: 'time', nullable:false})
+    @Column({type: 'date', nullable:false})
     date: Date;
 
     @ManyToOne(type => ClinicHistory, clinicHistory => clinicHistory.id,{cascade:true, nullable:false, eager:true})
@@ -54,4 +56,6 @@ export class Quotation extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    detail: QuotationDetail[];
 }
