@@ -46,4 +46,10 @@ export class TariffController {
         await this._tariffService.delete(id);
         return true;
     }
+
+    @Get('get-by-specialty/:idspecialty')
+    async getPatient(@Param('idspecialty') idspecialty): Promise<Tariff[]>{
+        const tariff = await this._tariffService.getBySpecialty(idspecialty);
+        return tariff;
+    }
 }
