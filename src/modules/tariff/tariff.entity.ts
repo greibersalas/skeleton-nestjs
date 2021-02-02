@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { DentalStatus } from "../mat/dental-status/dental-status.entity";
 import { Specialty } from "../specialty/specialty.entity";
 import { TariffHistory } from "./tariff-history.entity";
 
@@ -26,6 +27,13 @@ export class Tariff extends BaseEntity{
 
     @Column({type: 'float4', default: 0, nullable: true})
     price_usd: number;
+
+    @Column({type: 'boolean', default: false})
+    odontograma: boolean;
+
+    @OneToOne(type => DentalStatus,{eager: true, nullable: true})
+    @JoinColumn()
+    dental_status: DentalStatus;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;

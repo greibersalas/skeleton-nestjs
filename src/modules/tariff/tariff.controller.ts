@@ -29,7 +29,6 @@ export class TariffController {
     @Put(':id')
     async updateTariff(@Param('id',ParseIntPipe) id: number, @Body() tariff: Tariff){
         const actualTariff = await this._tariffService.get(id);
-        const update = await this._tariffService.update(id,tariff);
         //INSERT HISTORY OF PRICE
         const history = new TariffHistory()
         history.price_sol_old = actualTariff.price_sol;
@@ -38,6 +37,8 @@ export class TariffController {
         history.price_usd_new = tariff.price_usd;
         history.tariff = actualTariff;
         await this._tariffService.addHistory(history);
+        tariff.tariffHistory = [history];
+        const update = await this._tariffService.update(id,tariff);
         return update;
     }
 
@@ -51,5 +52,10 @@ export class TariffController {
     async getPatient(@Param('idspecialty') idspecialty): Promise<Tariff[]>{
         const tariff = await this._tariffService.getBySpecialty(idspecialty);
         return tariff;
+    }
+
+    @Get('get-by-dental-status/:id')
+    async getTariffDental(@Param('id') id): Promise<Tariff>{
+        return await this._tariffService.getByDentalStatus(id);
     }
 }

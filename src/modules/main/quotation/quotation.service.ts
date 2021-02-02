@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuotationDto } from './dto/quotation.dto';
+import { Odontograma } from '../odontograma/odontograma.entity';
+
+import { OdontogramaRepository } from '../odontograma/odontograma.repository';
 import { QuotationDetail } from './quotation-detail.entity';
 import { QuotationDetailRepository } from './quotation-detail.repository';
 import { Quotation } from './quotation.entity';
@@ -13,7 +15,9 @@ export class QuotationService {
         @InjectRepository(QuotationRepository)
         private readonly _quotationRepository: QuotationRepository,
         @InjectRepository(QuotationDetailRepository)
-        private readonly _quotationDetailRepository: QuotationDetailRepository
+        private readonly _quotationDetailRepository: QuotationDetailRepository,
+        @InjectRepository(OdontogramaRepository)
+        private readonly _odontogramaRepository: OdontogramaRepository
     ){}
 
     async get(id: number): Promise<Quotation>{
@@ -49,6 +53,14 @@ export class QuotationService {
             detail.total = det.total;
             await this._quotationDetailRepository.save(detail);
         });
+        //Si hay odontograma lo insertamos
+        if(quotation.odontograma){
+            const odontograma = new Odontograma;
+            odontograma.name = quotation.odontograma;
+            odontograma.clinichistory = quotation.clinicHistory;
+            odontograma.quotation = saveQuotation;
+            await this._odontogramaRepository.save(odontograma);
+        }
         return saveQuotation;
     }
 

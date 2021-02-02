@@ -51,7 +51,15 @@ export class TariffService {
         if(!tariffExists){
             throw new NotFoundException();
         }
-        await this._tariffRepository.update(id,tariff);
+        tariffExists.specialty = tariff.specialty;
+        tariffExists.name = tariff.name;
+        tariffExists.price_sol = tariff.price_sol;
+        tariffExists.price_usd = tariff.price_usd;
+        tariffExists.odontograma = tariff.odontograma;
+        tariffExists.description = tariff.description;
+        tariffExists.dental_status = tariff.dental_status;
+        tariffExists.tariffHistory = tariff.tariffHistory;
+        await this._tariffRepository.update(id,tariffExists);
         const updateTariff : Tariff = await this._tariffRepository.findOne(id);
         
         return updateTariff;
@@ -76,6 +84,17 @@ export class TariffService {
         const tariff: Tariff[] = await this._tariffRepository.find({where:{specialty:idspecialty,state:1}});
         if(!tariff){
             throw new NotFoundException();
+        }
+        return tariff;
+    }
+
+    async getByDentalStatus(id: number): Promise<Tariff>{
+        if(!id){
+            throw new BadRequestException('iddentalstatus must be send');
+        }
+        const tariff: Tariff = await this._tariffRepository.findOne({where:{state: 1,dental_status:id}});
+        if(!tariff){
+            throw new NotFoundException('Tariff not found');
         }
         return tariff;
     }
