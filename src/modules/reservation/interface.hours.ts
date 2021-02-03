@@ -1,4 +1,4 @@
-interface hours{
+export interface Hours{
     beging:string;
     end:string;
 }

@@ -4,6 +4,7 @@ import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.enti
 import { ReservationService } from './reservation.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { DoctorService } from '../doctor/doctor.service';
+import { Hours } from './interface.hours';
 
 @Controller('reservation')
 export class ReservationController {
@@ -54,10 +55,10 @@ export class ReservationController {
                         @Param('environment_id', ParseIntPipe) environment_id:number,
                         @Param('day',ParseIntPipe) day: number,
                         @Param('month',ParseIntPipe) month: number,
-                        @Param('year',ParseIntPipe) year: number): Promise<hours[]>{
+                        @Param('year',ParseIntPipe) year: number): Promise<Hours[]>{
         let date = new Date()
         date.setFullYear(year,month,day)
-        let hours:hours[]=[] ;  
+        let hours:Hours[]=[] ;  
         const beging = 8;
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id) 
