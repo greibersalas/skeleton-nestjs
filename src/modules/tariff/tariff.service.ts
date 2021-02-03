@@ -58,7 +58,7 @@ export class TariffService {
         tariffExists.odontograma = tariff.odontograma;
         tariffExists.description = tariff.description;
         tariffExists.dental_status = tariff.dental_status;
-        tariffExists.tariffHistory = tariff.tariffHistory;
+        //tariffExists.tariffHistory = tariff.tariffHistory;
         await this._tariffRepository.update(id,tariffExists);
         const updateTariff : Tariff = await this._tariffRepository.findOne(id);
         

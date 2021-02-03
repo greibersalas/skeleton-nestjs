@@ -37,4 +37,9 @@ export class OdontogramaController {
         await this._odontogramaService.delete(id);
         return true;
     }
+
+    @Get('get-patient/:id')
+    async getByPatient(@Param('id') id): Promise<Odontograma[]>{
+        return await this._odontogramaService.getByPatient(id);
+    }
 }

@@ -51,4 +51,15 @@ export class OdontogramaService {
 
         await this._odontogramaRepository.update(id,{state:0});
     }
+
+    async getByPatient(id: number): Promise<Odontograma[]>{
+        return await this._odontogramaRepository.find(
+            {
+                where: {
+                    state: 1,
+                    clinichistory: id
+                }
+            }
+        );
+    }
 }
