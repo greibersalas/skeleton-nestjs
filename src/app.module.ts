@@ -27,6 +27,8 @@ import { DistrictsModule } from './modules/districts/districts.module';
 import { ExchangeRateModule } from './modules/exchange-rate/exchange-rate.module';
 import { QuotationModule } from './modules/main/quotation/quotation.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
+import { DentalStatusModule } from './modules/mat/dental-status/dental-status.module';
+import { OdontogramaModule } from './modules/main/odontograma/odontograma.module';
 
 
 @Module({
@@ -55,6 +57,8 @@ import { ReservationModule } from './modules/reservation/reservation.module';
     ExchangeRateModule,
     QuotationModule,
     ReservationModule,
+    DentalStatusModule,
+    OdontogramaModule,
     
   ],
   controllers: [AppController],

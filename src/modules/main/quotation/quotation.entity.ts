@@ -58,4 +58,5 @@ export class Quotation extends BaseEntity{
     updatedAt: Date;
 
     detail: QuotationDetail[];
+    odontograma: string;
 }
