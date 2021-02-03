@@ -9,7 +9,7 @@ export class QuotationDetail extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @ManyToOne(type => Quotation, quotation => quotation.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Quotation, quotation => quotation.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn({name:'idquotation'})
     quotation: Quotation;
 

@@ -14,6 +14,9 @@ export class EnvironmentDoctor extends BaseEntity{
     @Column({type: 'varchar', nullable: true})
     description: string;
 
+    @Column({type: 'int', nullable: false})
+    interval: number;
+
     @ManyToOne(type=>Campus, campus => campus.id,{cascade:true, nullable:false,eager:true})
     @JoinColumn({name:'idcampus'})
     campus: Campus;
