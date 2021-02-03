@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { QuotationDto } from './dto/quotation.dto';
+import { QuotationDetail } from './quotation-detail.entity';
 import { Quotation } from './quotation.entity';
 import { QuotationService } from './quotation.service';
 
@@ -12,6 +13,12 @@ export class QuotationController {
     async getQuotation(@Param('id',ParseIntPipe) id: number): Promise<Quotation>{
         const quotation = await this._quotationService.get(id);
         return quotation;
+    }
+
+    @Get('/number/:id')
+    async getDetailQuotation(@Param('id',ParseIntPipe) id: number): Promise<QuotationDetail[]>{
+        const quotationDetail = await this._quotationService.getDetail(id);
+        return quotationDetail;
     }
 
     @Get()

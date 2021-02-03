@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LessThan, MoreThan } from 'typeorm';
 import { QuotationDto } from './dto/quotation.dto';
 import { QuotationDetail } from './quotation-detail.entity';
 import { QuotationDetailRepository } from './quotation-detail.repository';
@@ -21,7 +22,7 @@ export class QuotationService {
             throw new BadRequestException('id must be send.');
         }
 
-        const quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
+        const quotation = await this._quotationRepository.findOne(id,{where:{state: 1}});
 
         if(!quotation){
             throw new NotFoundException();
@@ -33,6 +34,12 @@ export class QuotationService {
     async getAll(): Promise<Quotation[]>{
         const quotation: Quotation[] = await this._quotationRepository.find({where:{state:1}});
         return quotation;
+    }
+
+    async getDetail(id): Promise<QuotationDetail[]>{
+        const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
+        const quotationDetail: QuotationDetail[] = await this._quotationDetailRepository.find({where:{state: MoreThan(0),quotation:quotation}});
+        return quotationDetail;
     }
 
     async create(quotation: Quotation): Promise<Quotation>{
