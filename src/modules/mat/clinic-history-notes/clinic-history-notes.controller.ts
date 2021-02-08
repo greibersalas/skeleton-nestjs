@@ -36,7 +36,7 @@ export class ClinicHistoryNotesController {
         return true;
     }
 
-    @Get('get-patient/:id')
+    @Get('get-patient-notes/:id')
     async getByPatient(@Param('id') id): Promise<ClinicHistoryNotes[]>{
         return await this._chnService.getByPatient(id);
     }
