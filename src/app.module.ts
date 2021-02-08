@@ -29,6 +29,7 @@ import { QuotationModule } from './modules/main/quotation/quotation.module';
 import { ReservationModule } from './modules/reservation/reservation.module';
 import { DentalStatusModule } from './modules/mat/dental-status/dental-status.module';
 import { OdontogramaModule } from './modules/main/odontograma/odontograma.module';
+import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/clinic-history-notes.module';
 
 
 @Module({
@@ -59,6 +60,7 @@ import { OdontogramaModule } from './modules/main/odontograma/odontograma.module
     ReservationModule,
     DentalStatusModule,
     OdontogramaModule,
+    ClinicHistoryNotesModule,
     
   ],
   controllers: [AppController],
