@@ -24,7 +24,7 @@ export class Reservation extends BaseEntity{
     @Column({type: 'date', nullable:false})
     date: Date;
 
-    @Column({type: 'varchar', length: 10, nullable: false})
+    @Column({type: 'varchar', length: 50, nullable: false})
     appointment: string;
 
     @Column({type: 'int2', default: 1, nullable:false,})

@@ -32,8 +32,13 @@ export class ReservationService {
         return Reservation
     }
 
-    async getByDoctorEnivronment(date:Date,doctor:Doctor,environment:EnvironmentDoctor):Promise<Reservation[]>{
-        const Reservation = await this._ReservationRepository.find({where:{date:date,environment:environment,doctor:doctor}});
+    async getByDoctorEnivronment(date:string,doctor:Doctor,environment:EnvironmentDoctor):Promise<Reservation[]>{
+        const Reservation = await this._ReservationRepository.find({where:{date:date.split('T')[0],doctor:doctor,environment:environment}});
+        return Reservation
+    }
+
+    async getByEnivronment(date:string,environment:EnvironmentDoctor):Promise<Reservation[]>{
+        const Reservation = await this._ReservationRepository.find({where:{date:date.split('T')[0],environment:environment}});
         return Reservation
     }
 
