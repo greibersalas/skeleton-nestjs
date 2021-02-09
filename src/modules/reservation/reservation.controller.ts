@@ -4,9 +4,7 @@ import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.enti
 import { ReservationService } from './reservation.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { DoctorService } from '../doctor/doctor.service';
-import { format } from 'prettier';
-import { interval } from 'rxjs';
-
+import { Hours } from './interface.hours';
 
 @Controller('reservation')
 export class ReservationController {
@@ -111,8 +109,8 @@ export class ReservationController {
                         @Param('year',ParseIntPipe) year: number): Promise<Hours[]>{
         let date = new Date()
         date.setFullYear(year,month,day)
-        let datestring = (year+'-'+month+'-'+day)
-        let Hours:Hours[]=[] ;  
+        let hours:Hours[]=[] ;
+        let datestring = String(year)+'-'+String(month-1)+'-'+String(day)  
         const beging = 8;
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id)
@@ -138,7 +136,7 @@ export class ReservationController {
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
                 time.setMinutes(time.getMinutes() + interval) 
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0]
-                Hours.push({beging:hourBegin,end:hourend})
+                hours.push({beging:hourBegin,end:hourend})
                 conth= conth + step
             } 
         }
@@ -167,11 +165,11 @@ export class ReservationController {
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0]
 
                 if (!timebusy.includes(hourBegin+'-'+hourend))
-                    Hours.push({beging:hourBegin,end:hourend})
+                    hours.push({beging:hourBegin,end:hourend})
                 conth++  
             } 
         }
-        return Hours;
+        return hours;
     }
 
     @Get()

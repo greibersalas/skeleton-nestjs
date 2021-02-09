@@ -37,7 +37,7 @@ export class TariffController {
         history.price_usd_new = tariff.price_usd;
         history.tariff = actualTariff;
         await this._tariffService.addHistory(history);
-        tariff.tariffHistory = [history];
+        //tariff.tariffHistory = [history];
         const update = await this._tariffService.update(id,tariff);
         return update;
     }

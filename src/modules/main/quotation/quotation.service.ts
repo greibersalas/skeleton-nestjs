@@ -41,7 +41,7 @@ export class QuotationService {
         return quotation;
     }
 
-    async getDetail(id): Promise<QuotationDetail[]>{
+    async getDetail(id: number): Promise<QuotationDetail[]>{
         const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
         const quotationDetail: QuotationDetail[] = await this._quotationDetailRepository.find({where:{state: MoreThan(0),quotation:quotation}});
         return quotationDetail;

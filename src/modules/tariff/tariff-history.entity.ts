@@ -20,7 +20,10 @@ export class TariffHistory extends BaseEntity{
     @Column({type: 'float4', default: 0, nullable: true})
     price_usd_new: number;
 
-    @ManyToOne(() => Tariff, tariff => tariff.tariffHistory)
+    /* @ManyToOne(() => Tariff, tariff => tariff.tariffHistory)
+    tariff: Tariff; */
+    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:false})
+    @JoinColumn({name:'idtariff'})
     tariff: Tariff;
 
     @Column({type: 'int2', default: 1, nullable:false})
