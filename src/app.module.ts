@@ -30,6 +30,7 @@ import { ReservationModule } from './modules/reservation/reservation.module';
 import { DentalStatusModule } from './modules/mat/dental-status/dental-status.module';
 import { OdontogramaModule } from './modules/main/odontograma/odontograma.module';
 import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/clinic-history-notes.module';
+import { MedicalActModule } from './modules/main/medical-act/medical-act.module';
 
 
 @Module({
@@ -61,6 +62,7 @@ import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/cli
     DentalStatusModule,
     OdontogramaModule,
     ClinicHistoryNotesModule,
+    MedicalActModule,
     
   ],
   controllers: [AppController],
