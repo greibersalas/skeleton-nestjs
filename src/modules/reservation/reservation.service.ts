@@ -19,7 +19,17 @@ export class ReservationService {
             throw new BadRequestException('id must be send.');
         }
 
-        const Reservation = await this._ReservationRepository.findOne(id,{where:{state:1}});
+        //const Reservation = await this._ReservationRepository.findOne(id,{where:{state:1}});
+        const Reservation = await this._ReservationRepository
+            .createQueryBuilder("rs")
+            .innerJoinAndSelect("rs.doctor","doctor")
+            .innerJoinAndSelect("rs.environment","environment")
+            .innerJoinAndSelect("rs.qdetail","qd")
+            .innerJoinAndSelect("qd.quotation","qt")
+            .innerJoinAndSelect("qt.clinicHistory","ch")
+            .innerJoinAndSelect("qd.tariff","tariff")
+            .where("rs.id = :id AND rs.state=1",{id})
+            .getOne()
 
         if(!Reservation){
             throw new NotFoundException();
@@ -36,7 +46,19 @@ export class ReservationService {
         if (formfilter.doctor.id!=0)
             attr.doctor=formfilter.doctor
         attr.state = 1    
-        const Reservation = await this._ReservationRepository.find({where:attr});
+        //const Reservation = await this._ReservationRepository.find({where:attr});
+        const Reservation = await this._ReservationRepository
+            .createQueryBuilder("rs")
+            .innerJoinAndSelect("rs.doctor","doctor")
+            .innerJoinAndSelect("rs.environment","environment")
+            .innerJoinAndSelect("rs.qdetail","qd")
+            .innerJoinAndSelect("qd.quotation","qt")
+            .innerJoinAndSelect("qt.clinicHistory","ch")
+            .innerJoinAndSelect("qd.tariff","tariff")
+            .innerJoinAndSelect("tariff.specialty","specialty")
+            .innerJoinAndSelect("specialty.businessLines","businessLines")
+            .where(attr)
+            .getMany();
 
         return Reservation
     }
@@ -58,8 +80,18 @@ export class ReservationService {
 
        
     async getAll(): Promise<Reservation[]>{
-        const Reservation: Reservation[] = await this._ReservationRepository.find({where:{state:1}});
-        return Reservation;
+        const reservations: Reservation[] = await this._ReservationRepository.find({where:{state:1}});
+       /*  const reservations: Reservation[] = await this._ReservationRepository
+        .createQueryBuilder("rs")
+        .innerJoinAndSelect("rs.doctor","doctor")
+        .innerJoinAndSelect("rs.environment","environment")
+        .innerJoinAndSelect("rs.qdetail","qd")
+        .innerJoinAndSelect("qd.quotation","qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch")
+        .innerJoinAndSelect("qd.tariff","tariff")
+        .where("rs.state=1")
+        .getMany() */
+        return reservations;
     }
 
     async create(bl: Reservation): Promise<Reservation>{
