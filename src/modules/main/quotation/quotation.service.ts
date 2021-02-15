@@ -9,6 +9,7 @@ import { QuotationDetail } from './quotation-detail.entity';
 import { QuotationDetailRepository } from './quotation-detail.repository';
 import { Quotation } from './quotation.entity';
 import { QuotationRepository } from './quotation.repository';
+import { FormFilter } from 'src/modules/reservation/form.filter';
 
 @Injectable()
 export class QuotationService {
@@ -40,6 +41,8 @@ export class QuotationService {
         const quotation: Quotation[] = await this._quotationRepository.find({where:{state:1}});
         return quotation;
     }
+
+    
 
     async getDetail(id: number): Promise<QuotationDetail[]>{
         const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
@@ -79,6 +82,17 @@ export class QuotationService {
         }
         await this._quotationRepository.update(id,quotation);
         const updateQuotation : Quotation = await this._quotationRepository.findOne(id);
+        return updateQuotation;
+    }
+
+    async reserveDetail(id: number): Promise<QuotationDetail>{
+        const quotationExists = await this._quotationDetailRepository.findOne(id);
+        if(!quotationExists){
+            throw new NotFoundException();
+        }
+        quotationExists.state = 3
+        await this._quotationDetailRepository.update(id,quotationExists);
+        const updateQuotation : QuotationDetail = await this._quotationDetailRepository.findOne(id);
         return updateQuotation;
     }
 

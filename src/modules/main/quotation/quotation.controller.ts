@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { FormFilter } from 'src/modules/reservation/form.filter';
+import { Reservation } from 'src/modules/reservation/reservation.entity';
 import { QuotationDto } from './dto/quotation.dto';
 import { QuotationDetail } from './quotation-detail.entity';
 import { Quotation } from './quotation.entity';
@@ -27,11 +29,19 @@ export class QuotationController {
         return quotation;
     }
 
+    @Get('/reserve/:id')
+    async reserveQuotationDetail(@Param('id',ParseIntPipe) id: number, @Body() quotation: QuotationDetail){
+        const update = await this._quotationService.reserveDetail(id);
+        return update;
+    }
+
     @Post()
     async createQuotation(@Body() quotation: Quotation): Promise<Quotation>{
         const create = await this._quotationService.create(quotation);
         return create;
     }
+
+    
 
     @Put(':id')
     async updateQuotation(@Param('id',ParseIntPipe) id: number, @Body() quotation: Quotation){
