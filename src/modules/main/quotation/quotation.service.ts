@@ -38,7 +38,15 @@ export class QuotationService {
     }
 
     async getAll(): Promise<Quotation[]>{
-        const quotation: Quotation[] = await this._quotationRepository.find({where:{state:1}});
+        const quotation: Quotation[] = await this._quotationRepository
+        .find({
+            where: {
+                state: 1
+            },
+            order: {
+                id: 'DESC'
+            }
+        });
         return quotation;
     }
 

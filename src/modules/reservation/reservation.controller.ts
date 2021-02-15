@@ -226,4 +226,9 @@ export class ReservationController {
         await this._ReservationService.delete(id);
         return true;
     }
+
+    @Get('get-date-doctor/:date/:iddoctor')
+    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor): Promise<any[]>{
+        return await this._ReservationService.getByDateDoctor(date,doctor);
+    }
 }

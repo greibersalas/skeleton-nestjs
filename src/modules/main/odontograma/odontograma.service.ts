@@ -52,6 +52,10 @@ export class OdontogramaService {
         await this._odontogramaRepository.update(id,{state:0});
     }
 
+    /**
+     * Return list of odontogramas by clinichistory
+     * @param id <clinic history>
+     */
     async getByPatient(id: number): Promise<Odontograma[]>{
         return await this._odontogramaRepository.find(
             {
@@ -59,6 +63,25 @@ export class OdontogramaService {
                     state: 1,
                     clinichistory: id
                 }
+            }
+        );
+    }
+
+    /**
+     * Return first odontograma by clinic history
+     * @param id <clinichistory>
+     */
+    async getFirst(id: number): Promise<Odontograma[]>{
+        return await this._odontogramaRepository.find(
+            {
+                where: {
+                    state: 1,
+                    clinichistory: id
+                },
+                order: {
+                    id: 'DESC'
+                },
+                take: 1
             }
         );
     }

@@ -42,4 +42,9 @@ export class OdontogramaController {
     async getByPatient(@Param('id') id): Promise<Odontograma[]>{
         return await this._odontogramaService.getByPatient(id);
     }
+
+    @Get('get-first/:id')
+    async getFirst(@Param('id') id): Promise<Odontograma[]>{
+        return await this._odontogramaService.getFirst(id);
+    }
 }
