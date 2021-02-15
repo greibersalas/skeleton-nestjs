@@ -9,7 +9,7 @@ export class Reservation extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @ManyToOne(type => QuotationDetail, qdetail => qdetail.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => QuotationDetail, qdetail => qdetail.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn({name:'qdetail_id'})
     qdetail: QuotationDetail;
 

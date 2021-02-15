@@ -31,6 +31,7 @@ import { DentalStatusModule } from './modules/mat/dental-status/dental-status.mo
 import { OdontogramaModule } from './modules/main/odontograma/odontograma.module';
 import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/clinic-history-notes.module';
 import { MedicalActModule } from './modules/main/medical-act/medical-act.module';
+import { PrescriptionModule } from './modules/main/prescription/prescription.module';
 
 
 @Module({
@@ -63,6 +64,7 @@ import { MedicalActModule } from './modules/main/medical-act/medical-act.module'
     OdontogramaModule,
     ClinicHistoryNotesModule,
     MedicalActModule,
+    PrescriptionModule,
     
   ],
   controllers: [AppController],
