@@ -5,6 +5,7 @@ import { ReservationService } from './reservation.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { DoctorService } from '../doctor/doctor.service';
 import { Hours } from './interface.hours';
+import { FormFilter } from './form.filter';
 
 @Controller('reservation')
 export class ReservationController {
@@ -19,6 +20,7 @@ export class ReservationController {
         return Reservation;
     }
 
+    
     
 
     @Get('/environments/available/:day/:month/:year')
@@ -110,14 +112,13 @@ export class ReservationController {
         let date = new Date()
         date.setFullYear(year,month,day)
         let hours:Hours[]=[] ;
-        let datestring = String(year)+'-'+String(month-1)+'-'+String(day)  
+        let datestring = String(year)+'-'+String(month)+'-'+String(day)  
         const beging = 8;
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id)
         const interval =  environment.interval 
         const doctor = await this._serviceDoctor.get(doctor_id)               
         const reservations = await this._ReservationService.getByDoctorEnivronment(datestring,doctor,environment)
-        
         if (reservations.length == 0){
             var monthstr=''
             var daystr=''
@@ -182,6 +183,36 @@ export class ReservationController {
     async createReservation(@Body() Reservation: Reservation): Promise<Reservation>{
         const create = await this._ReservationService.create(Reservation);
         return create;
+    }
+
+    @Post('/filter/')
+    async filterReservation(@Body() formfilter: FormFilter): Promise<Reservation[]>{
+        let reservations:Reservation[]=[]
+        let reservationFilterSpecialty :Reservation[]=[]
+        let reservationFilterbl:Reservation []=[]
+        if (formfilter.bl.id == 0 && formfilter.environment.id == 0 && formfilter.specialty.id == 0 && formfilter.doctor.id == 0 ){
+            reservations = await this._ReservationService.getAll();
+        }
+        else{
+            reservations = await this._ReservationService.filterReservation(formfilter);
+        }
+        if (formfilter.specialty.id!=0){
+            reservations.forEach(element => {
+                if (element.qdetail.tariff.specialty.id == formfilter.specialty.id)
+                    reservationFilterSpecialty.push(element)
+            });
+            reservations = reservationFilterSpecialty
+        }
+        
+        if (formfilter.bl.id!=0){
+            reservations.forEach(element=>{
+                if (element.qdetail.tariff.specialty.businessLines.id == formfilter.bl.id)
+                    reservationFilterbl.push(element)
+            })
+            reservations = reservationFilterbl
+        }
+        //console.log(reservations[0].qdetail.tariff.)
+        return reservations;
     }
 
     @Put(':id')
