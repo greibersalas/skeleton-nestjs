@@ -13,7 +13,7 @@ export class QuotationDetail extends BaseEntity{
     @JoinColumn({name:'idquotation'})
     quotation: Quotation;
 
-    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn({name:'idtariff'})
     tariff: Tariff;
     

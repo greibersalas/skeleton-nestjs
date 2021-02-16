@@ -53,9 +53,14 @@ export class QuotationService {
     
 
     async getDetail(id: number): Promise<QuotationDetail[]>{
-        const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
-        const quotationDetail: QuotationDetail[] = await this._quotationDetailRepository.find({where:{state: MoreThan(0),quotation:quotation}});
-        return quotationDetail;
+        //const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
+        //const quotationDetail: QuotationDetail[] = await this._quotationDetailRepository.find({where:{state: MoreThan(0),quotation:quotation}});
+
+        return this._quotationDetailRepository
+        .createQueryBuilder("qd")
+        .innerJoinAndSelect("qd.tariff","tr")
+        .where({quotation:id})
+        .getMany();
     }
 
     async create(quotation: Quotation): Promise<Quotation>{
