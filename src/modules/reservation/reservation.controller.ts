@@ -116,7 +116,8 @@ export class ReservationController {
         const beging = 8;
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id)
-        const interval =  environment.interval 
+        const interval =  environment.interval;
+        const time_cleaning =  environment.time_cleaning; 
         const doctor = await this._serviceDoctor.get(doctor_id)               
         const reservations = await this._ReservationService.getByDoctorEnivronment(datestring,doctor,environment)
         if (reservations.length == 0){
@@ -132,13 +133,14 @@ export class ReservationController {
                 daystr = String(day)    
             let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
             var conth = beging
-            var step = interval/60
+            var step = interval/60;
             while(conth != end){
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
-                time.setMinutes(time.getMinutes() + interval) 
+                time.setMinutes(time.getMinutes() + (interval-time_cleaning)) 
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0]
                 hours.push({beging:hourBegin,end:hourend})
-                conth= conth + step
+                conth= conth + step;
+                time.setMinutes(time.getMinutes() + time_cleaning);
             } 
         }
         else{
@@ -161,12 +163,14 @@ export class ReservationController {
             let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
             var conth = beging
             while(conth != end){
-                let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
-                time.setMinutes(time.getMinutes() + interval) 
-                let hourend = (time.toISOString().split('T')[1]).split('.')[0]
+                let hourBegin = (time.toISOString().split('T')[1]).split('.')[0];
+                time.setMinutes(time.getMinutes() + (interval-time_cleaning));
+                let hourend = (time.toISOString().split('T')[1]).split('.')[0];
 
                 if (!timebusy.includes(hourBegin+'-'+hourend))
                     hours.push({beging:hourBegin,end:hourend})
+                
+                time.setMinutes(time.getMinutes() + time_cleaning);
                 conth++  
             } 
         }
