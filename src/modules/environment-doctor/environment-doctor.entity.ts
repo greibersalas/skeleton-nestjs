@@ -17,6 +17,9 @@ export class EnvironmentDoctor extends BaseEntity{
     @Column({type: 'int', nullable: false})
     interval: number;
 
+    @Column({type: 'int', nullable: false, default: 0, comment:'Tiempo para limpieza del consultorio'})
+    time_cleaning: number;
+
     @ManyToOne(type=>Campus, campus => campus.id,{cascade:true, nullable:false,eager:true})
     @JoinColumn({name:'idcampus'})
     campus: Campus;

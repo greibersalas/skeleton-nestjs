@@ -18,8 +18,6 @@ export class Doctor extends BaseEntity{
     @Column({type: 'varchar', nullable: false})
     address: string;
 
-    /*@Column({type: 'int4', nullable: false})
-    district: number;*/
     @ManyToOne(type => Districts, district => district.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'district'})
     district: Districts;
@@ -29,9 +27,6 @@ export class Doctor extends BaseEntity{
 
     @Column({type: 'int8', nullable: true})
     cop: number;
-    
-    /*@Column({type: 'int4', nullable: false})
-    specialty: number;*/
 
     @ManyToOne(type => Specialty, specialty => specialty.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'specialtys'})
@@ -58,9 +53,6 @@ export class Doctor extends BaseEntity{
     @Column({type: 'int2', nullable: false})
     turn: number;
 
-    /*@Column({type: 'int4', nullable: false})
-    businessLine: number;*/
-
     @ManyToOne(type => BusinessLine, businessLine => businessLine.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'businessLines'})
     businessLines: BusinessLine;
@@ -76,6 +68,33 @@ export class Doctor extends BaseEntity{
 
     @Column({type: 'int2', nullable: false})
     porcentage: number;
+
+    @Column({type: 'boolean', default: false, comment: 'Lunes'})
+    mon: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'Martes'})
+    tue: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'Miercoles'})
+    wed: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'Jueves'})
+    thu: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'Viernes'})
+    fri: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'Sábado'})
+    sat: boolean;
+
+    @Column({type: 'boolean', default: false, comment: 'domingo'})
+    sun: boolean;
+
+    @Column({type: 'varchar', nullable: true, length: 20, default: null})
+    morning_schedule: string;
+
+    @Column({type: 'varchar', nullable: true, length: 20, default: null})
+    afternoon_schedule: string;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
