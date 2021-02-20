@@ -1,7 +1,4 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { FormFilter } from 'src/modules/reservation/form.filter';
-import { Reservation } from 'src/modules/reservation/reservation.entity';
-import { QuotationDto } from './dto/quotation.dto';
 import { QuotationDetail } from './quotation-detail.entity';
 import { Quotation } from './quotation.entity';
 import { QuotationService } from './quotation.service';
@@ -53,5 +50,10 @@ export class QuotationController {
     async deleteQuotation(@Param('id',ParseIntPipe) id: number){
         await this._quotationService.delete(id);
         return true;
+    }
+
+    @Get('get-orden-lab-pending/')
+    async getOrdenLabs(): Promise<any[]>{
+        return await this._quotationService.getLabPending();
     }
 }
