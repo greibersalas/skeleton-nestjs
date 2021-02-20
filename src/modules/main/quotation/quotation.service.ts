@@ -122,12 +122,13 @@ export class QuotationService {
         const labOrdes: any = await this._quotationDetailRepository
         .createQueryBuilder("qd")
         .innerJoinAndSelect("qd.tariff","tr")
-        .innerJoinAndSelect("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
+        .innerJoin("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
         .innerJoinAndSelect("qd.quotation","qt")
-        .innerJoinAndSelect("qt.clinichistory","ch")
+        .innerJoinAndSelect("qt.clinicHistory","ch")
         .where({
-            state: 3
-        });
+            state: 2
+        })
+        .getMany();
         return labOrdes;
     }
 }

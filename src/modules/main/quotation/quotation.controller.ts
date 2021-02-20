@@ -36,9 +36,7 @@ export class QuotationController {
     async createQuotation(@Body() quotation: Quotation): Promise<Quotation>{
         const create = await this._quotationService.create(quotation);
         return create;
-    }
-
-    
+    }    
 
     @Put(':id')
     async updateQuotation(@Param('id',ParseIntPipe) id: number, @Body() quotation: Quotation){
@@ -52,8 +50,8 @@ export class QuotationController {
         return true;
     }
 
-    @Get('get-orden-lab-pending/')
-    async getOrdenLabs(): Promise<any[]>{
+    @Get('get-orden-lab-pending/:id')
+    async getOrdenLabs(@Param('id') id: string): Promise<any[]>{
         return await this._quotationService.getLabPending();
     }
 }
