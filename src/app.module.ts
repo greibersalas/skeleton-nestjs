@@ -33,7 +33,7 @@ import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/cli
 import { MedicalActModule } from './modules/main/medical-act/medical-act.module';
 import { PrescriptionModule } from './modules/main/prescription/prescription.module';
 import { LabOrderModule } from './modules/main/lab-order/lab-order.module';
-import { BraketsModule } from './modules/mat/brakets/brakets.module';
+import { BracketsModule } from './modules/mat/brackets/brackets.module';
 
 
 @Module({
@@ -68,7 +68,7 @@ import { BraketsModule } from './modules/mat/brakets/brakets.module';
     MedicalActModule,
     PrescriptionModule,
     LabOrderModule,
-    BraketsModule,
+    BracketsModule,
     
   ],
   controllers: [AppController],

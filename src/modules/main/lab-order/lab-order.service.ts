@@ -16,7 +16,13 @@ export class LabOrderService {
         if(!id){
             throw new BadRequestException('id must be send.');
         }
-        const labOrder = await this._labOrderRepository.findOne(id,{where:{state:1}});
+        //const labOrder = await this._labOrderRepository.findOne(id,{where:{state:1}});
+        const labOrder: LabOrder = await this._labOrderRepository
+        .createQueryBuilder("lo")
+        .innerJoinAndSelect("lo.quotation_detail","qd")
+        .innerJoinAndSelect("lo.doctor","dr")
+        .innerJoinAndSelect("lo.bracket","br")
+        .getOne();
         if(!labOrder){
             throw new NotFoundException();
         }
@@ -24,7 +30,15 @@ export class LabOrderService {
     }
 
     async getAll(): Promise<LabOrder[]>{
-        const labOrder: LabOrder[] = await this._labOrderRepository.find({where:{state:1}});
+        //const labOrder: LabOrder[] = await this._labOrderRepository.find({where:{state:1}});
+        const labOrder: LabOrder[] = await this._labOrderRepository
+        .createQueryBuilder("lo")
+        .innerJoinAndSelect("lo.quotation_detail","qd")
+        .innerJoinAndSelect("qd.quotation","qo")
+        .innerJoinAndSelect("qo.clinicHistory","patient")
+        .innerJoinAndSelect("lo.doctor","dr")
+        .innerJoinAndSelect("lo.bracket","br")
+        .getMany();
         return labOrder;
     }
 

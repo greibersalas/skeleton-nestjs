@@ -2,6 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Pr
 
 import { QuotationDetail } from "../quotation/quotation-detail.entity";
 import { Doctor } from "../../doctor/doctor.entity";
+import { Brackets } from "../../mat/brackets/brackets.entity";
 
 @Entity('lab_order')
 export class LabOrder extends BaseEntity{
@@ -16,6 +17,13 @@ export class LabOrder extends BaseEntity{
     @ManyToOne(type => Doctor, doc => doc.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn()
     doctor: Doctor;
+
+    @ManyToOne(type => Brackets, bra => bra.id,{cascade:true, nullable:false, eager:true})
+    @JoinColumn()
+    bracket: Brackets;
+
+    @Column({type: 'varchar', default: null, length: 40})
+    color: string;
 
     @Column({type: 'date', nullable: false})
     date: Date;
@@ -37,6 +45,18 @@ export class LabOrder extends BaseEntity{
 
     @Column({type: 'text', default: null, comment:'Observaciones'})
     observation: string;
+
+    @Column({type: 'text', default: null})
+    cpt: string;
+
+    @Column({type: 'text', default: null, comment:'Indicaciones Superior'})
+    superior_indications: string;
+
+    @Column({type: 'text', default: null, comment:'Indicaciones Inferior'})
+    lower_indications: string;
+
+    @Column({type: 'text', default: null, comment:'Observaciones'})
+    observation_prescription: string;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;

@@ -1,7 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity('brakets')
-export class Brakets extends BaseEntity{
+@Entity('brackets')
+export class Brackets extends BaseEntity{
 
     @PrimaryGeneratedColumn('increment')
     id: number;
