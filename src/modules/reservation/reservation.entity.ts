@@ -35,4 +35,7 @@ export class Reservation extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    @Column({type: 'varchar', length: 500, nullable: true})
+    reason: string;
 }

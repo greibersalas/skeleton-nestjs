@@ -29,7 +29,11 @@ export class ReservationController {
                                   @Param('year',ParseIntPipe) year: number): Promise<EnvironmentDoctor[]>{
         let envCheck:EnvironmentDoctor[]=[]
         let date = new Date()
+        let dateDr = new Date()
         date.setFullYear(year,month,day)
+        dateDr.setFullYear(year,month,day-1)
+        //var dayweek = dateDr.toUTCString().split(',')[0].toLowerCase()
+        
         const envs = await this._serviceEnviroment.getAll();
         const reservations = await this._ReservationService.getByDate(date)
         if (reservations.length==0){
@@ -120,6 +124,8 @@ export class ReservationController {
         const time_cleaning =  environment.time_cleaning; 
         const doctor = await this._serviceDoctor.get(doctor_id)               
         const reservations = await this._ReservationService.getByDoctorEnivronment(datestring,doctor,environment)
+        let m_schedule = doctor.morning_schedule
+        let a_schedule = doctor.afternoon_schedule
         if (reservations.length == 0){
             var monthstr=''
             var daystr=''
@@ -138,7 +144,35 @@ export class ReservationController {
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
                 time.setMinutes(time.getMinutes() + (interval-time_cleaning)) 
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0]
-                hours.push({beging:hourBegin,end:hourend})
+                if (m_schedule != null){
+                    let hi = m_schedule.split('-')[0].split(':')
+                    let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                    let he = m_schedule.split('-')[1].split(':')
+                    let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                    let hip = hourBegin.split(':')
+                    let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                    let hep = hourend.split(':')
+                    let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                   
+                    if (hiprogr>=doctorhi && heprogr<=doctorhe){
+                        hours.push({beging:hourBegin,end:hourend})
+                    }
+                }
+                if (a_schedule != null){
+                    let hi = a_schedule.split('-')[0].split(':')
+                    let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                    let he = a_schedule.split('-')[1].split(':')
+                    let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                    let hip = hourBegin.split(':')
+                    let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                    let hep = hourend.split(':')
+                    let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                    
+                    if (hiprogr >= doctorhi && heprogr <= doctorhe){
+                        hours.push({beging:hourBegin,end:hourend})
+                    }
+                }
+                //hours.push({beging:hourBegin,end:hourend})
                 conth= conth + step;
                 time.setMinutes(time.getMinutes() + time_cleaning);
             } 
@@ -162,13 +196,45 @@ export class ReservationController {
                 daystr = String(day)    
             let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
             var conth = beging
+           
             while(conth != end){
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0];
                 time.setMinutes(time.getMinutes() + (interval-time_cleaning));
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0];
 
-                if (!timebusy.includes(hourBegin+'-'+hourend))
-                    hours.push({beging:hourBegin,end:hourend})
+                if (!timebusy.includes(hourBegin+'-'+hourend)){
+                    if (m_schedule != null){
+                        let hi = m_schedule.split('-')[0].split(':')
+                        let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                        let he = m_schedule.split('-')[1].split(':')
+                        let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                        let hip = hourBegin.split(':')
+                        let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                        let hep = hourend.split(':')
+                        let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                        
+                        if (hiprogr>=doctorhi && heprogr<=doctorhe){
+                            hours.push({beging:hourBegin,end:hourend})
+                        }
+                    }
+                    if (a_schedule != null){
+                        let hi = a_schedule.split('-')[0].split(':')
+                        let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                        let he = a_schedule.split('-')[1].split(':')
+                        let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                        let hip = hourBegin.split(':')
+                        let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                        let hep = hourend.split(':')
+                        let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                        
+                        if (hiprogr >= doctorhi && heprogr <= doctorhe){
+                            hours.push({beging:hourBegin,end:hourend})
+                        }
+                    }
+                    
+                    
+                }
+                    
                 
                 time.setMinutes(time.getMinutes() + time_cleaning);
                 conth++  
