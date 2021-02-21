@@ -117,4 +117,18 @@ export class QuotationService {
 
         await this._quotationRepository.update(id,{state:0});
     }
+
+    async getLabPending(): Promise<any[]>{
+        const labOrdes: any = await this._quotationDetailRepository
+        .createQueryBuilder("qd")
+        .innerJoinAndSelect("qd.tariff","tr")
+        .innerJoin("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
+        .innerJoinAndSelect("qd.quotation","qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch")
+        .where({
+            state: 2
+        })
+        .getMany();
+        return labOrdes;
+    }
 }

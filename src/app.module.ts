@@ -32,6 +32,8 @@ import { OdontogramaModule } from './modules/main/odontograma/odontograma.module
 import { ClinicHistoryNotesModule } from './modules/mat/clinic-history-notes/clinic-history-notes.module';
 import { MedicalActModule } from './modules/main/medical-act/medical-act.module';
 import { PrescriptionModule } from './modules/main/prescription/prescription.module';
+import { LabOrderModule } from './modules/main/lab-order/lab-order.module';
+import { BracketsModule } from './modules/mat/brackets/brackets.module';
 
 
 @Module({
@@ -65,6 +67,8 @@ import { PrescriptionModule } from './modules/main/prescription/prescription.mod
     ClinicHistoryNotesModule,
     MedicalActModule,
     PrescriptionModule,
+    LabOrderModule,
+    BracketsModule,
     
   ],
   controllers: [AppController],

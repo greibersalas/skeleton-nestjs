@@ -17,6 +17,9 @@ export class Specialty extends BaseEntity{
     @JoinColumn({name:'businessLines'})
     businessLines: BusinessLine;
 
+    @Column({type: 'boolean', default: false})
+    laboratory: boolean;
+
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
 
