@@ -1,4 +1,7 @@
 import { Module } from '@nestjs/common';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Configuration } from './config/config.keys';
@@ -69,7 +72,9 @@ import { BracketsModule } from './modules/mat/brackets/brackets.module';
     PrescriptionModule,
     LabOrderModule,
     BracketsModule,
-    
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+    })
   ],
   controllers: [AppController],
   providers: [AppService],

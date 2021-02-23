@@ -1,6 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, ParseIntPipe, Post, Put, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { extname } from 'path';
+import { diskStorage } from 'multer';
+
+import { editFileName, imageFileFilter } from '../../../utils/file-upload.utils';
 import { MedicalAct } from './medical-act.entity';
 import { MedicalActService } from './medical-act.service';
+import { MedicalActFileGroup } from './medical-act-file-group.entity';
 
 @Controller('medical-act')
 export class MedicalActController {
@@ -40,5 +46,66 @@ export class MedicalActController {
     @Get('get-by-reservation/:id')
     async getFirst(@Param('id') id): Promise<MedicalAct>{
         return await this._medicalActService.getByReservation(id);
+    }
+
+    @Post("upload/:group/:id")
+    //@UseInterceptors(FileInterceptor("file",{dest:"./uploads"}))
+    @UseInterceptors(
+        FileInterceptor('file',{
+            storage: diskStorage({
+                destination: './uploads',
+                filename: editFileName
+            }),
+            fileFilter: imageFileFilter,
+        }),
+    )
+    async uploadFile(@UploadedFile() file,@Param('group',ParseIntPipe) group: number,
+    @Param('id',ParseIntPipe) id: number){
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+            fileext: extname(file.originalname)
+        };
+        //Data a guadar en la tabla
+        const data = {
+            fila_name: file.filename,
+            file_ext: extname(file.originalname),
+            medicalact: id,
+            filegroup: group
+        };
+        await this._medicalActService.addFiles(data);
+        return {
+            status: HttpStatus.OK,
+            message: 'Image uploaded successfully!',
+            data: response
+        };
+    }
+
+    @Get('get-file/:file')
+    getFile(@Param('file') file, @Res() res){
+        const response = res.sendFile(file,{root: './uploads'});
+        return {
+            status: HttpStatus.OK,
+            data: response
+        }
+    }
+
+    /**GROUP FILES */
+    @Get('groups/all')
+    async getMedicalActFileGroups(): Promise<MedicalActFileGroup[]>{
+        const data = await this._medicalActService.getAllGroup();
+        return data;
+    }
+
+    @Post('group')
+    async createGroup(@Body() medicalActFileGroup: MedicalActFileGroup): Promise<MedicalActFileGroup>{
+        const create = await this._medicalActService.createGroup(medicalActFileGroup);
+        return create;
+    }
+
+    @Put('group/:id')
+    async updateGroup(@Param('id',ParseIntPipe) id: number, @Body() data: MedicalActFileGroup){
+        const update = await this._medicalActService.updateGroup(id,data);
+        return update;
     }
 }

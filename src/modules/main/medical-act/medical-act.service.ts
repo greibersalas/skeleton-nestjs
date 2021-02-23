@@ -3,13 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { MedicalAct } from './medical-act.entity';
 import { MedicalActRepository } from './medical-act.repository';
+import { MedicalActFilesRepository } from './medical-act-files.repository';
+import { MedicalActFileGroupRepository } from './medical-act-file-group.repository';
+import { MedicalActFileGroup } from './medical-act-file-group.entity';
 
 @Injectable()
 export class MedicalActService {
 
     constructor(
         @InjectRepository(MedicalActRepository)
-        private readonly _medicalActRepository: MedicalActRepository
+        private readonly _medicalActRepository: MedicalActRepository,
+        @InjectRepository(MedicalActFilesRepository)
+        private readonly _medicalActFilesRepository: MedicalActFilesRepository,
+        @InjectRepository(MedicalActFileGroupRepository)
+        private readonly _medicalActFileGroupRepository: MedicalActFileGroupRepository
     ){}
 
     async get(id: number): Promise<MedicalAct>{
@@ -68,5 +75,30 @@ export class MedicalActService {
             throw new NotFoundException;
         }
         return ma;
+    }
+
+    async addFiles(data: any): Promise<boolean>{
+        await this._medicalActFilesRepository.save(data);
+        return true;
+    }
+
+    async getAllGroup(): Promise<MedicalActFileGroup[]>{
+        const medicalActFileGroup: MedicalActFileGroup[] = await this._medicalActFileGroupRepository.find({where:{state:1}});
+        return medicalActFileGroup;
+    }
+
+    async createGroup(medicalActFileGroup: MedicalActFileGroup): Promise<MedicalActFileGroup>{
+        const save: MedicalActFileGroup = await this._medicalActFileGroupRepository.save(medicalActFileGroup);
+        return save;
+    }
+
+    async updateGroup(id: number, medicalActFileGroup:MedicalActFileGroup): Promise<MedicalActFileGroup>{
+        const exists = await this._medicalActFileGroupRepository.findOne(id);
+        if(!exists){
+            throw new NotFoundException();
+        }
+        await this._medicalActFileGroupRepository.update(id,medicalActFileGroup);
+        const update : MedicalActFileGroup = await this._medicalActFileGroupRepository.findOne(id);
+        return update;
     }
 }
