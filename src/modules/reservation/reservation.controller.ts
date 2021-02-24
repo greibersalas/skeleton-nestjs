@@ -158,7 +158,7 @@ export class ReservationController {
                         hours.push({beging:hourBegin,end:hourend})
                     }
                 }
-                if (a_schedule != null){
+                if (a_schedule !== null && typeof a_schedule !== 'undefined' && a_schedule !== 'undefined' && a_schedule !== ''){
                     let hi = a_schedule.split('-')[0].split(':')
                     let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
                     let he = a_schedule.split('-')[1].split(':')
