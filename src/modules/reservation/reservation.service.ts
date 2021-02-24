@@ -118,7 +118,7 @@ export class ReservationService {
         await this._ReservationRepository.update(id,{state:0});
     }
 
-    async getByDateDoctor(date: Date, doctor: number): Promise<any[]>{
+    async getByDateDoctor(date: Date, doctor: number, state: number): Promise<any[]>{
         const resers: any = await this._ReservationRepository
         .createQueryBuilder("rs")
         .innerJoinAndSelect("rs.doctor","doctor")

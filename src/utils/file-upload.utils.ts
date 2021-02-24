@@ -3,7 +3,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 // Allow only images
 export const imageFileFilter = (req, file, callback) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|doc|docx|xls|xlsx|pdf|mp3|mp4|zip)$/)) {
     return callback(
       new HttpException(
         'Only image files are allowed!',
@@ -16,7 +16,7 @@ export const imageFileFilter = (req, file, callback) => {
 };
 
 export const editFileName = (req: any, file, callback) => {
-  console.log("request ", req.params);
+  //console.log("request ", req.params);
   const { group } = req.params;
   const name = file.originalname.split('.')[0];
   const fileExtName = extname(file.originalname);

@@ -297,8 +297,8 @@ export class ReservationController {
         return true;
     }
 
-    @Get('get-date-doctor/:date/:iddoctor')
-    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor): Promise<any[]>{
-        return await this._ReservationService.getByDateDoctor(date,doctor);
+    @Get('get-date-doctor/:date/:iddoctor/:state')
+    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor,@Param('state',ParseIntPipe) state): Promise<any[]>{
+        return await this._ReservationService.getByDateDoctor(date,doctor,state);
     }
 }

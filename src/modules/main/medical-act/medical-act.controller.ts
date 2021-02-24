@@ -7,6 +7,7 @@ import { editFileName, imageFileFilter } from '../../../utils/file-upload.utils'
 import { MedicalAct } from './medical-act.entity';
 import { MedicalActService } from './medical-act.service';
 import { MedicalActFileGroup } from './medical-act-file-group.entity';
+import { MedicalActFiles } from './medical-act-files.entity';
 
 @Controller('medical-act')
 export class MedicalActController {
@@ -60,7 +61,8 @@ export class MedicalActController {
         }),
     )
     async uploadFile(@UploadedFile() file,@Param('group',ParseIntPipe) group: number,
-    @Param('id',ParseIntPipe) id: number){
+    @Param('id',ParseIntPipe) id: number,@Body() des: any){
+        
         const response = {
             originalname: file.originalname,
             filename: file.filename,
@@ -71,7 +73,8 @@ export class MedicalActController {
             fila_name: file.filename,
             file_ext: extname(file.originalname),
             medicalact: id,
-            filegroup: group
+            filegroup: group,
+            desciption: des.description
         };
         await this._medicalActService.addFiles(data);
         return {
@@ -107,5 +110,15 @@ export class MedicalActController {
     async updateGroup(@Param('id',ParseIntPipe) id: number, @Body() data: MedicalActFileGroup){
         const update = await this._medicalActService.updateGroup(id,data);
         return update;
+    }
+
+    @Get('get-files-clinichistory/:id')
+    async getFilesClinicHistory(@Param('id') id): Promise<MedicalActFiles[]>{
+        return await this._medicalActService.getFilesByClinicHistory(id);
+    }
+
+    @Get('get-files-medical-act/:id')
+    async getFilesMedicalAct(@Param('id') id): Promise<MedicalActFiles[]>{
+        return await this._medicalActService.getFilesByMedicalAct(id);
     }
 }
