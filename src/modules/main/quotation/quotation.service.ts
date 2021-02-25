@@ -131,4 +131,14 @@ export class QuotationService {
         .getMany();
         return labOrdes;
     }
+
+    async getByClinicHistory(clinichistory: number): Promise<any[]>{
+        const data: any = await this._quotationRepository
+        .createQueryBuilder("qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch","ch.id = :ch",{ch: clinichistory})
+        .where({
+            state: 1
+        }).getMany();
+        return data;
+    }
 }

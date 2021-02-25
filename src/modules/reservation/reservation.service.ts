@@ -131,4 +131,18 @@ export class ReservationService {
         .getMany();
         return resers;
     }
+
+    async getByClinicHistory(id: number): Promise<any[]>{
+        const data: any = await this._ReservationRepository
+        .createQueryBuilder("re")
+        .innerJoinAndSelect("re.doctor","doc")
+        .innerJoinAndSelect("re.environment","ev")
+        .innerJoinAndSelect("re.qdetail","qd","qd.state <> 0")
+        .innerJoinAndSelect("qd.tariff","tf")
+        .innerJoinAndSelect("qd.quotation","qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch","ch.id = :ch",{ch: id})
+        .where("re.state <> 0").orderBy({"re.date":"DESC"})
+        .getMany();
+        return data;
+    }
 }

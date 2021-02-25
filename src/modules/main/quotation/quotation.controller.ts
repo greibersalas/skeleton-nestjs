@@ -54,4 +54,9 @@ export class QuotationController {
     async getOrdenLabs(@Param('id') id: string): Promise<any[]>{
         return await this._quotationService.getLabPending();
     }
+
+    @Get('get-by-clinic-history/:id')
+    async getByClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
+        return await this._quotationService.getByClinicHistory(id);
+    }
 }

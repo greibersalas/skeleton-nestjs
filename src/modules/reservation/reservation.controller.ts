@@ -301,4 +301,9 @@ export class ReservationController {
     async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor,@Param('state',ParseIntPipe) state): Promise<any[]>{
         return await this._ReservationService.getByDateDoctor(date,doctor,state);
     }
+
+    @Get('get-by-clinic-history/:id')
+    async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
+        return await this._ReservationService.getByClinicHistory(id);
+    }
 }
