@@ -98,4 +98,12 @@ export class TariffService {
         }
         return tariff;
     }
+
+    async getLabs(): Promise<Tariff[]>{
+        const tariff: Tariff[] = await this._tariffRepository
+        .createQueryBuilder("tr")
+        .innerJoin("tr.specialty","sp","sp.laboratory = true")
+        .where({state: 1}).getMany();
+        return tariff;
+    }
 }

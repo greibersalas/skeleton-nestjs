@@ -21,7 +21,7 @@ export class LabOrderService {
         .createQueryBuilder("lo")
         .innerJoinAndSelect("lo.quotation_detail","qd")
         .innerJoinAndSelect("lo.doctor","dr")
-        .innerJoinAndSelect("lo.bracket","br")
+        .innerJoinAndSelect("lo.tariff","tr")
         .getOne();
         if(!labOrder){
             throw new NotFoundException();
@@ -37,7 +37,7 @@ export class LabOrderService {
         .innerJoinAndSelect("qd.quotation","qo")
         .innerJoinAndSelect("qo.clinicHistory","patient")
         .innerJoinAndSelect("lo.doctor","dr")
-        .innerJoinAndSelect("lo.bracket","br")
+        .innerJoinAndSelect("lo.tariff","tr")
         .getMany();
         return labOrder;
     }
