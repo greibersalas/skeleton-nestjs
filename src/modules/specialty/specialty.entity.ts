@@ -20,6 +20,9 @@ export class Specialty extends BaseEntity{
     @Column({type: 'boolean', default: false})
     laboratory: boolean;
 
+    @Column({type: 'boolean', default: false})
+    odontograma: boolean;
+
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
 
