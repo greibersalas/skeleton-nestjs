@@ -1,7 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 import { Coin } from "../../coin/coin.entity";
-import { Doctor } from "../../doctor/doctor.entity";
 import { Quotation } from "./quotation.entity";
 import { Tariff } from "../../tariff/tariff.entity";
 
@@ -18,10 +17,6 @@ export class QuotationDetail extends BaseEntity{
     @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn({name:'idtariff'})
     tariff: Tariff;
-
-    @ManyToOne(type => Doctor, doc => doc.id,{cascade:true, nullable:false, eager:false})
-    @JoinColumn()
-    doctor: Doctor;
 
     @ManyToOne(type => Coin, coin => coin.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn()
