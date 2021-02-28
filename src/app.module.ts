@@ -39,6 +39,7 @@ import { LabOrderModule } from './modules/main/lab-order/lab-order.module';
 import { BracketsModule } from './modules/mat/brackets/brackets.module';
 import { LabOrderLabeledModule } from './modules/main/lab-order-labeled/lab-order-labeled.module';
 import { LabeledStatusModule } from './modules/mat/labeled-status/labeled-status.module';
+import { LabProgrammingModule } from './modules/main/lab-programming/lab-programming.module';
 
 
 @Module({
@@ -78,7 +79,8 @@ import { LabeledStatusModule } from './modules/mat/labeled-status/labeled-status
       rootPath: join(__dirname, '..', 'uploads'),
     }),
     LabOrderLabeledModule,
-    LabeledStatusModule
+    LabeledStatusModule,
+    LabProgrammingModule
   ],
   controllers: [AppController],
   providers: [AppService],
