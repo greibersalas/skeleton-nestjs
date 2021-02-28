@@ -64,4 +64,13 @@ export class LabOrderService {
         }
         await this._labOrderRepository.update(id,{state:0});
     }
+
+    async getCant(date: Date, job: string): Promise<number>{
+        const cant = await this._labOrderRepository.createQueryBuilder()
+        //.select('count(id) as total')
+        .where('job = :job AND instalation = :date AND state = 1',{
+            job,date
+        }).getCount();        
+        return cant;
+    }
 }

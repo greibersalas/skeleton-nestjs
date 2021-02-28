@@ -37,4 +37,16 @@ export class LabProgrammingController {
         await this._labProgrammingService.delete(id);
         return true;
     }
+
+    @Get('validate-date/:date/:job')
+    async validateDate(@Param('date') date: Date, @Param('job') job: string): Promise<boolean>{
+        const exists = await this._labProgrammingService.validateDate(date,job);
+        return exists;
+    }
+
+    @Get('get-by-job/:date/:job')
+    async getByJob(@Param('date') date: Date, @Param('job') job: string): Promise<LabProgramming>{
+        const prog = await this._labProgrammingService.getByJob(date,job);
+        return prog;
+    }
 }

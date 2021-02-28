@@ -1,6 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-import { LabeledStatus } from "../../mat/labeled-status/labeled-status.entity";
 
 @Entity('lab_programming')
 export class LabProgramming extends BaseEntity{
@@ -8,9 +7,8 @@ export class LabProgramming extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @ManyToOne(type => LabeledStatus, ls => ls.id,{cascade:true, nullable:false, eager:false})
-    @JoinColumn()
-    labeledstatus: LabeledStatus;
+    @Column({type: 'varchar', nullable: false, length: 20})
+    job: string;
 
     @Column({type: 'date', nullable: false})
     since: Date;

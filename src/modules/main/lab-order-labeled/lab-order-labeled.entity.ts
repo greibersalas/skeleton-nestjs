@@ -1,6 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { LabOrder } from "../lab-order/lab-order.entity";
 
+import { LabeledStatus } from "../../mat/labeled-status/labeled-status.entity";
+import { LabOrder } from "../lab-order/lab-order.entity";
 
 @Entity('lab_order_labeled')
 export class LabOrderLabeled extends BaseEntity{
@@ -12,8 +13,12 @@ export class LabOrderLabeled extends BaseEntity{
     @JoinColumn()
     laborder: LabOrder;
 
-    @Column({type: 'int4', nullable: false})
-    status: number;
+    @ManyToOne(type => LabeledStatus, ls => ls.id,{cascade:true, nullable:false, eager:true})
+    @JoinColumn()
+    status: LabeledStatus;
+
+    /* @Column({type: 'int4', nullable: false})
+    status: number; */
 
     @Column({type: 'date', nullable: false})
     date: Date;
