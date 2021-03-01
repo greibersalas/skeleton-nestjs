@@ -2,7 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Pr
 
 import { BusinessLine } from "../../business-line/business-line.entity";
 import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
-import { Coin } from "../../coin/coin.entity";
+/* import { Coin } from "../../coin/coin.entity"; */
 import { Doctor } from "../../doctor/doctor.entity";
 import { Specialty } from "../../specialty/specialty.entity";
 import { QuotationDetail } from "./quotation-detail.entity";
@@ -20,9 +20,9 @@ export class Quotation extends BaseEntity{
     @JoinColumn({name:'idclinichistory'})
     clinicHistory: ClinicHistory;
 
-    @ManyToOne(type => Coin, coin => coin.id,{cascade:true, nullable:false, eager:true})
+    /* @ManyToOne(type => Coin, coin => coin.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'idcoin'})
-    coin: Coin;
+    coin: Coin; */
 
     @ManyToOne(type => BusinessLine, bl => bl.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'idbusinessline'})

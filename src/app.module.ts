@@ -37,6 +37,9 @@ import { MedicalActModule } from './modules/main/medical-act/medical-act.module'
 import { PrescriptionModule } from './modules/main/prescription/prescription.module';
 import { LabOrderModule } from './modules/main/lab-order/lab-order.module';
 import { BracketsModule } from './modules/mat/brackets/brackets.module';
+import { LabOrderLabeledModule } from './modules/main/lab-order-labeled/lab-order-labeled.module';
+import { LabeledStatusModule } from './modules/mat/labeled-status/labeled-status.module';
+import { LabProgrammingModule } from './modules/main/lab-programming/lab-programming.module';
 
 
 @Module({
@@ -74,7 +77,10 @@ import { BracketsModule } from './modules/mat/brackets/brackets.module';
     BracketsModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
-    })
+    }),
+    LabOrderLabeledModule,
+    LabeledStatusModule,
+    LabProgrammingModule
   ],
   controllers: [AppController],
   providers: [AppService],

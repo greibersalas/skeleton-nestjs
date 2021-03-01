@@ -2,7 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, Pr
 
 import { QuotationDetail } from "../quotation/quotation-detail.entity";
 import { Doctor } from "../../doctor/doctor.entity";
-import { Brackets } from "../../mat/brackets/brackets.entity";
+import { Tariff } from "../../tariff/tariff.entity";
 
 @Entity('lab_order')
 export class LabOrder extends BaseEntity{
@@ -18,9 +18,9 @@ export class LabOrder extends BaseEntity{
     @JoinColumn()
     doctor: Doctor;
 
-    @ManyToOne(type => Brackets, bra => bra.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Tariff, tr => tr.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn()
-    bracket: Brackets;
+    tariff: Tariff;
 
     @Column({type: 'varchar', default: null, length: 40})
     color: string;

@@ -58,4 +58,9 @@ export class TariffController {
     async getTariffDental(@Param('id') id): Promise<Tariff>{
         return await this._tariffService.getByDentalStatus(id);
     }
+
+    @Get('get-labs/all')
+    async getLabs(): Promise<Tariff[]>{
+        return await this._tariffService.getLabs();
+    }
 }

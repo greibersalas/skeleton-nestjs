@@ -119,7 +119,7 @@ export class ReservationService {
         await this._ReservationRepository.update(id,{state:0});
     }
 
-    async getByDateDoctor(date: Date, doctor: number): Promise<any[]>{
+    async getByDateDoctor(date: Date, doctor: number, state: number): Promise<any[]>{
         const resers: any = await this._ReservationRepository
         .createQueryBuilder("rs")
         .innerJoinAndSelect("rs.doctor","doctor")
@@ -131,5 +131,19 @@ export class ReservationService {
         .where({date,doctor})
         .getMany();
         return resers;
+    }
+
+    async getByClinicHistory(id: number): Promise<any[]>{
+        const data: any = await this._ReservationRepository
+        .createQueryBuilder("re")
+        .innerJoinAndSelect("re.doctor","doc")
+        .innerJoinAndSelect("re.environment","ev")
+        .innerJoinAndSelect("re.qdetail","qd","qd.state <> 0")
+        .innerJoinAndSelect("qd.tariff","tf")
+        .innerJoinAndSelect("qd.quotation","qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch","ch.id = :ch",{ch: id})
+        .where("re.state <> 0").orderBy({"re.date":"DESC"})
+        .getMany();
+        return data;
     }
 }

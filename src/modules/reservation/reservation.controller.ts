@@ -158,7 +158,7 @@ export class ReservationController {
                         hours.push({beging:hourBegin,end:hourend})
                     }
                 }
-                if (a_schedule != null){
+                if (a_schedule !== null && typeof a_schedule !== 'undefined' && a_schedule !== 'undefined' && a_schedule !== ''){
                     let hi = a_schedule.split('-')[0].split(':')
                     let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
                     let he = a_schedule.split('-')[1].split(':')
@@ -297,8 +297,13 @@ export class ReservationController {
         return true;
     }
 
-    @Get('get-date-doctor/:date/:iddoctor')
-    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor): Promise<any[]>{
-        return await this._ReservationService.getByDateDoctor(date,doctor);
+    @Get('get-date-doctor/:date/:iddoctor/:state')
+    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor,@Param('state',ParseIntPipe) state): Promise<any[]>{
+        return await this._ReservationService.getByDateDoctor(date,doctor,state);
+    }
+
+    @Get('get-by-clinic-history/:id')
+    async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
+        return await this._ReservationService.getByClinicHistory(id);
     }
 }

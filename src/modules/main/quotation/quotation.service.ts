@@ -48,17 +48,13 @@ export class QuotationService {
             }
         });
         return quotation;
-    }
-
-    
+    }   
 
     async getDetail(id: number): Promise<QuotationDetail[]>{
-        //const quotation:Quotation = await this._quotationRepository.findOne(id,{where:{state:1}});
-        //const quotationDetail: QuotationDetail[] = await this._quotationDetailRepository.find({where:{state: MoreThan(0),quotation:quotation}});
-
         return this._quotationDetailRepository
         .createQueryBuilder("qd")
         .innerJoinAndSelect("qd.tariff","tr")
+        .innerJoinAndSelect("qd.coin","co")
         .where({quotation:id})
         .getMany();
     }
@@ -75,6 +71,7 @@ export class QuotationService {
             detail.price = det.price;
             detail.discount = det.discount;
             detail.total = det.total;
+            detail.coin = det.coin;
             await this._quotationDetailRepository.save(detail);
         });
         //Si hay odontograma lo insertamos
@@ -130,5 +127,15 @@ export class QuotationService {
         })
         .getMany();
         return labOrdes;
+    }
+
+    async getByClinicHistory(clinichistory: number): Promise<any[]>{
+        const data: any = await this._quotationRepository
+        .createQueryBuilder("qt")
+        .innerJoinAndSelect("qt.clinicHistory","ch","ch.id = :ch",{ch: clinichistory})
+        .where({
+            state: 1
+        }).getMany();
+        return data;
     }
 }

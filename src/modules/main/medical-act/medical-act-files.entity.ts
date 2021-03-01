@@ -9,6 +9,9 @@ export class MedicalActFiles extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
+    @Column({type: 'varchar', nullable: true, default: null, length: 250})
+    desciption: string;
+
     @Column({type: 'varchar', nullable: false, length: 160})
     fila_name: string;
 

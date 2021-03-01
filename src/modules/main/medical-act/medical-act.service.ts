@@ -6,6 +6,7 @@ import { MedicalActRepository } from './medical-act.repository';
 import { MedicalActFilesRepository } from './medical-act-files.repository';
 import { MedicalActFileGroupRepository } from './medical-act-file-group.repository';
 import { MedicalActFileGroup } from './medical-act-file-group.entity';
+import { MedicalActFiles } from './medical-act-files.entity';
 
 @Injectable()
 export class MedicalActService {
@@ -100,5 +101,39 @@ export class MedicalActService {
         await this._medicalActFileGroupRepository.update(id,medicalActFileGroup);
         const update : MedicalActFileGroup = await this._medicalActFileGroupRepository.findOne(id);
         return update;
+    }
+
+    /**
+     * Return list of files by clinichistory
+     * @param id <clinic history>
+     */
+    async getFilesByClinicHistory(id: number): Promise<MedicalActFiles[]>{
+        const ma: MedicalActFiles[] = await this._medicalActFilesRepository
+        .createQueryBuilder("fl")
+        .innerJoinAndSelect("fl.medicalact","ma","ma.state = :state",{state: 1})
+        .innerJoin("ma.reservation","rs","rs.state = 3")
+        .innerJoin("rs.qdetail","dq")
+        .innerJoin("dq.quotation","qt")
+        .innerJoin("qt.clinicHistory","ch","ch.id = :id",{id})
+        .innerJoinAndSelect("fl.filegroup","fg")
+        .where({state: 1})
+        .orderBy({"fl.id":'DESC'})
+        .getMany();
+        return ma;
+    }
+
+    /**
+     * Return list of files by medical_act
+     * @param id <clinic history>
+     */
+    async getFilesByMedicalAct(id: number): Promise<MedicalActFiles[]>{
+        const ma: MedicalActFiles[] = await this._medicalActFilesRepository
+        .createQueryBuilder("fl")
+        .innerJoin("fl.medicalact","ma","ma.id = :id",{id})
+        .innerJoinAndSelect("fl.filegroup","fg")
+        .where({state: 1})
+        .orderBy({"fl.id":'DESC'})
+        .getMany();
+        return ma;
     }
 }

@@ -21,7 +21,7 @@ export class LabOrderService {
         .createQueryBuilder("lo")
         .innerJoinAndSelect("lo.quotation_detail","qd")
         .innerJoinAndSelect("lo.doctor","dr")
-        .innerJoinAndSelect("lo.bracket","br")
+        .innerJoinAndSelect("lo.tariff","tr")
         .getOne();
         if(!labOrder){
             throw new NotFoundException();
@@ -37,7 +37,7 @@ export class LabOrderService {
         .innerJoinAndSelect("qd.quotation","qo")
         .innerJoinAndSelect("qo.clinicHistory","patient")
         .innerJoinAndSelect("lo.doctor","dr")
-        .innerJoinAndSelect("lo.bracket","br")
+        .innerJoinAndSelect("lo.tariff","tr")
         .getMany();
         return labOrder;
     }
@@ -63,5 +63,14 @@ export class LabOrderService {
             throw new NotFoundException();
         }
         await this._labOrderRepository.update(id,{state:0});
+    }
+
+    async getCant(date: Date, job: string): Promise<number>{
+        const cant = await this._labOrderRepository.createQueryBuilder()
+        //.select('count(id) as total')
+        .where('job = :job AND instalation = :date AND state = 1',{
+            job,date
+        }).getCount();        
+        return cant;
     }
 }

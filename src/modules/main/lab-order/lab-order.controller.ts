@@ -37,4 +37,10 @@ export class LabOrderController {
         await this._labOrderService.delete(id);
         return true;
     }
+
+    @Get('get-cant/:date/:job')
+    async getByJob(@Param('date') date: Date, @Param('job') job: string): Promise<number>{
+        const prog = await this._labOrderService.getCant(date,job);
+        return prog;
+    }
 }

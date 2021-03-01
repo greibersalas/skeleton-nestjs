@@ -1,4 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Doctor } from '../doctor/doctor.entity';
 import { Role } from '../role/role.entity';
 import { UserDetails } from './user.details.entity';
 
@@ -23,7 +24,11 @@ export class User extends BaseEntity{
 
     @ManyToOne(type=>Role,{cascade:true,nullable:false,eager:true})
     @JoinColumn({name:'role_id'})
-    roles: Role
+    roles: Role;
+
+    @ManyToOne(type=> Doctor, doc => doc.id,{cascade:true,nullable:true,eager:false})
+    @JoinColumn()
+    doctor: Doctor;
 
     @Column({type:'int2', nullable:false, default:1})
     estado: number;
