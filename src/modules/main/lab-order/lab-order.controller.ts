@@ -43,4 +43,10 @@ export class LabOrderController {
         const prog = await this._labOrderService.getCant(date,job);
         return prog;
     }
+
+    @Get('get-production/:since/:until')
+    async getTest(@Param('since') since: Date, @Param('until') until: Date): Promise<any>{
+        const production = await this._labOrderService.getProduction(since,until);
+        return production;
+    }
 }

@@ -73,4 +73,21 @@ export class LabOrderService {
         }).getCount();        
         return cant;
     }
+
+    async getProduction(since: Date, until: Date): Promise<any>{
+        const production = await this._labOrderRepository.createQueryBuilder()
+        .select(`job,
+            CASE
+                WHEN job = 'Nuevo' THEN COUNT(job)
+                WHEN job = 'Nuevo Adicional' THEN count(job)
+                WHEN job = 'Colocar Chip' then count(job)
+                WHEN job = 'Modificación' THEN COUNT(job)
+                WHEN job = 'Reparación' THEN count(job)
+                WHEN job = 'Desiste' then count(job)
+            ELSE 0 END as total`)
+        .where(`instalation::DATE BETWEEN :since AND :until AND state = 1`,{    
+            since,until
+        }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
+        return production;
+    }
 }
