@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MoreThan } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { FormFilter } from './form.filter';
@@ -80,7 +81,7 @@ export class ReservationService {
 
        
     async getAll(): Promise<Reservation[]>{
-        const reservations: Reservation[] = await this._ReservationRepository.find({where:{state:1}});
+        const reservations: Reservation[] = await this._ReservationRepository.find({where:{state:MoreThan(0)}});
        /*  const reservations: Reservation[] = await this._ReservationRepository
         .createQueryBuilder("rs")
         .innerJoinAndSelect("rs.doctor","doctor")
