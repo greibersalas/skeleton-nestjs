@@ -1,19 +1,20 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 
 @Controller('users')
 export class UserController {
     constructor(private readonly _userService: UserService){}
 
+    @UseGuards(JwtAuthGuard)
     @Get(':id')
     async getUser(@Param('id',ParseIntPipe) id: number): Promise<User>{
         const user = await this._userService.get(id);
         return user;
     }
 
-    //@UseGuards(AuthGuard())
+    @UseGuards(JwtAuthGuard)
     @Get()
     async getUsers(): Promise<User[]>{
         const users = await this._userService.getAll();

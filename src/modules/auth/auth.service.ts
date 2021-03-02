@@ -31,9 +31,10 @@ export class AuthService {
 
     async signin(signinDto: SigninDto): Promise<any>{
         const { username, password } = signinDto;
-        const user: User = await this._authRepository.findOne({
-            where: {username}
-        });
+        const user: User = await this._authRepository.createQueryBuilder("us")
+        .innerJoinAndSelect("us.roles","rl")
+        .leftJoinAndSelect("us.doctor","dc")
+        .where({username}).getOne();
         if(!user){
             throw new NotFoundException('User does not exist');
         }
@@ -54,7 +55,8 @@ export class AuthService {
             username: user.username,
             roles: user.roles,
             token,
-            capmus: user.campus
+            capmus: user.campus,
+            doctor: user.doctor
         };
     }
 }

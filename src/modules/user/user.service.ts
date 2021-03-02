@@ -14,11 +14,14 @@ export class UserService {
         if(!id){
             throw new BadRequestException('id must be send');
         }
-        const user = await this._userRepository.findOne(id,{where:{estado:1}});
+        //const user = await this._userRepository.findOne(id,{where:{estado:1}});
+        const user = await this._userRepository.createQueryBuilder("us")
+        .innerJoinAndSelect("us.roles","rl")
+        .leftJoinAndSelect("us.doctor","dc")
+        .where("us.id = :id AND us.estado = 1",{id}).getOne();
         if(!user){
             throw new NotFoundException();
         }
-        user.password = '';
         return user;
     }
 
