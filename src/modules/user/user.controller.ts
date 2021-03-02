@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,7 +26,7 @@ export class UserController {
         return createUser;
     }
 
-    @Patch(':id')
+    @Put(':id')
     async updateUser(@Param('id',ParseIntPipe) id: number,@Body() user: User){
         const updateUser = await this._userService.update(id,user);
         return updateUser;

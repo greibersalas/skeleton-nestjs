@@ -1,7 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { Role } from '../role/role.entity';
-import { UserDetails } from './user.details.entity';
 
 @Entity('users')
 export class User extends BaseEntity{
@@ -18,10 +17,6 @@ export class User extends BaseEntity{
     @Column({type:'varchar',nullable:false})
     password:string;
 
-    @OneToOne(type=>UserDetails,{cascade:true, nullable:false, eager:true})//eager: automaticamente trae el detalle
-    @JoinColumn({name:'detail_id'})
-    details: UserDetails;
-
     @ManyToOne(type=>Role,{cascade:true,nullable:false,eager:true})
     @JoinColumn({name:'role_id'})
     roles: Role;
@@ -29,6 +24,9 @@ export class User extends BaseEntity{
     @ManyToOne(type=> Doctor, doc => doc.id,{cascade:true,nullable:true,eager:false})
     @JoinColumn()
     doctor: Doctor;
+
+    @Column({type:'int', nullable: true, array: true})
+    campus: number[];
 
     @Column({type:'int2', nullable:false, default:1})
     estado: number;

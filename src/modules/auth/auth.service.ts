@@ -53,7 +53,8 @@ export class AuthService {
             email: user.email,
             username: user.username,
             roles: user.roles,
-            token
+            token,
+            capmus: user.campus
         };
     }
 }
