@@ -44,9 +44,15 @@ export class LabOrderController {
         return prog;
     }
 
-    @Get('get-production/:since/:until')
-    async getTest(@Param('since') since: Date, @Param('until') until: Date): Promise<any>{
-        const production = await this._labOrderService.getProduction(since,until);
+    @Post('get-production/:filters')
+    async getTest(@Body() filters: any): Promise<any>{
+        const production = await this._labOrderService.getProduction(filters);
         return production;
+    }
+
+    @Post('get-list/filter')
+    async getLabOrdersFilters(@Body() filters: any): Promise<LabOrder[]>{
+        const labOrder = await this._labOrderService.getAllFilter(filters);
+        return labOrder;
     }
 }
