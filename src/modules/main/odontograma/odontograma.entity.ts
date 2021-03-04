@@ -16,7 +16,7 @@ export class Odontograma extends BaseEntity{
     @JoinColumn({name:'clinichistory'})
     clinichistory: ClinicHistory;
 
-    @ManyToOne(type => Quotation, quotation => quotation.id,{cascade:true, nullable:false, eager:false})
+    @ManyToOne(type => Quotation, quotation => quotation.id,{cascade:true, nullable:true})
     @JoinColumn({name:'quotation'})
     quotation: Quotation;
 

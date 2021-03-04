@@ -61,4 +61,22 @@ export class ClinicHistoryService {
         }
         return clinicHistory;
     }
+
+    async getLastHistoryNumber(campus: number): Promise<number>{
+        if(!campus){
+            throw new BadRequestException('campus id number must be send');
+        }
+        const numberHistory = await this._clinicHistoryRepository
+        .createQueryBuilder("ch")
+        .select("ch.history_correlative")
+        .where("ch.campus = :campus",{campus})
+        .orderBy({"ch.id":"DESC"})
+        .limit(1)
+        .getOne();
+        if(numberHistory){
+            return numberHistory.history_correlative;
+        }else{
+            return 0;
+        }
+    }
 }

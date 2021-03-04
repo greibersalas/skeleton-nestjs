@@ -57,6 +57,6 @@ export class Quotation extends BaseEntity{
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
 
-    detail: QuotationDetail[];
-    odontograma: string;
+    /* detail: QuotationDetail[];
+    odontograma: string; */
 }
