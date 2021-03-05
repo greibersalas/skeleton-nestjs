@@ -268,7 +268,7 @@ export class ReservationController {
         }
         if (formfilter.specialty.id!=0){
             reservations.forEach(element => {
-                if (element.qdetail.tariff.specialty.id == formfilter.specialty.id)
+                if (element.tariff.specialty.id == formfilter.specialty.id)
                     reservationFilterSpecialty.push(element)
             });
             reservations = reservationFilterSpecialty
@@ -276,7 +276,7 @@ export class ReservationController {
         
         if (formfilter.bl.id!=0){
             reservations.forEach(element=>{
-                if (element.qdetail.tariff.specialty.businessLines.id == formfilter.bl.id)
+                if (element.tariff.specialty.businessLines.id == formfilter.bl.id)
                     reservationFilterbl.push(element)
             })
             reservations = reservationFilterbl

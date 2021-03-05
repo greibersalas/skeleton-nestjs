@@ -20,8 +20,8 @@ export class ReservationService {
             throw new BadRequestException('id must be send.');
         }
 
-        //const Reservation = await this._ReservationRepository.findOne(id,{where:{state:1}});
-        const Reservation = await this._ReservationRepository
+        const Reservation = await this._ReservationRepository.findOne(id,{where:{state:1}});
+        /* const Reservation = await this._ReservationRepository
             .createQueryBuilder("rs")
             .innerJoinAndSelect("rs.doctor","doctor")
             .innerJoinAndSelect("rs.environment","environment")
@@ -30,7 +30,7 @@ export class ReservationService {
             .innerJoinAndSelect("qt.clinicHistory","ch")
             .innerJoinAndSelect("qd.tariff","tariff")
             .where("rs.id = :id AND rs.state=1",{id})
-            .getOne()
+            .getOne() */
 
         if(!Reservation){
             throw new NotFoundException();
@@ -47,8 +47,8 @@ export class ReservationService {
         if (formfilter.doctor.id!=0)
             attr.doctor=formfilter.doctor
         attr.state = 1    
-        //const Reservation = await this._ReservationRepository.find({where:attr});
-        const Reservation = await this._ReservationRepository
+        const Reservation = await this._ReservationRepository.find({where:attr});
+       /*  const Reservation = await this._ReservationRepository
             .createQueryBuilder("rs")
             .innerJoinAndSelect("rs.doctor","doctor")
             .innerJoinAndSelect("rs.environment","environment")
@@ -59,7 +59,7 @@ export class ReservationService {
             .innerJoinAndSelect("tariff.specialty","specialty")
             .innerJoinAndSelect("specialty.businessLines","businessLines")
             .where(attr)
-            .getMany();
+            .getMany(); */
 
         return Reservation
     }
