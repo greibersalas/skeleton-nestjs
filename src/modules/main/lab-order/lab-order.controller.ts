@@ -43,4 +43,16 @@ export class LabOrderController {
         const prog = await this._labOrderService.getCant(date,job);
         return prog;
     }
+
+    @Post('get-production/:filters')
+    async getTest(@Body() filters: any): Promise<any>{
+        const production = await this._labOrderService.getProduction(filters);
+        return production;
+    }
+
+    @Post('get-list/filter')
+    async getLabOrdersFilters(@Body() filters: any): Promise<LabOrder[]>{
+        const labOrder = await this._labOrderService.getAllFilter(filters);
+        return labOrder;
+    }
 }

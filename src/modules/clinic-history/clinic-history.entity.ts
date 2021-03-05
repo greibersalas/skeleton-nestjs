@@ -40,6 +40,9 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 15, nullable: false, unique: true})
     history: string;
 
+    @Column({type: 'bigint', nullable: false, default: 0})
+    history_correlative: number;
+
     @Column({type: 'varchar', length: 10, nullable: false})
     sex: string;
 

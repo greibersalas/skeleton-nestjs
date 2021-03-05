@@ -55,11 +55,11 @@ export class QuotationService {
         .createQueryBuilder("qd")
         .innerJoinAndSelect("qd.tariff","tr")
         .innerJoinAndSelect("qd.coin","co")
-        .where({quotation:id})
+        .where("qd.quotation = :id AND qd.state <> 0",{id})
         .getMany();
     }
 
-    async create(quotation: Quotation): Promise<Quotation>{
+    async create(quotation: any): Promise<Quotation>{
         //insert main data
         const saveQuotation: Quotation = await this._quotationRepository.save(quotation);
         //insert detail data
@@ -85,7 +85,7 @@ export class QuotationService {
         return saveQuotation;
     }
 
-    async update(id: number, quotation:Quotation): Promise<Quotation>{
+    async update(id: number, quotation:any): Promise<Quotation>{
         const quotationExists = await this._quotationRepository.findOne(id);
         if(!quotationExists){
             throw new NotFoundException();
@@ -137,5 +137,18 @@ export class QuotationService {
             state: 1
         }).getMany();
         return data;
+    }
+
+    async addItem(item: QuotationDetail): Promise<QuotationDetail>{
+        const save = await this._quotationDetailRepository.save(item);
+        return save;
+    }
+
+    async deleteItem(id: number): Promise<void>{
+        const exists = await this._quotationDetailRepository.findOne(id);
+        if(!exists){
+            throw new NotFoundException();
+        }
+        await this._quotationDetailRepository.update(id,{state:0});
     }
 }

@@ -16,6 +16,6 @@ export class UserDto{
     @IsNotEmpty()
     roles: Role;
 
-    @IsNotEmpty()
-    details: UserDetails
+    campus: number[];
+
 }

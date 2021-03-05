@@ -40,6 +40,9 @@ export class LabOrder extends BaseEntity{
     @Column({type: 'date', default: null, comment:'instalación'})
     instalation: Date;
 
+    @Column({type: 'date', default: null})
+    elaboration: Date;
+
     @Column({type: 'varchar', default: null, length:200, comment:'tecnica'})
     technique: string;
 

@@ -59,4 +59,16 @@ export class QuotationController {
     async getByClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
         return await this._quotationService.getByClinicHistory(id);
     }
+
+    @Post('add-item/')
+    async addItem(@Body() item: QuotationDetail): Promise<QuotationDetail>{
+        const create = await this._quotationService.addItem(item);
+        return create;
+    }
+
+    @Delete('remove-item/:id')
+    async deleteItem(@Param('id',ParseIntPipe) id: number){
+        await this._quotationService.deleteItem(id);
+        return true;
+    }
 }

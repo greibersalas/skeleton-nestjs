@@ -79,7 +79,7 @@ export class OdontogramaService {
                     clinichistory: id
                 },
                 order: {
-                    id: 'DESC'
+                    id: 'ASC'
                 },
                 take: 1
             }

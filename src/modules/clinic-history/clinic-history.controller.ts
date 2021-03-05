@@ -42,4 +42,9 @@ export class ClinicHistoryController {
         await this._clinicHistoryService.delete(id);
         return true;
     }
+
+    @Get('get-last-history-number/:campus')
+    async getLastHistoryNumber(@Param('campus',ParseIntPipe) campus: number): Promise<number>{
+        return await this._clinicHistoryService.getLastHistoryNumber(campus);
+    }
 }

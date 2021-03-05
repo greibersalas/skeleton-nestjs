@@ -1,8 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
-import { Role } from '../role/role.entity';
-import { UserDetails } from './user.details.entity';
+
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 
@@ -16,13 +14,14 @@ export class UserService {
         if(!id){
             throw new BadRequestException('id must be send');
         }
-
-        const user = await this._userRepository.findOne(id,{where:{estado:1}});
-
+        //const user = await this._userRepository.findOne(id,{where:{estado:1}});
+        const user = await this._userRepository.createQueryBuilder("us")
+        .innerJoinAndSelect("us.roles","rl")
+        .leftJoinAndSelect("us.doctor","dc")
+        .where("us.id = :id AND us.estado = 1",{id}).getOne();
         if(!user){
             throw new NotFoundException();
         }
-
         return user;
     }
 
@@ -32,18 +31,13 @@ export class UserService {
     }
 
     async create(user: User): Promise<User>{
-        const details = new UserDetails;
-        user.details = details;
-
-        const repo = await getConnection().getRepository(Role);
-        const defaultRole: Role = await repo.findOne({where:{idrole:1}});
-        user.roles = defaultRole;
         const saveUser: User = await this._userRepository.save(user);
         return saveUser;
     }
 
-    async update(id: number, user: User): Promise<void>{
-        await this._userRepository.update(id,user);
+    async update(id: number, user: User): Promise<any>{
+        const update = await this._userRepository.update(id,user);
+        return update;
     }
 
     async delete(id: number): Promise<void>{
