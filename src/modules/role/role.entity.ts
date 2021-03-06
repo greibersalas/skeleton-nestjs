@@ -9,6 +9,9 @@ export class Role extends BaseEntity{
     @Column({type:'varchar', length:20, nullable:false})
     name: string;
 
+    @Column({type:'varchar', length: 30, nullable: false, default: 'BASICO'})
+    dashboard: string;
+
     @Column({type:'text', nullable:false})
     description: string;
 
