@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
-import { FormFilter } from './form.filter';
+import { FormFilter, PatientList} from './form.filter';
 import { Reservation } from './reservation.entity';
 import { ReservationRepository } from './reservation.repository';
+
 
 @Injectable()
 export class ReservationService {
@@ -46,7 +47,8 @@ export class ReservationService {
             attr.environment=formfilter.environment
         if (formfilter.doctor.id!=0)
             attr.doctor=formfilter.doctor
-        attr.state = 1    
+        
+        attr.state = MoreThan(0)   
         const Reservation = await this._ReservationRepository.find({where:attr});
        /*  const Reservation = await this._ReservationRepository
             .createQueryBuilder("rs")

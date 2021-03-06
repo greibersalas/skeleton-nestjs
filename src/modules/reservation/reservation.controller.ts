@@ -5,15 +5,17 @@ import { ReservationService } from './reservation.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { DoctorService } from '../doctor/doctor.service';
 import { Hours } from './interface.hours';
-import { FormFilter } from './form.filter';
+import { FormFilter, PatientList } from './form.filter';
+import { ClinicHistoryService  } from '../clinic-history/clinic-history.service'
 
 @Controller('reservation')
 export class ReservationController {
     constructor(
         private readonly _ReservationService: ReservationService, 
         private _serviceEnviroment:EnvironmentDoctorService,
-        private _serviceDoctor:DoctorService){}
-
+        private _serviceDoctor:DoctorService,
+        private _servicePatient:ClinicHistoryService
+        ){}
     @Get(':id')
     async getReservation(@Param('id',ParseIntPipe) id: number): Promise<Reservation>{
         const Reservation = await this._ReservationService.get(id);
@@ -260,6 +262,8 @@ export class ReservationController {
         let reservations:Reservation[]=[]
         let reservationFilterSpecialty :Reservation[]=[]
         let reservationFilterbl:Reservation []=[]
+        let reservationRegister:Reservation []=[]
+        let reservationPatient:Reservation []=[]
         if (formfilter.bl.id == 0 && formfilter.environment.id == 0 && formfilter.specialty.id == 0 && formfilter.doctor.id == 0 ){
             reservations = await this._ReservationService.getAll();
         }
@@ -281,6 +285,40 @@ export class ReservationController {
             })
             reservations = reservationFilterbl
         }
+       
+        if (formfilter.register != true){
+            reservations.forEach(element=>{
+                if (element.state != 1)
+                    reservationRegister.push(element)
+            })
+            reservations = reservationRegister
+        } 
+
+        if (formfilter.confirm != true){
+            reservations.forEach(element=>{
+                if (element.state != 2)
+                    reservationRegister.push(element)
+            })
+            reservations = reservationRegister
+        } 
+        
+        if (formfilter.attended != true){
+            reservations.forEach(element=>{
+                if (element.state != 3)
+                    reservationRegister.push(element)
+            })
+            reservations = reservationRegister
+        } 
+
+        if (formfilter.patient.id != 0){
+            const pa = await this._servicePatient.get(formfilter.patient.id)
+            reservations.forEach(element=>{
+                if (element.patient.id == pa.id)
+                    reservationPatient.push(element)
+            })
+            reservations = reservationPatient
+        }
+
         //console.log(reservations[0].qdetail.tariff.)
         return reservations;
     }

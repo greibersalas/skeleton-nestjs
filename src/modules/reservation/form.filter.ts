@@ -8,4 +8,15 @@ export class FormFilter{
     bl: BusinessLine;
     specialty: Specialty;
     environment: EnvironmentDoctor;
+    register:boolean;
+    confirm:boolean;
+    attended:boolean;
+    patient:PatientList;
+  }
+
+  export class PatientList{
+    id:number;
+    name:string;
+    lastname:string;
+    dni:string;
   }
