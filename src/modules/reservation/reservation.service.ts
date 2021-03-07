@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan } from 'typeorm';
+import { MoreThan, Not } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { FormFilter, PatientList} from './form.filter';
@@ -21,18 +21,7 @@ export class ReservationService {
             throw new BadRequestException('id must be send.');
         }
 
-        const Reservation = await this._ReservationRepository.findOne(id,{where:{state:1}});
-        /* const Reservation = await this._ReservationRepository
-            .createQueryBuilder("rs")
-            .innerJoinAndSelect("rs.doctor","doctor")
-            .innerJoinAndSelect("rs.environment","environment")
-            .innerJoinAndSelect("rs.qdetail","qd")
-            .innerJoinAndSelect("qd.quotation","qt")
-            .innerJoinAndSelect("qt.clinicHistory","ch")
-            .innerJoinAndSelect("qd.tariff","tariff")
-            .where("rs.id = :id AND rs.state=1",{id})
-            .getOne() */
-
+        const Reservation = await this._ReservationRepository.findOne(id,{where:{state: Not(0)}});
         if(!Reservation){
             throw new NotFoundException();
         }
@@ -121,14 +110,18 @@ export class ReservationService {
         await this._ReservationRepository.update(id,{state:0});
     }
 
-    async getByDateDoctor(date: Date, doctor: number, state: number): Promise<any[]>{
+    async getByDateDoctor(filters: any): Promise<any[]>{
         const resers = await this._ReservationRepository
         .createQueryBuilder("rs")
         .innerJoinAndSelect("rs.doctor","doctor")
         .innerJoinAndSelect("rs.environment","environment")
         .innerJoinAndSelect("rs.patient","ch")
         .innerJoinAndSelect("rs.tariff","tariff")
-        .where({date,doctor})
+        .where("rs.date BETWEEN :since AND :until AND doctor.id = :iddoctor",{
+            since:filters.since,
+            until: filters.until,
+            iddoctor: filters.doctor
+        })
         .getMany();
         return resers;
     }
@@ -138,12 +131,17 @@ export class ReservationService {
         .createQueryBuilder("re")
         .innerJoinAndSelect("re.doctor","doc")
         .innerJoinAndSelect("re.environment","ev")
-        .innerJoinAndSelect("re.qdetail","qd","qd.state <> 0")
-        .innerJoinAndSelect("qd.tariff","tf")
-        .innerJoinAndSelect("qd.quotation","qt")
-        .innerJoinAndSelect("qt.clinicHistory","ch","ch.id = :ch",{ch: id})
+        .innerJoinAndSelect("re.tariff","tf")
+        .innerJoinAndSelect("re.patient","ch","ch.id = :ch",{ch: id})
         .where("re.state <> 0").orderBy({"re.date":"DESC"})
         .getMany();
         return data;
+    }
+
+    async confirm(id: number): Promise<any>{
+        const confirm = await this._ReservationRepository.createQueryBuilder()
+        .update(Reservation)
+        .set({state:2}).where({id}).execute();
+        return confirm;
     }
 }

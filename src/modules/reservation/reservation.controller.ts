@@ -16,13 +16,12 @@ export class ReservationController {
         private _serviceDoctor:DoctorService,
         private _servicePatient:ClinicHistoryService
         ){}
+
     @Get(':id')
     async getReservation(@Param('id',ParseIntPipe) id: number): Promise<Reservation>{
         const Reservation = await this._ReservationService.get(id);
         return Reservation;
-    }
-
-    
+    } 
     
 
     @Get('/environments/available/:day/:month/:year')
@@ -335,13 +334,18 @@ export class ReservationController {
         return true;
     }
 
-    @Get('get-date-doctor/:date/:iddoctor/:state')
-    async getFirst(@Param('date') date,@Param('iddoctor',ParseIntPipe) doctor,@Param('state',ParseIntPipe) state): Promise<any[]>{
-        return await this._ReservationService.getByDateDoctor(date,doctor,state);
+    @Post('get-date-doctor/')
+    async getFirst(@Body() filters: any): Promise<any[]>{
+        return await this._ReservationService.getByDateDoctor(filters);
     }
 
     @Get('get-by-clinic-history/:id')
     async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
         return await this._ReservationService.getByClinicHistory(id);
+    }
+
+    @Get('confirm/:id')
+    async confirm(@Param('id', ParseIntPipe) id: number): Promise<any>{
+        return await this._ReservationService.confirm(id);
     }
 }

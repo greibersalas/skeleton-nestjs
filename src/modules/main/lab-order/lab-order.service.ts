@@ -3,13 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { LabOrder } from './lab-order.entity';
 import { LabOrderRepository } from './lab-order.repository';
+import { QuotationDetailRepository } from '../quotation/quotation-detail.repository';
+import { QuotationDetail } from '../quotation/quotation-detail.entity';
 
 @Injectable()
 export class LabOrderService {
 
     constructor(
         @InjectRepository(LabOrderRepository)
-        private readonly _labOrderRepository: LabOrderRepository
+        private readonly _labOrderRepository: LabOrderRepository,
+        @InjectRepository(QuotationDetailRepository)
+        private readonly _qdRepository: QuotationDetailRepository
     ){}
 
     async get(id: number): Promise<LabOrder>{
@@ -44,8 +48,15 @@ export class LabOrderService {
     }
 
     async create(labOrder: LabOrder): Promise<LabOrder>{
-        const saveLabOrder: LabOrder = await this._labOrderRepository.save(labOrder);
-        return saveLabOrder;
+        const save: LabOrder = await this._labOrderRepository.save(labOrder);
+        //cambiamos el estado del detalle de la cotización
+        if(save){
+            await this._qdRepository.createQueryBuilder()
+            .update(QuotationDetail)
+            .update({state: 3}).where({id: labOrder.quotation_detail})
+            .execute();
+        }
+        return save;
     }
 
     async update(id: number, labOrder:LabOrder): Promise<LabOrder>{
@@ -88,7 +99,7 @@ export class LabOrderService {
                         WHEN job = 'Reparación' THEN count(job)
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
-                .where(`instalation::DATE BETWEEN :since AND :until AND state = 1`,{    
+                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0`,{    
                     since: filters.since,until: filters.until
                 }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
                 return production;
@@ -103,7 +114,7 @@ export class LabOrderService {
                         WHEN job = 'Reparación' THEN count(job)
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
-                .where(`instalation::DATE BETWEEN :since AND :until AND state = 1
+                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0
                 AND job = :job`,{    
                     since: filters.since,until: filters.until, job: filters.state
                 }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
@@ -121,7 +132,7 @@ export class LabOrderService {
                         WHEN job = 'Reparación' THEN count(job)
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
-                .where(`elaboration::DATE BETWEEN :since AND :until AND state = 1`,{    
+                .where(`elaboration::DATE BETWEEN :since AND :until AND state <> 0`,{    
                     since: filters.since,until: filters.until
                 }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
                 return production;
@@ -136,7 +147,7 @@ export class LabOrderService {
                         WHEN job = 'Reparación' THEN count(job)
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
-                .where(`elaboration::DATE BETWEEN :since AND :until AND state = 1
+                .where(`elaboration::DATE BETWEEN :since AND :until AND state <> 0
                 AND job = :job`,{    
                     since: filters.since,until: filters.until,job: filters.state
                 }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
@@ -155,7 +166,7 @@ export class LabOrderService {
                 .innerJoinAndSelect("qo.clinicHistory","patient")
                 .innerJoinAndSelect("lo.doctor","dr")
                 .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state = 1`,{    
+                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state <> 0`,{    
                     since: filters.since,until: filters.until
                 })
                 .getMany();
@@ -168,7 +179,7 @@ export class LabOrderService {
                 .innerJoinAndSelect("qo.clinicHistory","patient")
                 .innerJoinAndSelect("lo.doctor","dr")
                 .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state = 1
+                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state <> 0
                 AND lo.job = :job`,{    
                     since: filters.since,
                     until: filters.until,
@@ -187,7 +198,7 @@ export class LabOrderService {
                 .innerJoinAndSelect("qo.clinicHistory","patient")
                 .innerJoinAndSelect("lo.doctor","dr")
                 .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state = 1`,{    
+                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state <> 0`,{    
                     since: filters.since,until: filters.until
                 })
                 .getMany();
@@ -200,7 +211,7 @@ export class LabOrderService {
                 .innerJoinAndSelect("qo.clinicHistory","patient")
                 .innerJoinAndSelect("lo.doctor","dr")
                 .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state = 1
+                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state <> 0
                 AND lo.job = :job`,{    
                     since: filters.since,
                     until: filters.until,
@@ -210,5 +221,12 @@ export class LabOrderService {
                 return labOrder;
             }
         }
+    }
+
+    async confirm(id: number, state: number): Promise<any>{
+        const confirm = await this._labOrderRepository.createQueryBuilder()
+        .update(LabOrder).set({state})
+        .where({id}).execute();        
+        return confirm;
     }
 }

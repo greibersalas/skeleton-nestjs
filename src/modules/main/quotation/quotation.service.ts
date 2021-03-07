@@ -120,11 +120,9 @@ export class QuotationService {
         .createQueryBuilder("qd")
         .innerJoinAndSelect("qd.tariff","tr")
         .innerJoin("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
-        .innerJoinAndSelect("qd.quotation","qt")
+        .innerJoinAndSelect("qd.quotation","qt","qt.state <> 0")
         .innerJoinAndSelect("qt.clinicHistory","ch")
-        .where({
-            state: 2
-        })
+        .where("qd.state <> 0")
         .getMany();
         return labOrdes;
     }

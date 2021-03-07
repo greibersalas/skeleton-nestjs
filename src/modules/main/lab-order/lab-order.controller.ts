@@ -55,4 +55,10 @@ export class LabOrderController {
         const labOrder = await this._labOrderService.getAllFilter(filters);
         return labOrder;
     }
+
+    @Get('confirm/:id/:state')
+    async confirm(@Param('id',ParseIntPipe) id: number,@Param('state',ParseIntPipe) state: number): Promise<any>{
+        const confirm = await this._labOrderService.confirm(id,state);
+        return confirm;
+    }
 }
