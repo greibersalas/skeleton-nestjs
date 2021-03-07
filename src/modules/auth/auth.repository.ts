@@ -17,10 +17,10 @@ export class AuthRepository extends Repository<User>{
         user.email = email;
         user.campus = campus;
 
-        const roleRepository: RoleRepository = await getConnection().getRepository(Role);
+        /* const roleRepository: RoleRepository = await getConnection().getRepository(Role);
 
-        const defaultRole: Role = await roleRepository.findOne({where:{idrole:roles.idrole}});
-        user.roles = defaultRole;
+        const defaultRole: Role = await roleRepository.findOne({where:{idrole:roles.idrole}}); */
+        user.roles = roles;
 
         /* const details = new UserDetails();
         details.name = name;

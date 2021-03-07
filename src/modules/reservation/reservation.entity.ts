@@ -12,7 +12,7 @@ export class Reservation extends BaseEntity{
     id: number;
 
     @Column({type: 'int', default: 0, nullable:false,})
-    qdetail: QuotationDetail;
+    qdetail: number;
 
     @ManyToOne(type => EnvironmentDoctor, environment => environment.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'environment_id'})

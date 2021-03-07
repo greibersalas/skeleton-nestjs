@@ -8,7 +8,7 @@ export class QuotationController {
 
     constructor(private readonly _quotationService: QuotationService){}
 
-    @Get(':id')
+    @Get('/id/:id')
     async getQuotation(@Param('id',ParseIntPipe) id: number): Promise<Quotation>{
         const quotation = await this._quotationService.get(id);
         return quotation;

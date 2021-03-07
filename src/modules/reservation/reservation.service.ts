@@ -122,14 +122,12 @@ export class ReservationService {
     }
 
     async getByDateDoctor(date: Date, doctor: number, state: number): Promise<any[]>{
-        const resers: any = await this._ReservationRepository
+        const resers = await this._ReservationRepository
         .createQueryBuilder("rs")
         .innerJoinAndSelect("rs.doctor","doctor")
         .innerJoinAndSelect("rs.environment","environment")
-        .innerJoinAndSelect("rs.qdetail","qd")
-        .innerJoinAndSelect("qd.quotation","qt")
-        .innerJoinAndSelect("qt.clinicHistory","ch")
-        .innerJoinAndSelect("qd.tariff","tariff")
+        .innerJoinAndSelect("rs.patient","ch")
+        .innerJoinAndSelect("rs.tariff","tariff")
         .where({date,doctor})
         .getMany();
         return resers;
