@@ -1,11 +1,13 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+var moment = require('moment-timezone');
+
 import { Reservation } from './reservation.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { ReservationService } from './reservation.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { DoctorService } from '../doctor/doctor.service';
 import { Hours } from './interface.hours';
-import { FormFilter, PatientList } from './form.filter';
+import { FormFilter } from './form.filter';
 import { ClinicHistoryService  } from '../clinic-history/clinic-history.service'
 
 @Controller('reservation')
@@ -67,7 +69,12 @@ export class ReservationController {
             })
             var process = 0
             environmentBusy.forEach(env=>{
-                const beging = 8;
+                var beging = '08';
+                const dateActu = `${year}-${month}-${day}`;
+                if(moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')){
+                    beging = moment().tz("America/Lima").format('HH');
+                    //console.log("beging ",beging);
+                }
                 const end = 18
                 const interval =  env.interval 
                 let Hours:Hours[]=[]; 
@@ -81,9 +88,9 @@ export class ReservationController {
                     daystr = '0'+String(day)
                 else
                     daystr = String(day)    
-                let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
+                let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
                 
-                var conth = beging
+                var conth = Number(beging);
                 var step = interval/60
                 var hbusy = 0
                 while(conth <= end){
@@ -108,7 +115,7 @@ export class ReservationController {
         
     }
 
-    @Get('/Hours/available/:doctor_id/:environment_id/:day/:month/:year')
+    @Get('/hours/available/:doctor_id/:environment_id/:day/:month/:year')
     async getHoursAvialiable(@Param('doctor_id',ParseIntPipe) doctor_id: number,
                         @Param('environment_id', ParseIntPipe) environment_id:number,
                         @Param('day',ParseIntPipe) day: number,
@@ -117,8 +124,14 @@ export class ReservationController {
         let date = new Date()
         date.setFullYear(year,month,day)
         let hours:Hours[]=[] ;
-        let datestring = String(year)+'-'+String(month)+'-'+String(day)  
-        const beging = 8;
+        let datestring = String(year)+'-'+String(month)+'-'+String(day);
+        var beging = '08';
+        const dateActu = Date.parse(`${year}-${month}-${day}`);        
+        if(moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')){
+            beging = moment().tz("America/Lima").format('HH');
+            //console.log("beging ",beging);
+        }
+        
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id)
         const interval =  environment.interval;
@@ -138,8 +151,8 @@ export class ReservationController {
                 daystr = '0'+String(day)
             else
                 daystr = String(day)    
-            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
-            var conth = beging
+            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
+            var conth = Number(beging);
             var step = interval/60;
             while(conth != end){
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
@@ -177,11 +190,9 @@ export class ReservationController {
                 conth= conth + step;
                 time.setMinutes(time.getMinutes() + time_cleaning);
             } 
-        }
-        else{
+        }else{
             //verificar los rangos que estan ocupados.
-            var timebusy = []
-            
+            var timebusy = [];            
             reservations.forEach(res=>{
                 timebusy.push(res.appointment)
             })
@@ -195,8 +206,8 @@ export class ReservationController {
                 daystr = '0'+String(day)
             else
                 daystr = String(day)    
-            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T0" + String(beging)+":00:00Z")
-            var conth = beging
+            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
+            var conth = Number(beging);
            
             while(conth != end){
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0];
