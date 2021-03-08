@@ -112,9 +112,9 @@ export class MedicalActService {
         .createQueryBuilder("fl")
         .innerJoinAndSelect("fl.medicalact","ma","ma.state = :state",{state: 1})
         .innerJoin("ma.reservation","rs","rs.state = 3")
-        .innerJoin("rs.qdetail","dq")
-        .innerJoin("dq.quotation","qt")
-        .innerJoin("qt.clinicHistory","ch","ch.id = :id",{id})
+        .innerJoin("rs.patient","ch","ch.id = :id",{id})
+        //.innerJoin("rs.qdetail","dq")
+        //.innerJoin("dq.quotation","qt")
         .innerJoinAndSelect("fl.filegroup","fg")
         .where({state: 1})
         .orderBy({"fl.id":'DESC'})
@@ -135,5 +135,23 @@ export class MedicalActService {
         .orderBy({"fl.id":'DESC'})
         .getMany();
         return ma;
+    }
+
+    async getByClinicHistory(id: number): Promise<any[]>{
+        if(!id){
+            throw new BadRequestException('id must be send.');
+        }
+        const medicalAct = await this._medicalActRepository.createQueryBuilder('ma')
+        .innerJoinAndSelect("ma.reservation","re")
+        .innerJoinAndSelect("re.patient","ch","ch.id = :id",{id})
+        .innerJoinAndSelect("re.doctor","dc")
+        .innerJoinAndSelect("re.environment","en")
+        .innerJoinAndSelect("re.tariff","tr")
+        .where("re.state <> 0").orderBy({"re.id" : "DESC"})
+        .getMany();
+        if(!medicalAct){
+            throw new NotFoundException();
+        }
+        return medicalAct;
     }
 }

@@ -121,4 +121,9 @@ export class MedicalActController {
     async getFilesMedicalAct(@Param('id') id): Promise<MedicalActFiles[]>{
         return await this._medicalActService.getFilesByMedicalAct(id);
     }
+
+    @Get('get-by-clinic-history/:id')
+    async getMedicalActClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
+        return await this._medicalActService.getByClinicHistory(id);
+    }
 }
