@@ -7,6 +7,8 @@ import { MedicalActFilesRepository } from './medical-act-files.repository';
 import { MedicalActFileGroupRepository } from './medical-act-file-group.repository';
 import { MedicalActFileGroup } from './medical-act-file-group.entity';
 import { MedicalActFiles } from './medical-act-files.entity';
+import { ReservationRepository } from '../../reservation/reservation.repository';
+import { Reservation } from '../../reservation/reservation.entity';
 
 @Injectable()
 export class MedicalActService {
@@ -17,7 +19,9 @@ export class MedicalActService {
         @InjectRepository(MedicalActFilesRepository)
         private readonly _medicalActFilesRepository: MedicalActFilesRepository,
         @InjectRepository(MedicalActFileGroupRepository)
-        private readonly _medicalActFileGroupRepository: MedicalActFileGroupRepository
+        private readonly _medicalActFileGroupRepository: MedicalActFileGroupRepository,
+        @InjectRepository(ReservationRepository)
+        private readonly _ReservationRepository: ReservationRepository
     ){}
 
     async get(id: number): Promise<MedicalAct>{
@@ -38,6 +42,11 @@ export class MedicalActService {
 
     async create(medicalAct: MedicalAct): Promise<MedicalAct>{
         const saveMedicalAct: MedicalAct = await this._medicalActRepository.save(medicalAct);
+        //CAMBIAMOS EL ESTADO DE LA RESERVA
+        await this._ReservationRepository.createQueryBuilder()
+        .update(Reservation)
+        .set({state: 3})
+        .where({id:medicalAct.reservation}).execute();
         return saveMedicalAct;
     }
 

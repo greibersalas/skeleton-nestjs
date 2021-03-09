@@ -121,7 +121,7 @@ export class ReservationService {
             since:filters.since,
             until: filters.until,
             iddoctor: filters.doctor
-        })
+        }).orderBy({"rs.appointment":"DESC"})
         .getMany();
         return resers;
     }
