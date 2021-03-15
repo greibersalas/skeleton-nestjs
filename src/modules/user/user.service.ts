@@ -7,7 +7,7 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
     constructor(@InjectRepository(UserRepository) private readonly _userRepository:UserRepository){
-        
+
     }
 
     async get(id: number): Promise<User>{
@@ -22,10 +22,11 @@ export class UserService {
         if(!user){
             throw new NotFoundException();
         }
+        user.password = '****';
         return user;
     }
 
-    async getAll(): Promise<User[]>{        
+    async getAll(): Promise<User[]>{
         const users: User[] = await this._userRepository.find({where:{estado:1}});
         return users;
     }

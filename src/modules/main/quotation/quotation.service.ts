@@ -149,4 +149,19 @@ export class QuotationService {
         }
         await this._quotationDetailRepository.update(id,{state:0});
     }
+
+    async updateItem(id: number, item: QuotationDetail): Promise<any>{
+        const exists = await this._quotationDetailRepository.findOne(id);
+        if(!exists){
+            throw new NotFoundException();
+        }
+        return await this._quotationDetailRepository
+        .createQueryBuilder().update(QuotationDetail)
+        .set({
+            price: item.price,
+            quantity: item.quantity,
+            discount: item.discount,
+            total: item.total
+        }).execute();
+    }
 }

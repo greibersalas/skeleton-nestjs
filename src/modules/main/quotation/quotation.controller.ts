@@ -71,4 +71,9 @@ export class QuotationController {
         await this._quotationService.deleteItem(id);
         return true;
     }
+
+    @Put('update-item/:id')
+    async updateItem(@Param('id',ParseIntPipe) id: number,@Body() item: QuotationDetail): Promise<any>{
+        return await this._quotationService.updateItem(id,item);
+    }
 }

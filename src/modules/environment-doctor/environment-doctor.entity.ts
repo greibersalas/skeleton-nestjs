@@ -28,6 +28,24 @@ export class EnvironmentDoctor extends BaseEntity{
     @JoinColumn({name:'idbusinessline'})
     businessLine: BusinessLine;
 
+    @Column({type: 'int', nullable: false, default: 0, comment:'Horario de la mañana desde'})
+    schedule_morning_since: number;
+
+    @Column({type: 'int', nullable: false, default: 0, comment:'Horario de la mañana hasta'})
+    schedule_morning_until: number;
+
+    @Column({type: 'int', nullable: false, default: 0, comment:'Horario almuerzo desde'})
+    lunch_since: number;
+
+    @Column({type: 'int', nullable: false, default: 0, comment:'Horario almuerzo hasta'})
+    lunch_until: number;
+
+    //afternoon
+    @Column({type: 'int', nullable: false, default: 0})
+    schedule_afternoon_since: number;
+
+    @Column({type: 'int', nullable: false, default: 0})
+    schedule_afternoon_until: number;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;

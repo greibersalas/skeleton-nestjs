@@ -35,4 +35,10 @@ export class EnvironmentDoctorController {
         await this._edService.delete(id);
         return true;
     }
+
+    @Get('programmin-day/:date')
+    async getProgrammingDay(@Param('date') date: string): Promise<any>{
+        const programmming = await this._edService.programmingDay(date);
+        return programmming;
+    }
 }
