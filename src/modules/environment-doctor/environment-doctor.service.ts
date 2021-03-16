@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-//import _ = require("lodash");
+import _ = require("lodash");
 //import moment from 'moment-timezone';
 var moment = require('moment-timezone');
 
@@ -60,22 +60,12 @@ export class EnvironmentDoctorService {
         await this._environmentDoctorRepository.update(id,{state:0});
     }
 
-    async programmingDay(day: string): Promise<any>{
+    async programmingDay(day: string, reser: any): Promise<any>{
+        //console.log("Reser ",reser);
         let prog: any[] = [];
         //Busco la lista de consultorios
         const ed = await this._environmentDoctorRepository.find({where:{state: 1},order:{id:'ASC'}});
         ed.forEach(async (i: EnvironmentDoctor) => {
-            //Busco las reservas del día
-            /* const reservation = await this._reservationRepository
-            .createQueryBuilder('rs')
-            .innerJoinAndSelect('rs.doctor','dc')
-            .innerJoinAndSelect('rs.patient','pt')
-            .where(`
-                rs.state <> 0 AND
-                rs.environment_id = ${i.id} AND
-                "rs"."date"::DATE = '${day}'
-            `).getMany();
-            console.log(reservation); */
             let hours: any[]= [];
             let since = moment(`${day} 08:00:00`).tz('America/Lima');
             let until = moment(`${day} 19:00:00`).tz('America/Lima');
@@ -101,20 +91,8 @@ export class EnvironmentDoctorService {
                 //Calculamos el horario de la mañana
                 if(i.schedule_morning_since > 0 && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
                     //Busco si hay reserva en la hora
-                    /* const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
-                    const reservation = await this._reservationRepository
-                    .createQueryBuilder('rs')
-                    .innerJoinAndSelect('rs.doctor','dc')
-                    .innerJoinAndSelect('rs.patient','pt')
-                    .where(`
-                        rs.state <> 0 AND
-                        rs.environment_id = ${i.id} AND
-                        "rs"."date"::DATE = '${day}' AND
-                        rs.appointment = '${schedule}'
-                    `).getMany();
-                    console.log(reservation); */
-                    /* const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
-                    const reserv = _.find(reservation, function(o:any){ return o.appointment === schedule});
+                    const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
+                    const reserv = _.find(reser,{environment_id: i.id, appointment: schedule} );
                     if(reserv){
                         hours.push({
                             since: moment(since).tz('America/Lima').format('HH:mm'),
@@ -123,14 +101,14 @@ export class EnvironmentDoctorService {
                             type: 4, //reservado,
                             data: reserv
                         });
-                    }else{ */
+                    }else{
                         hours.push({
                             since: moment(since).tz('America/Lima').format('HH:mm'),
                             until: moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm'),
                             rowspan: (i.interval/10)*20,
                             type: 1 //disponible
                         });
-                    //}
+                    }
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
                     if(i.time_cleaning > 0){

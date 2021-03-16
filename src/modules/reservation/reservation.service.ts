@@ -144,4 +144,19 @@ export class ReservationService {
         .set({state:2}).where({id}).execute();
         return confirm;
     }
+
+    async getByDay(date: string, campus: number):Promise<Reservation[]>{
+        const reservation = await this._ReservationRepository
+            .createQueryBuilder('rs')
+            .select('rs.*, pt.*, dc.nameQuote as doctor')
+            .innerJoin('rs.environment','ed')
+            .innerJoin('rs.doctor','dc')
+            .innerJoin('rs.patient','pt')
+            .where(`
+                rs.state <> 0 AND
+                "rs"."date"::DATE = '${date}'
+                AND ed.campus = ${campus} AND ed.state <> 0
+            `).getRawMany();
+        return reservation;
+    }
 }

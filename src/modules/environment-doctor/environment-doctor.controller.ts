@@ -1,10 +1,13 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+
 import { EnvironmentDoctor } from './environment-doctor.entity';
 import { EnvironmentDoctorService } from './environment-doctor.service';
+import { ReservationService } from '../reservation/reservation.service';
 
 @Controller('environment-doctor')
 export class EnvironmentDoctorController {
-    constructor(private readonly _edService: EnvironmentDoctorService){}
+    constructor(private readonly _edService: EnvironmentDoctorService,
+        private readonly _reservationService: ReservationService){}
 
     @Get(':id')
     async getEnvironmentDoctor(@Param('id',ParseIntPipe) id: number): Promise<EnvironmentDoctor>{
@@ -36,9 +39,10 @@ export class EnvironmentDoctorController {
         return true;
     }
 
-    @Get('programmin-day/:date')
-    async getProgrammingDay(@Param('date') date: string): Promise<any>{
-        const programmming = await this._edService.programmingDay(date);
+    @Get('programmin-day/:date/:campus')
+    async getProgrammingDay(@Param('date') date: string, @Param('campus',ParseIntPipe) campus: number): Promise<any>{
+        const reser = await this._reservationService.getByDay(date,campus);
+        const programmming = await this._edService.programmingDay(date,reser);
         return programmming;
     }
 }
