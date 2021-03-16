@@ -31,6 +31,9 @@ export class Tariff extends BaseEntity{
     @Column({type: 'boolean', default: false})
     odontograma: boolean;
 
+    @Column({type: 'boolean', default: false})
+    bracket: boolean;
+
     @OneToOne(type => DentalStatus,{eager: true, nullable: true})
     @JoinColumn()
     dental_status: DentalStatus;

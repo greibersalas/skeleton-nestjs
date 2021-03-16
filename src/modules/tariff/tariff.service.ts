@@ -58,10 +58,9 @@ export class TariffService {
         tariffExists.odontograma = tariff.odontograma;
         tariffExists.description = tariff.description;
         tariffExists.dental_status = tariff.dental_status;
-        //tariffExists.tariffHistory = tariff.tariffHistory;
+        tariffExists.bracket = tariff.bracket;
         await this._tariffRepository.update(id,tariffExists);
         const updateTariff : Tariff = await this._tariffRepository.findOne(id);
-        
         return updateTariff;
     }
 
@@ -103,7 +102,7 @@ export class TariffService {
         const tariff: Tariff[] = await this._tariffRepository
         .createQueryBuilder("tr")
         .innerJoin("tr.specialty","sp","sp.laboratory = true")
-        .where({state: 1}).getMany();
+        .where("tr.state = 1 AND tr.bracket = true").getMany();
         return tariff;
     }
 }

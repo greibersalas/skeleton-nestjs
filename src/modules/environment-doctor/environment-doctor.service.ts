@@ -181,6 +181,7 @@ export class EnvironmentDoctorService {
                 }
             }
             prog.push({
+                idenvironment: i.id,
                 dentalOffice: i.name,
                 interval: i.interval,
                 time_cleaning: i.time_cleaning,
