@@ -60,4 +60,25 @@ export class AnamnesisService {
         }
         await this._anamnesisRepository.update(id,{state:0});
     }
+
+    /**
+     * get by idclinichistory
+     * @param idclinichistory
+     */
+     async getByCH(id: number): Promise<Anamnesis>{
+        if(!id){
+            throw new BadRequestException('id must be send.');
+        }
+        const anamnesis = await this._anamnesisRepository.findOne({
+            where:{
+                state:1,
+                clinichistory: id
+            }
+        });
+
+        if(!anamnesis){
+            throw new NotFoundException();
+        }
+        return anamnesis;
+    }
 }

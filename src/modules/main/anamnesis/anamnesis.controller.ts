@@ -37,4 +37,10 @@ export class AnamnesisController {
         await this._anamnesisService.delete(id);
         return true;
     }
+
+    @Get('by-clinic-history/:id')
+    async getByCH(@Param('id',ParseIntPipe) id: number): Promise<Anamnesis>{
+        const anamnesis = await this._anamnesisService.getByCH(id);
+        return anamnesis;
+    }
 }
