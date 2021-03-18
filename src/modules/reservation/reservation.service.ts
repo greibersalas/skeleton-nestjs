@@ -36,22 +36,9 @@ export class ReservationService {
             attr.environment=formfilter.environment
         if (formfilter.doctor.id!=0)
             attr.doctor=formfilter.doctor
-        
-        attr.state = MoreThan(0)   
-        const Reservation = await this._ReservationRepository.find({where:attr});
-       /*  const Reservation = await this._ReservationRepository
-            .createQueryBuilder("rs")
-            .innerJoinAndSelect("rs.doctor","doctor")
-            .innerJoinAndSelect("rs.environment","environment")
-            .innerJoinAndSelect("rs.qdetail","qd")
-            .innerJoinAndSelect("qd.quotation","qt")
-            .innerJoinAndSelect("qt.clinicHistory","ch")
-            .innerJoinAndSelect("qd.tariff","tariff")
-            .innerJoinAndSelect("tariff.specialty","specialty")
-            .innerJoinAndSelect("specialty.businessLines","businessLines")
-            .where(attr)
-            .getMany(); */
 
+        attr.state = MoreThan(0);
+        const Reservation = await this._ReservationRepository.find({where:attr});
         return Reservation
     }
 
@@ -70,20 +57,11 @@ export class ReservationService {
         return Reservation
     }
 
-       
+
     async getAll(): Promise<Reservation[]>{
-        const reservations: Reservation[] = await this._ReservationRepository.find({where:{state:MoreThan(0)}});
-       /*  const reservations: Reservation[] = await this._ReservationRepository
-        .createQueryBuilder("rs")
-        .innerJoinAndSelect("rs.doctor","doctor")
-        .innerJoinAndSelect("rs.environment","environment")
-        .innerJoinAndSelect("rs.qdetail","qd")
-        .innerJoinAndSelect("qd.quotation","qt")
-        .innerJoinAndSelect("qt.clinicHistory","ch")
-        .innerJoinAndSelect("qd.tariff","tariff")
-        .where("rs.state=1")
-        .getMany() */
-        return reservations;
+        const reservations: Reservation[] = await this._ReservationRepository
+        .find({where:{state:MoreThan(0)}});
+       return reservations;
     }
 
     async create(bl: Reservation): Promise<Reservation>{
@@ -158,5 +136,13 @@ export class ReservationService {
                 AND ed.campus = ${campus} AND ed.state <> 0
             `).getRawMany();
         return reservation;
+    }
+
+    async validateReservation(iddoctor: number,date: string, appointment: string): Promise<boolean>{
+        const reservation = await this._ReservationRepository
+        .findOne({where:{state: MoreThan(0),doctor: iddoctor,date,appointment}});
+        if(reservation)
+            return true;
+        return false;
     }
 }
