@@ -36,4 +36,9 @@ export class DoctorController {
         await this._doctorService.delete(id);
         return true;
     }
+
+    @Get('get-in-bl/:id/:day')
+    async getInBl(@Param('id',ParseIntPipe) id: number, @Param('day',ParseIntPipe) day: number): Promise<Doctor[]>{
+        return await this._doctorService.getInBl(id,day);
+    }
 }

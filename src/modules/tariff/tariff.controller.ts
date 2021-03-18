@@ -63,4 +63,10 @@ export class TariffController {
     async getLabs(): Promise<Tariff[]>{
         return await this._tariffService.getLabs();
     }
+
+    @Get('get-by-bl/:idbl')
+    async getByBl(@Param('idbl') idbl): Promise<Tariff[]>{
+        const tariff = await this._tariffService.getByBl(idbl);
+        return tariff;
+    }
 }
