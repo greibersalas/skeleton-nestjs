@@ -44,7 +44,7 @@ export class Reservation extends BaseEntity{
     @JoinColumn({name:'patient_id'})
     patient: ClinicHistory;
 
-    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade: true, nullable: true, eager: true})
     @JoinColumn({name:'tariff_id'})
     tariff: Tariff;
 }

@@ -64,4 +64,14 @@ export class SpecialtyService {
         }
         return specialty;
     }
+
+    async getByBusinessLines(data: any): Promise<Specialty[]>{
+        const specialty: Specialty[] = await this._specialtyRepository
+        .createQueryBuilder("sp")
+        .where("sp.businessLines IN (:...bls) AND sp.state = 1",{bls: data.ids}).getMany();
+        if(!specialty){
+            throw new NotFoundException();
+        }
+        return specialty;
+    }
 }

@@ -42,4 +42,10 @@ export class SpecialtyController {
         const specialty = await this._specialtyService.getByBusinessLine(idbusinessline);
         return specialty;
     }
+
+    @Post('get-by/:bls')
+    async getByBl(@Body() data: any): Promise<Specialty[]>{
+        const specialty = await this._specialtyService.getByBusinessLines(data);
+        return specialty;
+    }
 }

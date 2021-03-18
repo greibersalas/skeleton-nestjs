@@ -13,7 +13,7 @@ export class Doctor extends BaseEntity{
     name: string;
 
     @Column({type: 'varchar', length: 80, nullable:false})
-    nameQuote: string;    
+    nameQuote: string;
 
     @Column({type: 'varchar', nullable: false})
     address: string;
@@ -28,9 +28,12 @@ export class Doctor extends BaseEntity{
     @Column({type: 'int8', nullable: true})
     cop: number;
 
-    @ManyToOne(type => Specialty, specialty => specialty.id,{cascade:true, nullable:false, eager:true})
+    /* @ManyToOne(type => Specialty, specialty => specialty.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn({name:'specialtys'})
-    specialtys: Specialty;
+    specialtys: Specialty; */
+
+    @Column({type:'int', nullable: true, array: true})
+    specialty: number[];
 
     @Column({type: 'date', nullable: true})
     birthdate: Date;
@@ -53,9 +56,8 @@ export class Doctor extends BaseEntity{
     @Column({type: 'int2', nullable: false})
     turn: number;
 
-    @ManyToOne(type => BusinessLine, businessLine => businessLine.id,{cascade:true, nullable:false, eager:true})
-    @JoinColumn({name:'businessLines'})
-    businessLines: BusinessLine;
+    @Column({type:'int', nullable: true, array: true})
+    business_lines: number[];
 
     @Column({type: 'int2', nullable: false})
     documentInssued: number;
