@@ -41,6 +41,7 @@ import { LabOrderLabeledModule } from './modules/main/lab-order-labeled/lab-orde
 import { LabeledStatusModule } from './modules/mat/labeled-status/labeled-status.module';
 import { LabProgrammingModule } from './modules/main/lab-programming/lab-programming.module';
 import { AnamnesisModule } from './modules/main/anamnesis/anamnesis.module';
+import { AttentionCardModule } from './modules/attention-card/attention-card.module';
 
 
 @Module({
@@ -82,7 +83,8 @@ import { AnamnesisModule } from './modules/main/anamnesis/anamnesis.module';
     LabOrderLabeledModule,
     LabeledStatusModule,
     LabProgrammingModule,
-    AnamnesisModule
+    AnamnesisModule,
+    AttentionCardModule
   ],
   controllers: [AppController],
   providers: [AppService],
