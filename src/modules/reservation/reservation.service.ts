@@ -145,4 +145,14 @@ export class ReservationService {
             return true;
         return false;
     }
+
+    async cancel(id: number): Promise<boolean>{
+        const confirm = await this._ReservationRepository.createQueryBuilder()
+        .update(Reservation)
+        .set({state:0}).where({id}).execute();
+        if(!confirm){
+            return false;
+        }
+        return true;
+    }
 }

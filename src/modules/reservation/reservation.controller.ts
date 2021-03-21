@@ -354,4 +354,9 @@ export class ReservationController {
     @Param('date') date: string,@Param('appointment') appointment: string): Promise<boolean>{
         return await this._reservationService.validateReservation(iddoctor,date,appointment);
     }
+
+    @Get('cancel/:id')
+    async cancel(@Param('id',ParseIntPipe) id: number): Promise<boolean>{
+        return await this._reservationService.cancel(id);
+    }
 }

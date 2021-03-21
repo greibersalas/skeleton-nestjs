@@ -82,7 +82,7 @@ export class LabOrderService {
         //.select('count(id) as total')
         .where('job = :job AND instalation = :date AND state = 1',{
             job,date
-        }).getCount();        
+        }).getCount();
         return cant;
     }
 
@@ -226,7 +226,7 @@ export class LabOrderService {
     async confirm(id: number, state: number): Promise<any>{
         const confirm = await this._labOrderRepository.createQueryBuilder()
         .update(LabOrder).set({state})
-        .where({id}).execute();        
+        .where({id}).execute();
         return confirm;
     }
 }
