@@ -36,7 +36,7 @@ export class QuotationController {
     async createQuotation(@Body() quotation: Quotation): Promise<Quotation>{
         const create = await this._quotationService.create(quotation);
         return create;
-    }    
+    }
 
     @Put(':id')
     async updateQuotation(@Param('id',ParseIntPipe) id: number, @Body() quotation: Quotation){

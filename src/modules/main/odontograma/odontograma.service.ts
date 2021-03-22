@@ -85,4 +85,19 @@ export class OdontogramaService {
             }
         );
     }
+
+    /**
+     * Return odontograma by quotation
+     * @param id <quotation>
+     */
+     async getByQuotation(id: number): Promise<Odontograma>{
+        return await this._odontogramaRepository.findOne(
+            {
+                where: {
+                    state: 1,
+                    quotation: id
+                }
+            }
+        );
+    }
 }

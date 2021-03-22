@@ -47,4 +47,9 @@ export class OdontogramaController {
     async getFirst(@Param('id') id): Promise<Odontograma[]>{
         return await this._odontogramaService.getFirst(id);
     }
+
+    @Get('get-quotation/:id')
+    async getByQuotation(@Param('id') id): Promise<Odontograma>{
+        return await this._odontogramaService.getByQuotation(id);
+    }
 }

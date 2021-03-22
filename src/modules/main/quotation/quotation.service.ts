@@ -47,8 +47,18 @@ export class QuotationService {
                 id: 'DESC'
             }
         });
+        await Promise.all(quotation.map(async (it: any) => {
+            let detail = await this._quotationDetailRepository.createQueryBuilder('dt')
+            .select('dt.*, bl.name AS businessline')
+            .innerJoin('dt.tariff','tr')
+            .innerJoin('tr.specialty','sp')
+            .innerJoin('sp.businessLines','bl')
+            .where('dt.quotation = :id AND dt.state <> 0',{id:it.id})
+            .getRawMany();
+            it.detail = detail;
+        }));
         return quotation;
-    }   
+    }
 
     async getDetail(id: number): Promise<QuotationDetail[]>{
         return this._quotationDetailRepository
@@ -134,6 +144,16 @@ export class QuotationService {
         .where({
             state: 1
         }).getMany();
+        await Promise.all(data.map(async (it: any) => {
+            let detail = await this._quotationDetailRepository.createQueryBuilder('dt')
+            .select('dt.*, bl.name AS businessline')
+            .innerJoin('dt.tariff','tr')
+            .innerJoin('tr.specialty','sp')
+            .innerJoin('sp.businessLines','bl')
+            .where('dt.quotation = :id AND dt.state <> 0',{id:it.id})
+            .getRawMany();
+            it.detail = detail;
+        }));
         return data;
     }
 
