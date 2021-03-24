@@ -60,11 +60,11 @@ export class EnvironmentDoctorService {
         await this._environmentDoctorRepository.update(id,{state:0});
     }
 
-    async programmingDay(day: string, reser: any): Promise<any>{
+    async programmingDay(day: string, reser: any, campus: number): Promise<any>{
         //console.log("Reser ",reser);
         let prog: any[] = [];
         //Busco la lista de consultorios
-        const ed = await this._environmentDoctorRepository.find({where:{state: 1},order:{id:'ASC'}});
+        const ed = await this._environmentDoctorRepository.find({where:{state: 1, campus},order:{id:'ASC'}});
         ed.forEach(async (i: EnvironmentDoctor) => {
             let hours: any[]= [];
             let since = moment(`${day} 08:00:00`).tz('America/Lima');

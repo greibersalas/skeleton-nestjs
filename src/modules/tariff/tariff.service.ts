@@ -59,6 +59,8 @@ export class TariffService {
         tariffExists.description = tariff.description;
         tariffExists.dental_status = tariff.dental_status;
         tariffExists.bracket = tariff.bracket;
+        tariffExists.cost = tariff.cost;
+        tariffExists.cost_usd = tariff.cost_usd;
         await this._tariffRepository.update(id,tariffExists);
         const updateTariff : Tariff = await this._tariffRepository.findOne(id);
         return updateTariff;

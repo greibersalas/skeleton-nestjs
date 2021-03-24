@@ -42,7 +42,7 @@ export class EnvironmentDoctorController {
     @Get('programmin-day/:date/:campus')
     async getProgrammingDay(@Param('date') date: string, @Param('campus',ParseIntPipe) campus: number): Promise<any>{
         const reser = await this._reservationService.getByDay(date,campus);
-        const programmming = await this._edService.programmingDay(date,reser);
+        const programmming = await this._edService.programmingDay(date,reser,campus);
         return programmming;
     }
 }

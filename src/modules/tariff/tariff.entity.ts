@@ -19,9 +19,6 @@ export class Tariff extends BaseEntity{
     @JoinColumn({name:'specialty'})
     specialty: Specialty;
 
-    /* @OneToMany(() => TariffHistory, tariffHistory => tariffHistory.tariff,{eager:true})
-    tariffHistory: TariffHistory[]; */
-
     @Column({type: 'float4', default: 0, nullable: true})
     price_sol: number;
 
@@ -37,6 +34,12 @@ export class Tariff extends BaseEntity{
     @OneToOne(type => DentalStatus,{eager: true, nullable: true})
     @JoinColumn()
     dental_status: DentalStatus;
+
+    @Column({type: 'float4', default: 0, nullable: true})
+    cost: number;
+
+    @Column({type: 'float4', default: 0, nullable: true})
+    cost_usd: number;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
