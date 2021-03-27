@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@
 
 import { LabOrder } from './lab-order.entity';
 import { LabOrderService } from './lab-order.service';
+import { LabOrderLabeledService } from '../lab-order-labeled/lab-order-labeled.service';
+var moment = require('moment-timezone');
 
 //FPDF
 const FPDF = require('./pdf-barcode');
@@ -9,7 +11,8 @@ const FPDF = require('./pdf-barcode');
 @Controller('lab-order')
 export class LabOrderController {
 
-    constructor(private readonly _labOrderService: LabOrderService){}
+    constructor(private readonly _labOrderService: LabOrderService,
+        private readonly _labOrderLabeledService: LabOrderLabeledService){}
 
     @Get(':id')
     async getLabOrder(@Param('id',ParseIntPipe) id: number): Promise<LabOrder>{
@@ -67,10 +70,11 @@ export class LabOrderController {
 
     @Get('pdf/:id')
     async getPdf(@Param('id',ParseIntPipe) id: number): Promise<any>{
+        const data = await this._labOrderLabeledService.pdf(id);
         let dm: number[] = [50,40];
         const pdf = new FPDF('L','mm',dm);
         pdf.AddPage('L','A4');
-        pdf.SetTitle('Test Lab');
+        pdf.SetTitle('Retulado Laboratorio');
         //pdf.SetLeftMargin(15);
         //pdf.SetRightMargin(15);
         pdf.SetFillColor(200,200,200);
@@ -85,7 +89,7 @@ export class LabOrderController {
         pdf.SetFont('Arial','B',40);
         pdf.SetY(30);
         pdf.SetX(10);
-        pdf.Cell(260,20,'Greiber Jesús Salas Coronel',0,0,'L');
+        pdf.Cell(260,20,`${data.name} ${data.lastNameFather} ${data.lastNameMother}`,0,0,'L');
 
         pdf.SetFont('Arial','',40);
         pdf.SetY(50);
@@ -97,7 +101,7 @@ export class LabOrderController {
         pdf.SetFont('Arial','B',40);
         pdf.SetY(70);
         pdf.SetX(10);
-        pdf.Cell(260,20,'MX121-123456',0,0,'L');
+        pdf.Cell(260,20,`${data.history}`,0,0,'L');
 
         pdf.SetFont('Arial','',40);
         pdf.SetY(90);
@@ -109,18 +113,14 @@ export class LabOrderController {
         pdf.SetFont('Arial','B',40);
         pdf.SetY(110);
         pdf.SetX(10);
-        pdf.Cell(130,20,'26-03-2021',0,0,'L');
-
-        /* pdf.SetY(90);
-        pdf.SetX(140);
-        pdf.Cell(130,40,'',1,0,'L'); */
+        pdf.Cell(130,20,`${moment(data.date_labeled).tz('America/Lima').format('DD-MM-YYYY')}`,0,0,'L');
 
         pdf.Image('assets/img/logo.jpg',140,90,130,40,'jpg');
 
-        pdf.Code39(10,150,'MX121-123456',3,30);
-
-        pdf.Output('F','uploads/pdf/lab/test.pdf');
-
-        return 'uploads/pdf/lab/test.pdf'
+        pdf.Code39(10,150,`${data.history}`,3,30);
+        const nameFile: string = `lab-labeled-${data.history}-${id}-${moment().tz('America/Lima').format('YYYYMMDDHHmmss')}.pdf`;
+        pdf.Output('F',`uploads/pdf/lab/${nameFile}`);
+        let response = {link: `pdf/lab/${nameFile}`}
+        return response;
     }
 }

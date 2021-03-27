@@ -21,7 +21,7 @@ export class QuotationDetail extends BaseEntity{
     @ManyToOne(type => Coin, coin => coin.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn()
     coin: Coin;
-    
+
     @Column({type: 'float8', default: 0, nullable: false})
     price: number;
 

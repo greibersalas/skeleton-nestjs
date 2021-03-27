@@ -14,7 +14,7 @@ export class LabOrderLabeledService {
 
     /**
      * get by laborder
-     * @param id 
+     * @param id
      */
     async get(id: number): Promise<LabOrderLabeled[]>{
         if(!id){
@@ -59,5 +59,24 @@ export class LabOrderLabeledService {
             throw new NotFoundException();
         }
         await this._labOrderLabeledRepository.update(id,{state:0});
+    }
+
+    async pdf(id: number): Promise<any>{
+        if(!id){
+            throw new BadRequestException('id must be send.');
+        }
+        const labOrder: any = await this._labOrderLabeledRepository
+        .createQueryBuilder("lol")
+        .select('lol.date as date_labeled, ch.*')
+        .innerJoin("lol.laborder","lo")
+        .innerJoin("lo.quotation_detail","qd")
+        .innerJoin("qd.quotation","qt")
+        .innerJoin("qt.clinicHistory","ch")
+        .where("lol.id = :id",{id})
+        .getRawOne();
+        if(!labOrder){
+            throw new NotFoundException();
+        }
+        return labOrder;
     }
 }
