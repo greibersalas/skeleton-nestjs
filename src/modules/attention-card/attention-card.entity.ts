@@ -6,7 +6,7 @@ export class AttentionCard extends BaseEntity{
 
     @PrimaryGeneratedColumn('increment')
     id: number;
-    
+
     @ManyToOne(type => ClinicHistory, clinichistory =>clinichistory.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn({name:'clinichistory'})
     clinichistory: ClinicHistory;

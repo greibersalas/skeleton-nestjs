@@ -75,8 +75,6 @@ export class LabOrderController {
         const pdf = new FPDF('L','mm',dm);
         pdf.AddPage('L','A4');
         pdf.SetTitle('Retulado Laboratorio');
-        //pdf.SetLeftMargin(15);
-        //pdf.SetRightMargin(15);
         pdf.SetFillColor(200,200,200);
 
         pdf.SetFont('Arial','',40);
