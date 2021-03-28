@@ -1,11 +1,12 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
+import { compare, genSalt, hash } from 'bcryptjs';
+
+import { IJwtPayload } from './jwt-payload.interface';
 import { SigninDto, SignupDto } from './dto';
 import { User } from '../user/user.entity';
-import { compare } from 'bcryptjs';
-import { IJwtPayload } from './jwt-payload.interface';
+import { AuthRepository } from './auth.repository';
 
 @Injectable()
 export class AuthService {
@@ -58,5 +59,20 @@ export class AuthService {
             capmus: user.campus,
             doctor: user.doctor
         };
+    }
+
+    async changePassword(id: number, signupDto: SignupDto): Promise<any>{
+        const userExist = await this._authRepository.findOne({
+            where: [{id}]
+        });
+
+        if(!userExist){
+            throw new NotFoundException();
+        }
+        const salt = await genSalt(10);
+        const password = await hash(signupDto.password, salt);
+        const change = this._authRepository.createQueryBuilder()
+        .update(User).set({password}).where({id}).execute();
+        return change;
     }
 }

@@ -37,7 +37,15 @@ export class UserService {
     }
 
     async update(id: number, user: User): Promise<any>{
-        const update = await this._userRepository.update(id,user);
+        //const update = await this._userRepository.update(id,user);
+        const update = await this._userRepository.createQueryBuilder()
+        .update(User).set({
+            username: user.username,
+            email: user.email,
+            roles: user.roles,
+            doctor: user.doctor,
+            campus: user.campus
+        }).where({id}).execute();
         return update;
     }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SigninDto, SignupDto } from './dto';
 
@@ -17,5 +17,11 @@ export class AuthController {
     @UsePipes(ValidationPipe)
     async signin(@Body() signinDto: SigninDto){
         return this._authServices.signin(signinDto);
+    }
+
+    @Put('/change-password/:id')
+    @UsePipes(ValidationPipe)
+    async changePassword(@Param('id',ParseIntPipe) id: number,@Body() signupDto: SignupDto): Promise<any>{
+        return this._authServices.changePassword(id,signupDto);
     }
 }
