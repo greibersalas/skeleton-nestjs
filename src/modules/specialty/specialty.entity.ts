@@ -23,6 +23,9 @@ export class Specialty extends BaseEntity{
     @Column({type: 'boolean', default: false})
     odontograma: boolean;
 
+    @Column({type: 'varchar', length: 2, default: 'OI'})
+    format: string;
+
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
 

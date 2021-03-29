@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@
 import { QuotationDetail } from './quotation-detail.entity';
 import { Quotation } from './quotation.entity';
 import { QuotationService } from './quotation.service';
+import { Pdf_of } from './pdf-of';
+import { Pdf_ap } from './pdf-ap';
 
 @Controller('quotation')
 export class QuotationController {
@@ -75,5 +77,17 @@ export class QuotationController {
     @Put('update-item/:id')
     async updateItem(@Param('id',ParseIntPipe) id: number,@Body() item: QuotationDetail): Promise<any>{
         return await this._quotationService.updateItem(id,item);
+    }
+
+    @Get('pdf/:id/:format')
+    async getPdf(@Param('id',ParseIntPipe) id: number, @Param('format') format: string): Promise<any>{
+        const data = await this._quotationService.dataPdf(id);
+        if(format === 'OF'){
+            const pdf = new Pdf_of();
+            return pdf.print(data);
+        }else if(format === 'AP'){
+            const pdf = new Pdf_ap();
+            return pdf.print(data);
+        }
     }
 }

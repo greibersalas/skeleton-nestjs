@@ -181,4 +181,22 @@ export class QuotationService {
             total: item.total
         }).execute();
     }
+
+    async dataPdf(id: number): Promise<any>{
+        const exists = await this._quotationRepository.findOne(id);
+        if(!exists){
+            throw new NotFoundException();
+        }
+        const qt: any = await this._quotationRepository
+        .createQueryBuilder('qt')
+        .innerJoinAndSelect('qt.clinicHistory','ch')
+        .innerJoinAndSelect('qt.doctor','dc')
+        .where({id}).getOne();
+
+        const dt = await this._quotationDetailRepository.createQueryBuilder('qd')
+        .innerJoinAndSelect('qd.coin','co').where({quotation:qt.id}).getMany();
+        qt.detail = dt;
+
+        return qt;
+    }
 }
