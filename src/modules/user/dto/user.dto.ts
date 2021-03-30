@@ -1,6 +1,5 @@
-import { isNotEmpty, IsNotEmpty } from "class-validator";
-import { Role } from "../../../modules/role/role.entity";
-import { UserDetails } from "../user.details.entity";
+import { IsNotEmpty } from "class-validator";
+import { Role } from "../../security/role/role.entity";
 
 export class UserDto{
 

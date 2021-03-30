@@ -2,7 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, OneToOne, PrimaryGenerate
 
 @Entity('roles')
 export class Role extends BaseEntity{
-    
+
     @PrimaryGeneratedColumn('increment')
     idrole: number;
 

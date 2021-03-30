@@ -9,7 +9,7 @@ import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './modules/user/user.module';
-import { RoleModule } from './modules/role/role.module';
+import { RoleModule } from './modules/security/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BusinessLineModule } from './modules/business-line/business-line.module';
 import { CampusModule } from './modules/campus/campus.module';
@@ -43,6 +43,7 @@ import { LabProgrammingModule } from './modules/main/lab-programming/lab-program
 import { AnamnesisModule } from './modules/main/anamnesis/anamnesis.module';
 import { AttentionCardModule } from './modules/attention-card/attention-card.module';
 import { MedicalActAttentionModule } from './modules/main/medical-act-attention/medical-act-attention.module';
+import { ModuleModule } from './modules/security/module/module.module';
 
 
 @Module({
@@ -86,7 +87,8 @@ import { MedicalActAttentionModule } from './modules/main/medical-act-attention/
     LabProgrammingModule,
     AnamnesisModule,
     AttentionCardModule,
-    MedicalActAttentionModule
+    MedicalActAttentionModule,
+    ModuleModule
   ],
   controllers: [AppController],
   providers: [AppService],

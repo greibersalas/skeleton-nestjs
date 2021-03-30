@@ -1,5 +1,4 @@
-import { Role } from "../role/role.entity";
-
+import { Role } from "../security/role/role.entity";
 export interface IJwtPayload{
     id: number;
     username: string;

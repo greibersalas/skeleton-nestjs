@@ -1,13 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from '../role/role.entity';
+import { Role } from './role.entity';
 import { RoleRepository } from './role.repository';
 
 @Injectable()
 export class RoleService {
-    constructor(@InjectRepository(RoleRepository) private readonly _roleRepository:RoleRepository){
-        
-    }
+    constructor(@InjectRepository(RoleRepository) private readonly _roleRepository:RoleRepository){}
 
     async get(id: number): Promise<Role>{
         if(!id){
