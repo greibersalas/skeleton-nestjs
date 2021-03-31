@@ -26,7 +26,9 @@ export class DistrictsService {
     }
 
     async getAll(): Promise<Districts[]>{
-        const Districts: Districts[] = await this._DistrictsRepository.find({where:{state:1}});
+        const Districts: Districts[] = await this._DistrictsRepository
+        .createQueryBuilder('dt')
+        .where({state:1}).orderBy({name:'ASC'}).getMany();
         return Districts;
     }
 

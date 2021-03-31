@@ -19,7 +19,6 @@ export class Provinces extends BaseEntity{
     @JoinColumn({name:'users'})
     users: User;
 
-    
     @Column({type: 'int2', default: 1, nullable:false,})
     state: number;
 

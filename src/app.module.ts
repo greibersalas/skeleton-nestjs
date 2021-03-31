@@ -44,6 +44,7 @@ import { AnamnesisModule } from './modules/main/anamnesis/anamnesis.module';
 import { AttentionCardModule } from './modules/attention-card/attention-card.module';
 import { MedicalActAttentionModule } from './modules/main/medical-act-attention/medical-act-attention.module';
 import { ModuleModule } from './modules/security/module/module.module';
+import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breathing.module';
 
 
 @Module({
@@ -88,7 +89,8 @@ import { ModuleModule } from './modules/security/module/module.module';
     AnamnesisModule,
     AttentionCardModule,
     MedicalActAttentionModule,
-    ModuleModule
+    ModuleModule,
+    MouthBreathingModule
   ],
   controllers: [AppController],
   providers: [AppService],
