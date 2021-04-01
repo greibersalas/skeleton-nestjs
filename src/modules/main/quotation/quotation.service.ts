@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Odontograma } from '../odontograma/odontograma.entity';
 
 import { OdontogramaRepository } from '../odontograma/odontograma.repository';
-import { QuotationDetail } from './quotation-detail.entity';
+import { QuotationTermsRepository } from '../quotation-terms/quotation-terms.repository';
 import { QuotationDetailRepository } from './quotation-detail.repository';
+import { QuotationDetail } from './quotation-detail.entity';
 import { Quotation } from './quotation.entity';
 import { QuotationRepository } from './quotation.repository';
 
@@ -17,7 +18,9 @@ export class QuotationService {
         @InjectRepository(QuotationDetailRepository)
         private readonly _quotationDetailRepository: QuotationDetailRepository,
         @InjectRepository(OdontogramaRepository)
-        private readonly _odontogramaRepository: OdontogramaRepository
+        private readonly _odontogramaRepository: OdontogramaRepository,
+        @InjectRepository(QuotationTermsRepository)
+        private readonly _quotationTermsRepository: QuotationTermsRepository
     ){}
 
     async get(id: number): Promise<Quotation>{
@@ -189,17 +192,25 @@ export class QuotationService {
         if(!exists){
             throw new NotFoundException();
         }
+        //Datos de la cotización
         const qt: any = await this._quotationRepository
         .createQueryBuilder('qt')
         .innerJoinAndSelect('qt.clinicHistory','ch')
         .innerJoinAndSelect('qt.doctor','dc')
         .where({id}).getOne();
 
+        //Detalle de la cotización
         const dt = await this._quotationDetailRepository.createQueryBuilder('qd')
         .innerJoinAndSelect('qd.coin','co')
         .innerJoinAndSelect('qd.tariff','tr')
-        .where({quotation:qt.id}).getMany();
+        .where("qd.quotation = :idquotation AND qd.state <> 0",{idquotation: qt.id}).getMany();
         qt.detail = dt;
+
+        //Terminos de la cotización
+        const terms = await this._quotationTermsRepository
+        .createQueryBuilder('qt')
+        .where({quotation: qt.id, state: 1}).orderBy({description: 'ASC'}).getMany();
+        qt.terms = terms;
 
         return qt;
     }

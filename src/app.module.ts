@@ -45,6 +45,7 @@ import { AttentionCardModule } from './modules/attention-card/attention-card.mod
 import { MedicalActAttentionModule } from './modules/main/medical-act-attention/medical-act-attention.module';
 import { ModuleModule } from './modules/security/module/module.module';
 import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breathing.module';
+import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-terms.module';
 
 
 @Module({
@@ -90,7 +91,8 @@ import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breat
     AttentionCardModule,
     MedicalActAttentionModule,
     ModuleModule,
-    MouthBreathingModule
+    MouthBreathingModule,
+    QuotationTermsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,7 +7,7 @@ export class Pdf_ap{
     print(data: any){
         //console.log("Data reporte ",data.detail[0]);
         const pdf = new FPDF('P','mm','A4');
-        const y: number = 10;
+        let y: number = 10;
         pdf.AddPage('P','A4');
         pdf.SetTitle('Cotizacion Apnea - '+data.id);
         pdf.SetFillColor(200,200,200);
@@ -56,48 +56,68 @@ export class Pdf_ap{
         pdf.SetX(10);
         pdf.Cell(20,5,`INCLUYE:`,0,0,'L');
 
-        pdf.SetY(y+55);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- 1 DISPOSITIVO DE AVANCE MANDIBULAR (DAM)`,0,0,'L');
-        pdf.SetY(y+60);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- MANTENIMIENTO PERIÓDICO DE APARATO POR 2 AÑOS`,0,0,'L');
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+65);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- CONTROLES QUINCENALES DURANTE 4 – 6 MESES , 2 EXAMENES DE SUEÑO SIMPLIFICADO`,0,0,'L');
+        let incluye = data.terms.filter(function(inclu: any){
+            return inclu.type === 'INCLUYE';
+        });
+        if(incluye.length){
+            incluye.forEach((el: any) => {
+                pdf.SetY(y+55);
+                pdf.SetX(13);
+                pdf.MultiCell(180,5,`${el.description}`);
+                if(el.description.length > 90){
+                    y += 10;
+                }else{
+                    y += 5;
+                }
+            });
+        }
 
         //Controles
         pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+75);
+        pdf.SetY(y+65);
         pdf.SetX(10);
         pdf.Cell(20,5,`CONTROLES`,0,0,'L');
 
-        pdf.SetY(y+80);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- Frecuencia de Controles`,0,0,'L');
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+85);
-        pdf.SetX(15);
-        pdf.MultiCell(190,5,`Cada 3 a 6 semanas según Indicación del especialista. En caso de daño o ruptura del aparato por mal uso o descuido, el costo por reparación es de S/.60`);
+        let controls = data.terms.find(function(cont: any){
+            return cont.type === 'CONTROLES';
+        });
+        if(controls){
+            pdf.SetY(y+70);
+            pdf.SetX(13);
+            pdf.Cell(20,5,`- Frecuencia de Controles`,0,0,'L');
+            pdf.SetFont('Arial','',10);
+            pdf.SetY(y+75);
+            pdf.SetX(15);
+            pdf.MultiCell(180,5,`${controls.description}`);
 
+        }
         //Adicional
         pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+95);
-        pdf.SetX(10);
-        pdf.Cell(20,5,`APARATOLOGÍA ADICIONAL`,0,0,'L');
-        pdf.SetY(y+95);
-        pdf.SetX(10);
-        pdf.Cell(190,5,`$ 100.00 dólares`,0,0,'R');
+        let aditional = data.terms.find(function(cont: any){
+            return cont.type === 'ADICIONAL';
+        });
+        if(aditional){
+            pdf.SetY(y+90);
+            pdf.SetX(10);
+            pdf.Cell(20,5,`APARATOLOGÍA ADICIONAL`,0,0,'L');
+            pdf.SetY(y+90);
+            pdf.SetX(10);
+            pdf.Cell(190,5,`${aditional.description}`,0,0,'R');
 
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+100);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- En caso de necesitar aparatología adicional a los que ya cubre su presupuesto`,0,0,'L');
-        pdf.SetY(y+105);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- En caso de pérdida del aparato con microchip, el costo Sólo del dispositivo microchip es de $100 dólares.`,0,0,'L');
+        }
 
+        let aditionals = data.terms.filter(function(cont: any){
+            return cont.type === 'ADICIONALES';
+        });
+        if(aditionals){
+            pdf.SetFont('Arial','',10);
+            aditionals.forEach((el: any) =>{
+                pdf.SetY(y+95);
+                pdf.SetX(13);
+                pdf.Cell(20,5,`${el.description}`,0,0,'L');
+                y += 5;
+            });
+        }
         //Firma
         pdf.SetY(y+200);
         pdf.SetX(13);
@@ -109,14 +129,14 @@ export class Pdf_ap{
         pdf.Cell(90,5,`DR. ${data.doctor.nameQuote.toUpperCase()}`,0,0,'C');
         pdf.SetY(y+205);
         pdf.SetX(100);
-        pdf.Cell(90,5,`COP 22000`,0,0,'C');
+        pdf.Cell(90,5,`COP ${data.doctor.cop}`,0,0,'C');
 
         pdf.SetFont('Arial','',7);
         pdf.SetY(260);
         pdf.SetX(10);
         pdf.Cell(15,5,`Fecha de impresión ${moment().tz('America/Lima').format('DD-MM-YYYY HH:mm:ss')}`);
 
-        const nameFile: string = `quotation-of-${moment().tz('America/Lima').format('YYYYMMDDHHmmss')}.pdf`;
+        const nameFile: string = `quotation-ap-${moment().tz('America/Lima').format('YYYYMMDDHHmmss')}.pdf`;
         pdf.Output('F',`uploads/pdf/quotation/${nameFile}`);
         let response = {link: `pdf/quotation/${nameFile}`}
         return response;

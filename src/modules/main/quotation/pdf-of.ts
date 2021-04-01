@@ -7,7 +7,7 @@ export class Pdf_of{
     print(data: any){
         //console.log("Data reporte ",data.detail[0]);
         const pdf = new FPDF('P','mm','A4');
-        const y: number = 10;
+        let y: number = 10;
         pdf.AddPage('P','A4');
         pdf.SetTitle('Cotizacion Ortopedia funcional - '+data.id);
         pdf.SetFillColor(200,200,200);
@@ -56,66 +56,77 @@ export class Pdf_of{
         pdf.SetX(10);
         pdf.Cell(20,5,`INCLUYE:`,0,0,'L');
 
-        pdf.SetY(y+55);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- REGISTRO FOTOGRÁFICO: FOTOS INTRAORALES Y EXTRAORALES PARA EL ANÁLISIS`,0,0,'L');
-        pdf.SetY(y+60);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- ANÁLISIS Y PRONÓSTICO DE CRECIMIENTO SEGÚN LAS RADIOGRAFÍAS O TOMOGRAFÍAS`,0,0,'L');
-        pdf.SetFont('Arial','',8);
-        pdf.SetY(y+65);
-        pdf.SetX(15);
-        pdf.Cell(20,5,`(No Incluye Imágenes Radiográficas, ni tomográficas)`,0,0,'L');
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+70);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- MODELOS DE ESTUDIO`,0,0,'L');
-        pdf.SetY(y+75);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- MODELOS DE TRABAJO`,0,0,'L');
-        pdf.SetY(y+80);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- REGISTROS OCLUSALES ESPECIALIZADOS`,0,0,'L');
-        pdf.SetY(y+85);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- 4 APARATOS ORTOPÉDICOS FUNCIONALES DISEÑADOS SEGÚN ESTUDIOS PREVIOS`,0,0,'L');
-        pdf.SetY(y+90);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- 1 MICROCHIP (Tiempo de Duración: 1 año Aproximadamente)`,0,0,'L');
+        let incluye = data.terms.filter(function(inclu: any){
+            return inclu.type === 'INCLUYE';
+        });
+        if(incluye.length){
+            incluye.forEach((el: any) => {
+                pdf.SetY(y+55);
+                pdf.SetX(13);
+                pdf.MultiCell(180,5,`${el.description}`);
+                //console.log("Tamanio de la cadena ",el.description.length);
+                if(el.description.length > 90){
+                    y += 10;
+                }else{
+                    y += 5;
+                }
+            });
+        }
 
         //Controles
-        pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+110);
-        pdf.SetX(10);
-        pdf.Cell(20,5,`CONTROLES`,0,0,'L');
-        pdf.SetY(y+110);
-        pdf.SetX(10);
-        pdf.Cell(190,5,`S/ 100.00`,0,0,'R');
+        let control = data.terms.find(function(cont: any){
+            return cont.type === 'CONTROL';
+        });
+        if(control){
+            pdf.SetFont('Arial','B',10);
+            pdf.SetY(y+65);
+            pdf.SetX(10);
+            pdf.Cell(20,5,`CONTROLES`,0,0,'L');
+            pdf.SetY(y+65);
+            pdf.SetX(10);
+            pdf.Cell(190,5,`${control.description} ${formatter.format(control.amount)}`,0,0,'R');
+        }
 
-        pdf.SetY(y+115);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- Frecuencia de Controles`,0,0,'L');
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+120);
-        pdf.SetX(15);
-        pdf.MultiCell(190,5,`Cada 3 a 6 semanas según Indicación del especialista. En caso de daño o ruptura del aparato por mal uso o descuido, el costo por reparación es de S/.80`);
+        let controls = data.terms.find(function(cont: any){
+            return cont.type === 'CONTROLES';
+        });
+        if(controls){
+            pdf.SetY(y+70);
+            pdf.SetX(13);
+            pdf.Cell(20,5,`- Frecuencia de Controles`,0,0,'L');
+            pdf.SetFont('Arial','',10);
+            pdf.SetY(y+75);
+            pdf.SetX(15);
+            pdf.MultiCell(180,5,`${controls.description}`);
+        }
 
         //Adicional
-        pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+135);
-        pdf.SetX(10);
-        pdf.Cell(20,5,`APARATOLOGÍA ADICIONAL`,0,0,'L');
-        pdf.SetY(y+135);
-        pdf.SetX(10);
-        pdf.Cell(190,5,`$ 130.00 dólares`,0,0,'R');
+        let aditional = data.terms.find(function(cont: any){
+            return cont.type === 'ADICIONAL';
+        });
+        if(aditional){
+            pdf.SetFont('Arial','B',10);
+            pdf.SetY(y+90);
+            pdf.SetX(10);
+            pdf.Cell(20,5,`APARATOLOGÍA ADICIONAL`,0,0,'L');
+            pdf.SetY(y+90);
+            pdf.SetX(10);
+            pdf.Cell(190,5,`${aditional.description}`,0,0,'R');
+        }
 
-        pdf.SetFont('Arial','',10);
-        pdf.SetY(y+145);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- En caso de necesitar aparatología adicional a los que ya cubre su presupuesto`,0,0,'L');
-        pdf.SetY(y+150);
-        pdf.SetX(13);
-        pdf.Cell(20,5,`- En caso de pérdida del aparato con microchip, el costo Sólo del dispositivo microchip es de $100 dólares.`,0,0,'L');
+        let aditionals = data.terms.filter(function(cont: any){
+            return cont.type === 'ADICIONALES';
+        });
+        if(aditionals){
+            pdf.SetFont('Arial','',10);
+            aditionals.forEach((el: any) =>{
+                pdf.SetY(y+100);
+                pdf.SetX(13);
+                pdf.Cell(20,5,`${el.description}`,0,0,'L');
+                pdf.SetY(y+105);
+                y += 5;
+            });
+        }
 
         //Firma
         pdf.SetY(y+200);
@@ -128,7 +139,7 @@ export class Pdf_of{
         pdf.Cell(90,5,`DR. ${data.doctor.nameQuote.toUpperCase()}`,0,0,'C');
         pdf.SetY(y+205);
         pdf.SetX(100);
-        pdf.Cell(90,5,`COP 22000`,0,0,'C');
+        pdf.Cell(90,5,`COP ${data.doctor.cop}`,0,0,'C');
 
         pdf.SetFont('Arial','',7);
         pdf.SetY(260);
