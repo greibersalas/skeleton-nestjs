@@ -28,6 +28,9 @@ export class QuotationDetail extends BaseEntity{
     @Column({type: 'float8', default: 0, nullable: false})
     quantity: number;
 
+    @Column({type: 'boolean', default: false})
+    porce_discount: boolean;
+
     @Column({type: 'float8', default: 0, nullable: false})
     discount: number;
 

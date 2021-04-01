@@ -79,6 +79,7 @@ export class QuotationService {
             detail.discount = det.discount;
             detail.total = det.total;
             detail.coin = det.coin;
+            detail.porce_discount = det.porce_discount;
             await this._quotationDetailRepository.save(detail);
         });
         //Si hay odontograma lo insertamos
@@ -177,9 +178,10 @@ export class QuotationService {
         .set({
             price: item.price,
             quantity: item.quantity,
+            porce_discount: item.porce_discount,
             discount: item.discount,
             total: item.total
-        }).execute();
+        }).where({id}).execute();
     }
 
     async dataPdf(id: number): Promise<any>{
@@ -194,7 +196,9 @@ export class QuotationService {
         .where({id}).getOne();
 
         const dt = await this._quotationDetailRepository.createQueryBuilder('qd')
-        .innerJoinAndSelect('qd.coin','co').where({quotation:qt.id}).getMany();
+        .innerJoinAndSelect('qd.coin','co')
+        .innerJoinAndSelect('qd.tariff','tr')
+        .where({quotation:qt.id}).getMany();
         qt.detail = dt;
 
         return qt;

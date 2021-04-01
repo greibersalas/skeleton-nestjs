@@ -4,6 +4,7 @@ import { Quotation } from './quotation.entity';
 import { QuotationService } from './quotation.service';
 import { Pdf_of } from './pdf-of';
 import { Pdf_ap } from './pdf-ap';
+import { Pdf_oi } from './pdf-oi';
 
 @Controller('quotation')
 export class QuotationController {
@@ -87,6 +88,9 @@ export class QuotationController {
             return pdf.print(data);
         }else if(format === 'AP'){
             const pdf = new Pdf_ap();
+            return pdf.print(data);
+        }else{
+            const pdf = new Pdf_oi();
             return pdf.print(data);
         }
     }
