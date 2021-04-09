@@ -39,10 +39,15 @@ export class EnvironmentDoctorController {
         return true;
     }
 
-    @Get('programmin-day/:date/:campus')
-    async getProgrammingDay(@Param('date') date: string, @Param('campus',ParseIntPipe) campus: number): Promise<any>{
+    @Get('programmin-day/:date/:campus/:doctor/:patient/:state')
+    async getProgrammingDay(@Param('date') date: string, 
+                            @Param('campus',ParseIntPipe) campus: number, 
+                            @Param('doctor',ParseIntPipe) doctor: number,
+                            @Param('patient',ParseIntPipe) patient: number,
+                            @Param('state',ParseIntPipe) state: number
+        ): Promise<any>{
         const reser = await this._reservationService.getByDay(date,campus);
-        const programmming = await this._edService.programmingDay(date,reser,campus);
+        const programmming = await this._edService.programmingDay(date,reser,campus, doctor, patient,state);
         return programmming;
     }
 }

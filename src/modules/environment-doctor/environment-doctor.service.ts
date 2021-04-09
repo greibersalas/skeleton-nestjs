@@ -60,7 +60,7 @@ export class EnvironmentDoctorService {
         await this._environmentDoctorRepository.update(id,{state:0});
     }
 
-    async programmingDay(day: string, reser: any, campus: number): Promise<any>{
+    async programmingDay(day: string, reser: any, campus: number, doctor:number,patient:number,state:number): Promise<any>{
         //console.log("Reser ",reser);
         let prog: any[] = [];
         //Busco la lista de consultorios
@@ -92,7 +92,19 @@ export class EnvironmentDoctorService {
                 if(i.schedule_morning_since > 0 && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
                     //Busco si hay reserva en la hora
                     const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
-                    const reserv = _.find(reser,{environment_id: i.id, appointment: schedule} );
+                    //crear objeto para filtrar
+                    let filter = {
+                        environment_id: i.id,
+                        appointment: schedule,
+                    }
+                    if (doctor != 0)
+                        filter["doctor_id"] = doctor;
+                    if (patient != 0)
+                        filter["patient_id"] = patient;
+                    if (state != 0)
+                        filter["state"] = state;
+                        
+                    const reserv = _.find(reser,filter);
                     if(reserv){
                         hours.push({
                             since: moment(since).tz('America/Lima').format('HH:mm'),
