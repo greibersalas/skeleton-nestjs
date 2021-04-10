@@ -1,7 +1,14 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { BusinessLine } from "../business-line/business-line.entity";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 import { Districts } from "../districts/districts.entity";
-import { Specialty } from "../specialty/specialty.entity";
 
 @Entity('doctor')
 export class Doctor extends BaseEntity{
