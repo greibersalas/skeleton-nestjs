@@ -73,6 +73,8 @@ export class EnvironmentDoctorService {
             let schedule_morning_since = i.schedule_morning_since < 10 ? `0${i.schedule_morning_since}` : i.schedule_morning_since;
             let schedule_morning_until = i.schedule_morning_until < 10 ? `0${i.schedule_morning_until}` : i.schedule_morning_until;
             //Lunch
+            //Si no tiene hora re refrigerio asignamos una para el calulo del refrigerio
+            i.lunch_since = i.lunch_since === 0 ? i.schedule_morning_until : i.lunch_since;
             let lunch_since = i.lunch_since < 10 ? `0${i.lunch_since}` : i.lunch_since;
             let lunch_until = i.lunch_until < 10 ? `0${i.lunch_until}` : i.lunch_until;
             //afternoon
@@ -103,7 +105,6 @@ export class EnvironmentDoctorService {
                         filter["patient_id"] = patient;
                     if (state != 0)
                         filter["state"] = state;
-                        
                     const reserv = _.find(reser,filter);
                     if(reserv){
                         hours.push({
@@ -124,23 +125,27 @@ export class EnvironmentDoctorService {
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
                     if(i.time_cleaning > 0){
-                        hours.push({
-                            since: moment(since).tz('America/Lima').format('HH:mm'),
-                            until: moment(since).tz('America/Lima').add(i.time_cleaning,'minutes').format('HH:mm'),
-                            rowspan: (i.time_cleaning/10)*20,
-                            type: 2 //limpieza
-                        });
-                        since = moment(since).add(i.time_cleaning,'minutes');
+                        //SI la hora siguiente supera el refigerio no agrego el tiempo de limpeza
+                        let nextTime = moment(since).add(i.time_cleaning,'minutes');
+                        if(nextTime <= timetable.lunch_since){
+                            hours.push({
+                                since: moment(since).tz('America/Lima').format('HH:mm'),
+                                until: moment(since).tz('America/Lima').add(i.time_cleaning,'minutes').format('HH:mm'),
+                                rowspan: (i.time_cleaning/10)*19,
+                                type: 2 //limpieza
+                            });
+                            since = moment(since).add(i.time_cleaning,'minutes');
+                        }
                     }
                 }else if(i.lunch_since > 0 && timetable.lunch_since <= since && since < timetable.lunch_until){
                     //Calculamos el horario del refrigerio
                     hours.push({
                         since: moment(since).tz('America/Lima').format('HH:mm'),
                         until: moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm'),
-                        rowspan: (i.interval/10)*20,
+                        rowspan: (20/10)*20,//(i.interval/10)*20,
                         type: 3 //refrigerio
                     });
-                    since = moment(since).add(i.interval,'minutes');
+                    since = moment(since).add(20,'minutes');
                 }else if(i.schedule_afternoon_since > 0 && timetable.schedule_afternoon_since <= since && since < timetable.schedule_afternoon_until){
                     //Calculamos el horario de la tarde
                     //Busco si hay reserva en la hora
@@ -186,7 +191,7 @@ export class EnvironmentDoctorService {
                     hours.push({
                         since: moment(since).tz('America/Lima').format('HH:mm'),
                         until: moment(since).tz('America/Lima').add(10,'minutes').format('HH:mm'),
-                        rowspan: 20,
+                        rowspan: 19.5,
                         type: 0 //No disponible
                     });
                     since = moment(since).add(10,'minutes');
