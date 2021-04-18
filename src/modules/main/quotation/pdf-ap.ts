@@ -7,10 +7,12 @@ export class Pdf_ap{
     print(data: any){
         //console.log("Data reporte ",data.detail[0]);
         const pdf = new FPDF('P','mm','A4');
-        let y: number = 10;
+        let y: number = 50;
         pdf.AddPage('P','A4');
         pdf.SetTitle('Cotizacion Apnea - '+data.id);
         pdf.SetFillColor(200,200,200);
+
+        pdf.Image('assets/img/membrete.jpg',0,0,211,298,'jpg');
 
         //fecha
         pdf.SetFont('Arial','',10);
@@ -119,15 +121,15 @@ export class Pdf_ap{
             });
         }
         //Firma
-        pdf.SetY(y+200);
+        pdf.SetY(y+150);
         pdf.SetX(13);
         pdf.Cell(20,5,`VALIDO POR 30 DÍAS`,0,0,'L');
 
-        pdf.Line(110,(y+195),180,(y+195));
-        pdf.SetY(y+200);
+        pdf.Line(110,(y+145),180,(y+145));
+        pdf.SetY(y+150);
         pdf.SetX(100);
         pdf.Cell(90,5,`DR. ${data.doctor.nameQuote.toUpperCase()}`,0,0,'C');
-        pdf.SetY(y+205);
+        pdf.SetY(y+155);
         pdf.SetX(100);
         pdf.Cell(90,5,`COP ${data.doctor.cop}`,0,0,'C');
 
