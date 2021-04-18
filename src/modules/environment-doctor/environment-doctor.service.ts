@@ -68,30 +68,22 @@ export class EnvironmentDoctorService {
         ed.forEach(async (i: EnvironmentDoctor) => {
             let hours: any[]= [];
             let since = moment(`${day} 08:00:00`).tz('America/Lima');
-            let until = moment(`${day} 19:00:00`).tz('America/Lima');
-            //Morning
-            let schedule_morning_since = i.schedule_morning_since < 10 ? `0${i.schedule_morning_since}` : i.schedule_morning_since;
-            let schedule_morning_until = i.schedule_morning_until < 10 ? `0${i.schedule_morning_until}` : i.schedule_morning_until;
+            let until = moment(`${day} 21:00:00`).tz('America/Lima');
             //Lunch
             //Si no tiene hora re refrigerio asignamos una para el calulo del refrigerio
-            i.lunch_since = i.lunch_since === 0 ? i.schedule_morning_until : i.lunch_since;
-            let lunch_since = i.lunch_since < 10 ? `0${i.lunch_since}` : i.lunch_since;
-            let lunch_until = i.lunch_until < 10 ? `0${i.lunch_until}` : i.lunch_until;
-            //afternoon
-            let schedule_afternoon_since = i.schedule_afternoon_since < 10 ? `0${i.schedule_afternoon_since}` : i.schedule_afternoon_since;
-            let schedule_afternoon_until = i.schedule_afternoon_until < 10 ? `0${i.schedule_afternoon_until}` : i.schedule_afternoon_until;
-
+            i.lunch_since = !i.lunch_since ? i.schedule_morning_until : i.lunch_since;
+            //i.lunch_until = !i.lunch_since ? i.schedule_morning_until : i.lunch_until;
             let timetable = {
-                schedule_morning_since: moment(`${day} ${schedule_morning_since}:00:00`).tz('America/Lima'),
-                schedule_morning_until: moment(`${day} ${schedule_morning_until}:00:00`).tz('America/Lima'),
-                lunch_since: moment(`${day} ${lunch_since}:00:00`).tz('America/Lima'),
-                lunch_until: moment(`${day} ${lunch_until}:00:00`).tz('America/Lima'),
-                schedule_afternoon_since: moment(`${day} ${schedule_afternoon_since}:00:00`).tz('America/Lima'),
-                schedule_afternoon_until: moment(`${day} ${schedule_afternoon_until}:00:00`).tz('America/Lima')
+                schedule_morning_since: moment(`${day} ${i.schedule_morning_since ? i.schedule_morning_since : '00:00:00'}`).tz('America/Lima'),
+                schedule_morning_until: moment(`${day} ${i.schedule_morning_until ? i.schedule_morning_until : '00:00:00'}`).tz('America/Lima'),
+                lunch_since: moment(`${day} ${i.lunch_since}`).tz('America/Lima'),
+                lunch_until: moment(`${day} ${i.lunch_until ? i.lunch_until : '00:00:00'}`).tz('America/Lima'),
+                schedule_afternoon_since: moment(`${day} ${i.schedule_afternoon_since ? i.schedule_afternoon_since : '00:00:00'}`).tz('America/Lima'),
+                schedule_afternoon_until: moment(`${day} ${i.schedule_afternoon_until ? i.schedule_afternoon_until : '00:00:00'}`).tz('America/Lima')
             }
             while(since <= until){
                 //Calculamos el horario de la mañana
-                if(i.schedule_morning_since > 0 && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
+                if(i.schedule_morning_since && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
                     //Busco si hay reserva en la hora
                     const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
                     //crear objeto para filtrar
@@ -137,7 +129,7 @@ export class EnvironmentDoctorService {
                             since = moment(since).add(i.time_cleaning,'minutes');
                         }
                     }
-                }else if(i.lunch_since > 0 && timetable.lunch_since <= since && since < timetable.lunch_until){
+                }else if(i.lunch_since && timetable.lunch_since <= since && since < timetable.lunch_until){
                     //Calculamos el horario del refrigerio
                     hours.push({
                         since: moment(since).tz('America/Lima').format('HH:mm'),
@@ -146,36 +138,14 @@ export class EnvironmentDoctorService {
                         type: 3 //refrigerio
                     });
                     since = moment(since).add(20,'minutes');
-                }else if(i.schedule_afternoon_since > 0 && timetable.schedule_afternoon_since <= since && since < timetable.schedule_afternoon_until){
+                }else if(i.schedule_afternoon_since && timetable.schedule_afternoon_since <= since && since < timetable.schedule_afternoon_until){
                     //Calculamos el horario de la tarde
-                    //Busco si hay reserva en la hora
-                    /* const schedule = `${moment(since).tz('America/Lima').format('HH:mm:ss')}-${moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm:ss')}`;
-                    const reservation = await this._reservationRepository
-                    .createQueryBuilder('rs')
-                    .innerJoinAndSelect('rs.doctor','dc')
-                    .innerJoinAndSelect('rs.patient','pt')
-                    .where(`
-                        rs.state <> 0 AND
-                        rs.environment_id = ${i.id} AND
-                        "rs"."date"::DATE = '${day}' AND
-                        rs.appointment = '${schedule}'
-                    `).getMany();
-                    if(reservation.length > 0){
-                        hours.push({
-                            since: moment(since).tz('America/Lima').format('HH:mm'),
-                            until: moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm'),
-                            rowspan: (i.interval/10)*20,
-                            type: 4, //reservado,
-                            data: reservation[0]
-                        });
-                    }else{ */
-                        hours.push({
-                            since: moment(since).tz('America/Lima').format('HH:mm'),
-                            until: moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm'),
-                            rowspan: (i.interval/10)*20,
-                            type: 1 //disponible
-                        });
-                    //}
+                    hours.push({
+                        since: moment(since).tz('America/Lima').format('HH:mm'),
+                        until: moment(since).tz('America/Lima').add(i.interval,'minutes').format('HH:mm'),
+                        rowspan: (i.interval/10)*20,
+                        type: 1 //disponible
+                    });
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
                     if(i.time_cleaning > 0){
