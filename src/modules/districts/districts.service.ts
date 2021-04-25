@@ -28,7 +28,8 @@ export class DistrictsService {
     async getAll(): Promise<Districts[]>{
         const Districts: Districts[] = await this._DistrictsRepository
         .createQueryBuilder('dt')
-        .where({state:1}).orderBy({name:'ASC'}).getMany();
+        .innerJoinAndSelect("dt.provinces","pr")
+        .where("dt.state = 1").orderBy({"dt.name":'ASC'}).getMany();
         return Districts;
     }
 

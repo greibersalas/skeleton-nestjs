@@ -42,7 +42,7 @@ export class TariffService {
         history.price_sol_new = saveTariff.price_sol;
         history.price_usd_new = saveTariff.price_usd;
         history.tariff = saveTariff;
-        await this._tariffHistoryRepository.save(history);
+        //await this._tariffHistoryRepository.save(history);
         return saveTariff;
     }
 
