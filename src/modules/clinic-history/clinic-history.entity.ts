@@ -22,16 +22,16 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 60, nullable:false})
     name: string;
 
-    @Column({type: 'varchar', length:20, nullable: true})
+    @Column({type: 'varchar', length:40, nullable: true})
     lastNameFather: string;
 
-    @Column({type: 'varchar', length:20, nullable: true})
+    @Column({type: 'varchar', length:40, nullable: true})
     lastNameMother: string;
 
     @Column({type: 'varchar', nullable: false, length: 15})
     documentNumber: string;
 
-    @Column({type: 'varchar', length: 20})
+    @Column({type: 'varchar', length: 80})
     relationship: string;
 
     @Column({type: 'date', nullable: true})
