@@ -80,7 +80,7 @@ export class EnvironmentDoctorService {
                 lunch_until: moment(`${day} ${i.lunch_until ? i.lunch_until : '00:00:00'}`),
                 schedule_afternoon_since: moment(`${day} ${i.schedule_afternoon_since ? i.schedule_afternoon_since : '00:00:00'}`),
                 schedule_afternoon_until: moment(`${day} ${i.schedule_afternoon_until ? i.schedule_afternoon_until : '00:00:00'}`)
-            }            
+            }
             while(since <= until){
                 //Calculamos el horario de la mañana
                 if(i.schedule_morning_since && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
@@ -110,13 +110,14 @@ export class EnvironmentDoctorService {
                         let nextTime = moment(since).add(i.interval,'minutes');
                         //Verifico si el siguiente horario supera la hora de refrigerio
                         if(nextTime <= timetable.lunch_since){
+                            //if(moment(since) < moment())
                             hours.push({
                                 since: moment(since).format('HH:mm'),
                                 until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                                 rowspan: (i.interval/10)*20,
-                                type: 1 //disponible
+                                type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
                             });
-                        //Si supera la hora queda inactivo
+                        //Si supera la hora de refrigerio queda inactivo
                         }else{
                             i.interval = i.interval-Number(moment(nextTime).format('mm'));
                             hours.push({
@@ -126,7 +127,6 @@ export class EnvironmentDoctorService {
                                 type: 0 //No disponible
                             });
                         }
-                        
                     }
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
@@ -158,7 +158,7 @@ export class EnvironmentDoctorService {
                         since: moment(since).format('HH:mm'),
                         until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                         rowspan: (i.interval/10)*20,
-                        type: 1 //disponible
+                        type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
                     });
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
