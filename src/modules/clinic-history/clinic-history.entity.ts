@@ -49,7 +49,7 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 11, nullable: true})
     ruc: string;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'varchar', nullable: true, default: null})
     address: string;
 
     @Column({type: 'varchar', length: 15, nullable: true})
