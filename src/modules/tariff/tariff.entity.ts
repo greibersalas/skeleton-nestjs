@@ -9,7 +9,7 @@ export class Tariff extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type: 'varchar', length: 60, nullable:false, unique: true})
+    @Column({type: 'varchar', length: 60, nullable:false})
     name: string;
 
     @Column({type: 'varchar', nullable: true})
@@ -31,9 +31,11 @@ export class Tariff extends BaseEntity{
     @Column({type: 'boolean', default: false})
     bracket: boolean;
 
-    @OneToOne(type => DentalStatus,{eager: true, nullable: true})
-    @JoinColumn()
-    dental_status: DentalStatus;
+    /* @OneToOne(type => DentalStatus,{eager: true, nullable: true})
+    @JoinColumn() */
+    @Column({type:'int', nullable: true, array: true})
+    /* dental_status: DentalStatus; */
+    dental_status: number[];
 
     @Column({type: 'float4', default: 0, nullable: true})
     cost: number;

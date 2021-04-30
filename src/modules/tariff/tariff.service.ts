@@ -42,7 +42,7 @@ export class TariffService {
         history.price_sol_new = saveTariff.price_sol;
         history.price_usd_new = saveTariff.price_usd;
         history.tariff = saveTariff;
-        await this._tariffHistoryRepository.save(history);
+        //await this._tariffHistoryRepository.save(history);
         return saveTariff;
     }
 
@@ -89,11 +89,14 @@ export class TariffService {
         return tariff;
     }
 
-    async getByDentalStatus(id: number): Promise<Tariff>{
+    async getByDentalStatus(id: number): Promise<Tariff[]>{
         if(!id){
             throw new BadRequestException('iddentalstatus must be send');
         }
-        const tariff: Tariff = await this._tariffRepository.findOne({where:{state: 1,dental_status:id}});
+        //const tariff: Tariff = await this._tariffRepository.findOne({where:{state: 1,dental_status:id}});
+        const tariff: Tariff[] = await this._tariffRepository
+        .createQueryBuilder('tr')
+        .where(':id = ANY(tr.dental_status) AND tr.state = 1',{id}).getMany();
         if(!tariff){
             throw new NotFoundException('Tariff not found');
         }

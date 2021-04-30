@@ -8,10 +8,12 @@ export class Pdf_oi{
     print(data: any){
         //console.log("Data reporte ",data.detail[0]);
         const pdf = new FPDF('P','mm','A4');
-        var y: number = 10;
+        var y: number = 50;
         pdf.AddPage('P','A4');
         pdf.SetTitle('Cotizacion Odontologia Integral - '+data.id);
         pdf.SetFillColor(200,200,200);
+
+        pdf.Image('assets/img/membrete.jpg',0,0,211,298,'jpg');
 
         //fecha
         pdf.SetFont('Arial','',10);

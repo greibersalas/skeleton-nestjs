@@ -1,7 +1,14 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { BusinessLine } from "../business-line/business-line.entity";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 import { Districts } from "../districts/districts.entity";
-import { Specialty } from "../specialty/specialty.entity";
 
 @Entity('doctor')
 export class Doctor extends BaseEntity{
@@ -22,15 +29,11 @@ export class Doctor extends BaseEntity{
     @JoinColumn({name:'district'})
     district: Districts;
 
-    @Column({type: 'int8', nullable: false})
-    dni: number;
+    @Column({type: 'varchar', nullable: true, default: null, length: 15})
+    dni: string;
 
-    @Column({type: 'int8', nullable: true})
+    @Column({type: 'int8', nullable: true, default: null})
     cop: number;
-
-    /* @ManyToOne(type => Specialty, specialty => specialty.id,{cascade:true, nullable:false, eager:true})
-    @JoinColumn({name:'specialtys'})
-    specialtys: Specialty; */
 
     @Column({type:'int', nullable: true, array: true})
     specialty: number[];
@@ -50,11 +53,11 @@ export class Doctor extends BaseEntity{
     @Column({type: 'date', nullable: true})
     cessationDate: Date;
 
-    @Column({type: 'int4', nullable: false})
-    environment: number;
+    @Column({type: 'int8', nullable: false, array: true})
+    environment: number[];
 
-    @Column({type: 'int2', nullable: false})
-    turn: number;
+    @Column({type: 'varchar', length: 40, nullable: false, default: null})
+    turn: string;
 
     @Column({type:'int', nullable: true, array: true})
     business_lines: number[];
@@ -70,6 +73,12 @@ export class Doctor extends BaseEntity{
 
     @Column({type: 'int2', nullable: false})
     porcentage: number;
+
+    @Column({type: 'varchar', length: 20, nullable: true, default: null})
+    type_payment: string;
+
+    @Column({type: 'double precision', nullable: true, default: null})
+    payment: number;
 
     @Column({type: 'boolean', default: false, comment: 'Lunes'})
     mon: boolean;

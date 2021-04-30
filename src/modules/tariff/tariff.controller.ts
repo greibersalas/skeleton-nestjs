@@ -55,7 +55,7 @@ export class TariffController {
     }
 
     @Get('get-by-dental-status/:id')
-    async getTariffDental(@Param('id') id): Promise<Tariff>{
+    async getTariffDental(@Param('id') id): Promise<Tariff[]>{
         return await this._tariffService.getByDentalStatus(id);
     }
 

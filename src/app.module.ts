@@ -48,6 +48,7 @@ import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breat
 import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-terms.module';
 import { PermissionsModule } from './modules/security/permissions/permissions.module';
 import { MasterPermissionsModule } from './modules/security/master-permissions/master-permissions.module';
+import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
 
 
 @Module({
@@ -95,8 +96,12 @@ import { MasterPermissionsModule } from './modules/security/master-permissions/m
     ModuleModule,
     MouthBreathingModule,
     QuotationTermsModule,
+<<<<<<< HEAD
     PermissionsModule,
     MasterPermissionsModule
+=======
+    DiaryLockModule
+>>>>>>> 8ddcebf0ce80ab4c018ee05671842d76a7324df7
   ],
   controllers: [AppController],
   providers: [AppService],
