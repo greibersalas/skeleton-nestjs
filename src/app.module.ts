@@ -46,6 +46,8 @@ import { MedicalActAttentionModule } from './modules/main/medical-act-attention/
 import { ModuleModule } from './modules/security/module/module.module';
 import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breathing.module';
 import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-terms.module';
+import { PermissionsModule } from './modules/security/permissions/permissions.module';
+import { MasterPermissionsModule } from './modules/security/master-permissions/master-permissions.module';
 
 
 @Module({
@@ -92,7 +94,9 @@ import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-t
     MedicalActAttentionModule,
     ModuleModule,
     MouthBreathingModule,
-    QuotationTermsModule
+    QuotationTermsModule,
+    PermissionsModule,
+    MasterPermissionsModule
   ],
   controllers: [AppController],
   providers: [AppService],

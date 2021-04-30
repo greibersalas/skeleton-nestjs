@@ -7,6 +7,7 @@ import { IJwtPayload } from './jwt-payload.interface';
 import { SigninDto, SignupDto } from './dto';
 import { User } from '../user/user.entity';
 import { AuthRepository } from './auth.repository';
+import { PermissionsRepository } from '../security/permissions/permissions.repository';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     constructor(
         @InjectRepository(AuthRepository)
         private readonly _authRepository: AuthRepository,
+        private _permission: PermissionsRepository,
         private readonly _jwtServices: JwtService
     ){}
 
@@ -50,6 +52,7 @@ export class AuthService {
             roles: user.roles
         };
         const token = this._jwtServices.sign(payload);
+        
         return {
             id: user.id,
             email: user.email,
@@ -57,7 +60,7 @@ export class AuthService {
             roles: user.roles,
             token,
             capmus: user.campus,
-            doctor: user.doctor
+            doctor: user.doctor,
         };
     }
 

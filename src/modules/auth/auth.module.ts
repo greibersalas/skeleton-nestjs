@@ -9,15 +9,16 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '../../config/config.module';
 import { Configuration } from '../../config/config.keys';
+import {PermissionsRepository} from '../security/permissions/permissions.repository'
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AuthRepository]),
+    TypeOrmModule.forFeature([AuthRepository, PermissionsRepository]),
     PassportModule.register({
       defaultStrategy: 'jwt'
     }),
     JwtModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule,],
       inject: [ConfigService],
       useFactory(config: ConfigService){
         return {
