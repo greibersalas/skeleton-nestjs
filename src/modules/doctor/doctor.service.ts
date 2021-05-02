@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { getManager } from 'typeorm';
 import { Doctor } from './doctor.entity';
 import { DoctorRepository } from './doctor.repository';
 
@@ -54,7 +55,7 @@ export class DoctorService {
         await this._doctorRepository.update(id,{state:0});
     }
 
-    async getInBl(id: number, day: number): Promise<Doctor[]>{
+    async getInBl(id: any, day: number): Promise<Doctor[]>{
         if(!id){
             throw new BadRequestException('id must be send.');
         }
@@ -63,59 +64,149 @@ export class DoctorService {
         switch(day){
             case 0:
                 sun = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 sun = :sun`,{id,sun})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`sun = :sun`,{sun})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 1:
                 mon = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 mon = :mon`,{id,mon})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`mon = :mon`,{mon})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 2:
                 tue = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 tue = :tue`,{id,tue})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`tue = :tue`,{tue})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 3:
                 wed = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 wed = :wed`,{id,wed})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`wed = :wed`,{wed})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 4:
                 thu = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 thu = :thu`,{id,thu})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`thu = :thu`,{thu})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 5:
                 fri = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
                 .where(`state <> 0 AND :id = ANY(business_lines) AND
                 fri = :fri`,{id,fri})
-                .getMany();
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`fri = :fri`,{fri})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break;
             case 6:
                 sat = true;
-                doctors = await this._doctorRepository
+                /*doctors = await this._doctorRepository
                 .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                sat = :sat`,{id,sat})
-                .getMany();
+                .where(`state <> 0 AND :id = ANY(business_lines) AND sat = :sat`,{id,sat})
+                .getMany();*/
+                doctors = await getManager()
+                .createQueryBuilder()
+                .select("id,nameQuote,morning_schedule,afternoon_schedule")
+                .from(sub => {
+                    return sub.select(`id,"nameQuote" AS nameQuote,morning_schedule,afternoon_schedule,
+                    business_lines,
+                   generate_subscripts(business_lines, 1) AS s`)
+                   .from(Doctor, "dr")
+                   .where(`sat = :sat`,{sat})
+                }, "foo")
+                .where(`business_lines[s] in (:...id)`,{id})
+                .distinct(true)
+                .getRawMany();
                 break
             default:
                 console.log(`Sorry, we are out of ${day}.`);

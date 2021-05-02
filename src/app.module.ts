@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
+import { Configuration } from './config/config.keys';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Configuration } from './config/config.keys';
-import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from './modules/security/role/role.module';
@@ -46,6 +46,8 @@ import { MedicalActAttentionModule } from './modules/main/medical-act-attention/
 import { ModuleModule } from './modules/security/module/module.module';
 import { MouthBreathingModule } from './modules/main/mouth-breathing/mouth-breathing.module';
 import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-terms.module';
+import { PermissionsModule } from './modules/security/permissions/permissions.module';
+import { MasterPermissionsModule } from './modules/security/master-permissions/master-permissions.module';
 import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
 
 
@@ -94,6 +96,8 @@ import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
     ModuleModule,
     MouthBreathingModule,
     QuotationTermsModule,
+    PermissionsModule,
+    MasterPermissionsModule,
     DiaryLockModule
   ],
   controllers: [AppController],

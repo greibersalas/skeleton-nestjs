@@ -111,13 +111,13 @@ export class TariffService {
         return tariff;
     }
 
-    async getByBl(idbl: number): Promise<Tariff[]>{
+    async getByBl(idbl: any): Promise<Tariff[]>{
         if(!idbl){
             throw new BadRequestException('idspecialty must be send.');
         }
         const tariff: Tariff[] = await this._tariffRepository
         .createQueryBuilder("tr")
-        .innerJoin("tr.specialty","sp","sp.businessLines = :idbl",{idbl})
+        .innerJoin("tr.specialty","sp","sp.businessLines IN(:...idbl)",{idbl})
         .where("tr.state <> 0").orderBy("tr.name","ASC").getMany();
         if(!tariff){
             throw new NotFoundException();

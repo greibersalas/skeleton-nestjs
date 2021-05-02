@@ -37,6 +37,30 @@ export class EnvironmentDoctorService {
         return ed;
     }
 
+    async getByCampus(idcampus: number): Promise<EnvironmentDoctor[]>{
+        if(!idcampus){
+            throw new BadRequestException('id must be send.');
+        }
+        const environmentDoctor = await this._environmentDoctorRepository
+        .find(
+            {
+                where:
+                {
+                    campus: idcampus,
+                    state: 1
+                },
+                order:
+                {
+                    id:'ASC'
+                }
+            }
+        );
+        if(!environmentDoctor){
+            throw new NotFoundException();
+        }
+        return environmentDoctor;
+    }
+
     async create(ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
         const saveEd: EnvironmentDoctor = await this._environmentDoctorRepository.save(ed);
         return saveEd;

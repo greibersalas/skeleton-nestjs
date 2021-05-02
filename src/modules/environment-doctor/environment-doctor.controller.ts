@@ -21,6 +21,12 @@ export class EnvironmentDoctorController {
         return ed;
     }
 
+    @Get('campus/:idcampus')
+    async getByCampus(@Param('idcampus',ParseIntPipe) idcampus: number): Promise<EnvironmentDoctor[]>{
+        const ed = await this._edService.getByCampus(idcampus);
+        return ed;
+    }
+
     @Post()
     async createEnvironmentDoctor(@Body() ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
         const create = await this._edService.create(ed);

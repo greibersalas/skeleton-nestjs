@@ -60,4 +60,21 @@ export class DiaryLockService {
         }
         await this._diaryLockRepository.update(id,{state:0});
     }
+
+    async onGetList(idcampus: number, since: string, until: string, doctor: number): Promise<DiaryLock[]>{
+        if(!since){
+            throw new BadRequestException('La fecha desde es requerida');
+        }
+        if(!until){
+            throw new BadRequestException('La fecha hasta es requerida');
+        }
+
+        const list = await this._diaryLockRepository.createQueryBuilder('dl')
+        .where(`
+            dl.date BETWEEN :since AND :until AND dl.campus = :idcampus AND dl.state = 1
+            AND dl.doctor = :doctor
+        `,{since,until,idcampus,doctor}).getMany();
+
+        return list;
+    }
 }
