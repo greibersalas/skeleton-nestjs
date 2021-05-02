@@ -55,7 +55,7 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 15, nullable: true})
     country: string;
 
-    @ManyToOne(type => Districts, district => district.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Districts, district => district.id,{cascade:true, nullable: true, eager:true})
     @JoinColumn({name:'district'})
     district: Districts;
 
