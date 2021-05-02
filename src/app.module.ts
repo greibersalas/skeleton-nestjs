@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
+import { Configuration } from './config/config.keys';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Configuration } from './config/config.keys';
-import { ConfigModule } from './config/config.module';
 import { ConfigService } from './config/config.service';
+import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from './modules/security/role/role.module';
@@ -96,12 +96,9 @@ import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
     ModuleModule,
     MouthBreathingModule,
     QuotationTermsModule,
-<<<<<<< HEAD
     PermissionsModule,
-    MasterPermissionsModule
-=======
+    MasterPermissionsModule,
     DiaryLockModule
->>>>>>> 8ddcebf0ce80ab4c018ee05671842d76a7324df7
   ],
   controllers: [AppController],
   providers: [AppService],

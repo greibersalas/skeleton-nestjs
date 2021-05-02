@@ -1,4 +1,13 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity, JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+
 import { BusinessLine } from "../business-line/business-line.entity";
 import { Campus } from "../campus/campus.entity";
 
@@ -24,9 +33,12 @@ export class EnvironmentDoctor extends BaseEntity{
     @JoinColumn({name:'idcampus'})
     campus: Campus;
 
-    @ManyToOne(type => BusinessLine, bl => bl.id,{cascade:true, nullable:false, eager:true})
-    @JoinColumn({name:'idbusinessline'})
-    businessLine: BusinessLine;
+    /*@ManyToOne(type => BusinessLine, bl => bl.id,{cascade:true, nullable:false, eager:true})
+    @JoinColumn({name:'businessline'})
+    businessLine: BusinessLine;*/
+
+    @Column({type: 'int8', nullable: true, array: true})
+    businessline: number[];
 
     @Column({type: 'time', nullable: true, default: null, comment:'Horario de la mañana desde'})
     schedule_morning_since: number;

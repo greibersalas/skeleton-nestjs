@@ -349,10 +349,11 @@ export class ReservationController {
         return await this._reservationService.confirm(id);
     }
 
-    @Get('validate-doctor/:iddoctor/:date/:appointment')
+    @Get('validate-doctor/:iddoctor/:date/:appointment/:idcampus')
     async validateDoctor(@Param('iddoctor', ParseIntPipe) iddoctor: number,
-    @Param('date') date: string,@Param('appointment') appointment: string): Promise<boolean>{
-        return await this._reservationService.validateReservation(iddoctor,date,appointment);
+    @Param('date') date: string,@Param('appointment') appointment: string,
+    @Param('idcampus', ParseIntPipe) idcampus: number): Promise<number>{
+        return await this._reservationService.validateReservation(iddoctor,date,appointment,idcampus);
     }
 
     @Get('cancel/:id')

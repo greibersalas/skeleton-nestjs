@@ -37,8 +37,8 @@ export class DoctorController {
         return true;
     }
 
-    @Get('get-in-bl/:id/:day')
-    async getInBl(@Param('id',ParseIntPipe) id: number, @Param('day',ParseIntPipe) day: number): Promise<Doctor[]>{
+    @Post('get-in-bl/:day')
+    async getInBl(@Body() id: any, @Param('day',ParseIntPipe) day: number): Promise<Doctor[]>{
         return await this._doctorService.getInBl(id,day);
     }
 }
