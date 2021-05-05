@@ -122,6 +122,7 @@ export class EnvironmentDoctorService {
                     if (state != 0)
                         filter["state"] = state;
                     const reserv = _.find(reser,filter);
+                    let interval = 0;
                     if(reserv){
                         hours.push({
                             since: moment(since).format('HH:mm'),
@@ -143,16 +144,16 @@ export class EnvironmentDoctorService {
                             });
                         //Si supera la hora de refrigerio queda inactivo
                         }else{
-                            i.interval = i.interval-Number(moment(nextTime).format('mm'));
+                            interval = i.interval-Number(moment(nextTime).format('mm'));
                             hours.push({
                                 since: moment(since).format('HH:mm'),
                                 until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                                rowspan: (i.interval/10)*20,
+                                rowspan: (interval/10)*20,
                                 type: 0 //No disponible
                             });
                         }
                     }
-                    since = moment(since).add(i.interval,'minutes');
+                    since = interval === 0 ? moment(since).add(i.interval,'minutes') : moment(since).add(interval,'minutes')
                     //Calculamos el tiempo de limpieza
                     if(i.time_cleaning > 0){
                         //SI la hora siguiente supera el refigerio no agrego el tiempo de limpeza
@@ -178,12 +179,37 @@ export class EnvironmentDoctorService {
                     since = moment(since).add(20,'minutes');
                 }else if(i.schedule_afternoon_since && timetable.schedule_afternoon_since <= since && since < timetable.schedule_afternoon_until){
                     //Calculamos el horario de la tarde
-                    hours.push({
-                        since: moment(since).format('HH:mm'),
-                        until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                        rowspan: (i.interval/10)*20,
-                        type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
-                    });
+                    //Busco si hay reserva en la hora
+                    const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(i.interval,'minutes').format('HH:mm:ss')}`;
+                    //crear objeto para filtrar
+                    let filter = {
+                        environment_id: i.id,
+                        appointment: schedule,
+                    }
+                    if (doctor != 0)
+                        filter["doctor_id"] = doctor;
+                    if (patient != 0)
+                        filter["patient_id"] = patient;
+                    if (state != 0)
+                        filter["state"] = state;
+                    const reserv = _.find(reser,filter);
+                    if(reserv){
+                        hours.push({
+                            since: moment(since).format('HH:mm'),
+                            until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                            rowspan: (i.interval/10)*20,
+                            type: 4, //reservado,
+                            data: reserv
+                        });
+                    }else{
+                        hours.push({
+                            since: moment(since).format('HH:mm'),
+                            until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                            rowspan: (i.interval/10)*20,
+                            type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
+                        });
+                    }
+                    
                     since = moment(since).add(i.interval,'minutes');
                     //Calculamos el tiempo de limpieza
                     if(i.time_cleaning > 0){

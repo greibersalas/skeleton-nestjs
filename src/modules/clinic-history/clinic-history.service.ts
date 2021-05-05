@@ -28,6 +28,7 @@ export class ClinicHistoryService {
     }
 
     async create(bl: ClinicHistory): Promise<ClinicHistory>{
+        bl.insuranceCarrier = null;
         const saveClinicHistory: ClinicHistory = await this._clinicHistoryRepository.save(bl);
         return saveClinicHistory;
     }
