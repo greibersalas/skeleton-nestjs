@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@
 import { ClinicHistory } from './clinic-history.entity';
 import { ClinicHistoryService } from './clinic-history.service';
 
+//pdf
+import { Pdf_ficha } from './pdf/pdf-ficha';
 @Controller('clinic-history')
 export class ClinicHistoryController {
 
@@ -46,5 +48,12 @@ export class ClinicHistoryController {
     @Get('get-last-history-number/:campus')
     async getLastHistoryNumber(@Param('campus',ParseIntPipe) campus: number): Promise<number>{
         return await this._clinicHistoryService.getLastHistoryNumber(campus);
+    }
+
+    @Get('pdf-ficha/:id')
+    async getPdf(@Param('id',ParseIntPipe) id: number): Promise<any>{
+        const data = await this._clinicHistoryService.getPdfFichaData(id);
+        const pdf = new Pdf_ficha();
+        return pdf.print(data);
     }
 }

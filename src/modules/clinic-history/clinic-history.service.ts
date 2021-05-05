@@ -79,4 +79,23 @@ export class ClinicHistoryService {
             return 0;
         }
     }
+
+    async getPdfFichaData(id: number): Promise<any>{
+        let data: any;
+        const patient = await this._clinicHistoryRepository.createQueryBuilder('pt')
+        .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
+        an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
+        an.medic_cellphone as medico_confianza_telefono`)
+        .innerJoin("districts","dt","dt.id = pt.district")
+        .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
+        .where(`pt.id = :id`,{id})
+        .getRawOne();
+        if(!patient){
+            throw new NotFoundException();
+        }
+        data = {
+            patient
+        };
+        return data;
+    }
 }
