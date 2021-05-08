@@ -42,9 +42,9 @@ export class DiaryLockController {
         return update;
     }
 
-    @Delete(':id')
-    async deleteDiaryLock(@Param('id',ParseIntPipe) id: number){
-        await this._diaryLockService.delete(id);
+    @Delete(':id/:iduser')
+    async deleteDiaryLock(@Param('id',ParseIntPipe) id: number, @Param('iduser',ParseIntPipe) iduser: number){
+        await this._diaryLockService.delete(id, iduser);
         return true;
     }
 
