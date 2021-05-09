@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Country } from './country.entity';
 import { CountryService } from './country.service';
-
+@UseGuards(JwtAuthGuard)
 @Controller('country')
 export class CountryController {
 
