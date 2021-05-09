@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { ClinicHistory } from './clinic-history.entity';
 import { ClinicHistoryRepository } from './clinic-history.repository';
 

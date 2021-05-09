@@ -49,6 +49,7 @@ import { QuotationTermsModule } from './modules/main/quotation-terms/quotation-t
 import { PermissionsModule } from './modules/security/permissions/permissions.module';
 import { MasterPermissionsModule } from './modules/security/master-permissions/master-permissions.module';
 import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
+import { AuditModule } from './modules/security/audit/audit.module';
 
 
 @Module({
@@ -98,7 +99,8 @@ import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
     QuotationTermsModule,
     PermissionsModule,
     MasterPermissionsModule,
-    DiaryLockModule
+    DiaryLockModule,
+    AuditModule
   ],
   controllers: [AppController],
   providers: [AppService],
