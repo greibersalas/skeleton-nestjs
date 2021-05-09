@@ -112,7 +112,7 @@ export class ReservationService {
         .createQueryBuilder("re")
         .innerJoinAndSelect("re.doctor","doc")
         .innerJoinAndSelect("re.environment","ev")
-        .innerJoinAndSelect("re.tariff","tf")
+        .leftJoinAndSelect("re.tariff","tf")
         .innerJoinAndSelect("re.patient","ch","ch.id = :ch",{ch: id})
         .where("re.state <> 0").orderBy({"re.date":"DESC"})
         .getMany();
