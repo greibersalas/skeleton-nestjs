@@ -41,6 +41,7 @@ export class ClinicHistoryController {
         @Request() req: any
     ): Promise<ClinicHistory>{
         const create = await this._clinicHistoryService.create(clinicHistory);
+        //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = create.id;
         audit.title = 'clinic-history';
@@ -49,7 +50,9 @@ export class ClinicHistoryController {
         audit.iduser = Number(req.user.id);
         audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
         audit.state = 1;
+        //Guardamos la auditoria
         await audit.save();
+        //Respondemos al usuario
         return create;
     }
 
