@@ -1,15 +1,29 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Put,
+    UseGuards,
+    Request
+} from '@nestjs/common';
 var moment = require('moment-timezone');
 
-import { Reservation } from './reservation.entity';
-import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
-import { ReservationService } from './reservation.service';
-import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
-import { DoctorService } from '../doctor/doctor.service';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Hours } from './interface.hours';
-import { FormFilter } from './form.filter';
+import { Audit } from '../security/audit/audit.entity';
+import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
+import { Reservation } from './reservation.entity';
 import { ClinicHistoryService  } from '../clinic-history/clinic-history.service'
+import { DoctorService } from '../doctor/doctor.service';
+import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
+import { ReservationService } from './reservation.service';
+import { FormFilter } from './form.filter';
 
+@UseGuards(JwtAuthGuard)
 @Controller('reservation')
 export class ReservationController {
     constructor(
@@ -252,8 +266,22 @@ export class ReservationController {
     }
 
     @Post()
-    async createReservation(@Body() Reservation: Reservation): Promise<Reservation>{
+    async createReservation(
+        @Body() Reservation: Reservation,
+        @Request() req: any
+    ): Promise<Reservation>{
         const create = await this._reservationService.create(Reservation);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = create.id;
+        audit.title = 'Reservation';
+        audit.description = 'Insert registro';
+        audit.data = JSON.stringify(create);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return create;
     }
 
@@ -323,14 +351,43 @@ export class ReservationController {
     }
 
     @Put(':id')
-    async updateReservation(@Param('id',ParseIntPipe) id: number, @Body() Reservation: Reservation){
+    async updateReservation(
+        @Param('id',ParseIntPipe) id: number,
+        @Body() Reservation: Reservation,
+        @Request() req: any
+    ){
         const update = await this._reservationService.update(id,Reservation);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'Reservation';
+        audit.description = 'Update registro';
+        audit.data = JSON.stringify(update);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return update;
     }
 
     @Delete(':id')
-    async deleteReservation(@Param('id',ParseIntPipe) id: number){
+    async deleteReservation(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ){
         await this._reservationService.delete(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'Reservation';
+        audit.description = 'Delete registro';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return true;
     }
 
@@ -345,7 +402,21 @@ export class ReservationController {
     }
 
     @Get('confirm/:id')
-    async confirm(@Param('id', ParseIntPipe) id: number): Promise<any>{
+    async confirm(
+        @Param('id', ParseIntPipe) id: number,
+        @Request() req: any
+    ): Promise<any>{
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'Reservation';
+        audit.description = 'Confirm cita';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return await this._reservationService.confirm(id);
     }
 
@@ -357,7 +428,21 @@ export class ReservationController {
     }
 
     @Get('cancel/:id')
-    async cancel(@Param('id',ParseIntPipe) id: number): Promise<boolean>{
+    async cancel(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ): Promise<boolean>{
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'Reservation';
+        audit.description = 'Cancelar cita';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return await this._reservationService.cancel(id);
     }
 }
