@@ -47,13 +47,13 @@ export class DiaryLockService {
     async create(diaryLock: DiaryLock): Promise<DiaryLock>{
         const save: DiaryLock = await this._diaryLockRepository.save(diaryLock);
         const audit = new Audit();
-        console.log("moment().format('YYYY-MM-DD HH:mm:SS') ",moment().format('YYYY-MM-DD HH:mm:SS'));
+        //console.log("moment().format('YYYY-MM-DD HH:mm:ss') ",moment().format('YYYY-MM-DD HH:mm:SS'));
         audit.idregister = save.iddiarylock;
         audit.title = 'diary-lock';
         audit.description = 'Insertar registro';
         audit.data = JSON.stringify(save);
         audit.iduser = Number(diaryLock.user);
-        audit.datetime = moment().format('YYYY-MM-DD HH:mm:SS');
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
         audit.state = 1;
         await audit.save();
         return save;
@@ -66,14 +66,14 @@ export class DiaryLockService {
         }
         await this._diaryLockRepository.update(id,diaryLock);
         const update : DiaryLock = await this._diaryLockRepository.findOne(id);
-        console.log("moment().format('YYYY-MM-DD HH:mm:SS') ",moment().format('YYYY-MM-DD HH:mm:SS'));
+        //console.log("moment().format('YYYY-MM-DD HH:mm:ss') ",moment().format('YYYY-MM-DD HH:mm:ss'));
         const audit = new Audit();
         audit.idregister = id;
         audit.title = 'diary-lock';
         audit.description = 'Editar registro';
         audit.data = JSON.stringify(update);
         audit.iduser = Number(diaryLock.user);
-        audit.datetime = moment().format('YYYY-MM-DD HH:mm:SS');
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
         audit.state = 1;
         await audit.save();
         return update;
@@ -85,13 +85,13 @@ export class DiaryLockService {
             throw new NotFoundException();
         }
         const audit = new Audit();
-        console.log("moment().format('YYYY-MM-DD HH:mm:SS') ",moment().format('YYYY-MM-DD HH:mm:SS'));
+        //console.log("moment().format('YYYY-MM-DD HH:mm:ss') ",moment().format('YYYY-MM-DD HH:mm:SS'));
         audit.idregister = id;
         audit.title = 'diary-lock';
         audit.description = 'Borrar registro';
         audit.data = null;
         audit.iduser = iduser;
-        audit.datetime = moment().format('YYYY-MM-DD HH:mm:SS');
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
         audit.state = 1;
         await this._diaryLockRepository.update(id,{state:0});
         await audit.save();
