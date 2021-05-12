@@ -100,4 +100,16 @@ export class ClinicHistoryService {
         };
         return data;
     }
+
+    async validateNumDoc(documentNumber: string): Promise<boolean>{
+        const exist = await this._clinicHistoryRepository.find({
+            where: {
+                documentNumber
+            }
+        });
+        if(exist.length > 0){
+            return true;
+        }
+        return false;
+    }
 }

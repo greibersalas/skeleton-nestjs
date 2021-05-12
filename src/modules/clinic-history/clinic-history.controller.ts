@@ -110,4 +110,9 @@ export class ClinicHistoryController {
         const pdf = new Pdf_ficha();
         return pdf.print(data);
     }
+
+    @Get('validate-num-doc/:nro_document')
+    async validateNumDoc(@Param('nro_document') doc: string): Promise<boolean>{
+        return this._clinicHistoryService.validateNumDoc(doc);
+    }
 }
