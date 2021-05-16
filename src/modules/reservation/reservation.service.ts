@@ -171,4 +171,22 @@ export class ReservationService {
         }
         return true;
     }
+
+    async getListFilter(patient: number, doctor: number, state: number): Promise<Reservation[]>{
+        let attr: any = {};
+        if (patient !== 0)
+            attr.patient = patient;
+        if (doctor > 0)
+            attr.doctor = doctor;
+        if(state)
+            attr.state = state;
+
+        const list = await this._reservationRepository.find(
+            {
+                where: attr,
+                order: {date: 'DESC'}
+            }
+        );
+        return list
+    }
 }

@@ -445,4 +445,13 @@ export class ReservationController {
         await audit.save();
         return await this._reservationService.cancel(id);
     }
+
+    @Get('list-filter/:patient/:doctor/:state')
+    async getListState(
+        @Param('patient', ParseIntPipe) patient: number,
+        @Param('doctor', ParseIntPipe) doctor: number,
+        @Param('state', ParseIntPipe) state: number
+    ): Promise<Reservation[]>{
+        return await this._reservationService.getListFilter(patient,doctor,state);
+    }
 }
