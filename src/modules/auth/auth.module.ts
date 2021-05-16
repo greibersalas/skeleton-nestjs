@@ -24,7 +24,7 @@ import {PermissionsRepository} from '../security/permissions/permissions.reposit
         return {
           secret: config.get(Configuration.JWTSECRET),
           signOptions: {
-            expiresIn: 3600
+            expiresIn: 43200
           }
         }
       }
