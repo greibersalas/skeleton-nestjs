@@ -96,12 +96,9 @@ import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
     ModuleModule,
     MouthBreathingModule,
     QuotationTermsModule,
-<<<<<<< HEAD
     PermissionsModule,
-    MasterPermissionsModule
-=======
+    MasterPermissionsModule,
     DiaryLockModule
->>>>>>> 8ddcebf0ce80ab4c018ee05671842d76a7324df7
   ],
   controllers: [AppController],
   providers: [AppService],
