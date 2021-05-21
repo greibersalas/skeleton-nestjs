@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Districts } from './districts.entity';
 import { DistrictsService } from './districts.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('districts')
 export class DistrictsController {
     constructor(private readonly _DistrictsService: DistrictsService){}

@@ -1,13 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
+var moment = require('moment-timezone');
 
+import { Audit } from '../../security/audit/audit.entity';
 import { LabOrder } from './lab-order.entity';
 import { LabOrderService } from './lab-order.service';
 import { LabOrderLabeledService } from '../lab-order-labeled/lab-order-labeled.service';
-var moment = require('moment-timezone');
 
 //FPDF
 const FPDF = require('./pdf-barcode');
 //import * as FPDF from './pdf-barcode';
+@UseGuards(JwtAuthGuard)
 @Controller('lab-order')
 export class LabOrderController {
 
@@ -27,20 +30,66 @@ export class LabOrderController {
     }
 
     @Post()
-    async createLabOrder(@Body() labOrder: LabOrder): Promise<LabOrder>{
+    async createLabOrder(
+        @Body() labOrder: LabOrder,
+        @Request() req: any
+    ): Promise<LabOrder>{
         const create = await this._labOrderService.create(labOrder);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = create.id;
+        audit.title = 'lab-order';
+        audit.description = 'Insertar registro';
+        audit.data = JSON.stringify(create);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return create;
     }
 
     @Put(':id')
-    async updateLabOrder(@Param('id',ParseIntPipe) id: number, @Body() labOrder: LabOrder){
+    async updateLabOrder(
+        @Param('id',ParseIntPipe) id: number,
+        @Body() labOrder: LabOrder,
+        @Request() req: any
+    ){
         const update = await this._labOrderService.update(id,labOrder);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'lab-order';
+        audit.description = 'Update registro';
+        audit.data = JSON.stringify(update);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return update;
     }
 
     @Delete(':id')
-    async deleteLabOrder(@Param('id',ParseIntPipe) id: number){
+    async deleteLabOrder(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ){
         await this._labOrderService.delete(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'lab-order';
+        audit.description = 'Delete registro';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return true;
     }
 

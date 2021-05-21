@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Responsible } from './responsible.entity';
 import { ResponsibleService } from './responsible.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('responsible')
 export class ResponsibleController {
     constructor(private readonly _ResponsibleService: ResponsibleService){}

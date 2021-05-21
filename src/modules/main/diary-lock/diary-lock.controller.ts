@@ -20,6 +20,16 @@ export class DiaryLockController {
         return diaryLock;
     }
 
+    @Get('list/:idcampus/:since/:until/:doctor')
+    async onGetList(
+        @Param('idcampus',ParseIntPipe) idcampus: number,
+        @Param('since') since: string,
+        @Param('until') until: string,
+        @Param('doctor',ParseIntPipe) doctor: number
+    ): Promise<DiaryLock[]>{
+        return await this._diaryLockService.onGetList(idcampus,since,until,doctor);
+    }
+
     @Post()
     async createDiaryLock(@Body() diaryLock: DiaryLock): Promise<DiaryLock>{
         const create = await this._diaryLockService.create(diaryLock);
@@ -32,9 +42,9 @@ export class DiaryLockController {
         return update;
     }
 
-    @Delete(':id')
-    async deleteDiaryLock(@Param('id',ParseIntPipe) id: number){
-        await this._diaryLockService.delete(id);
+    @Delete(':id/:iduser')
+    async deleteDiaryLock(@Param('id',ParseIntPipe) id: number, @Param('iduser',ParseIntPipe) iduser: number){
+        await this._diaryLockService.delete(id, iduser);
         return true;
     }
 

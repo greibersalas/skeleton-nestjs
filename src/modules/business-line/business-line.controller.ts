@@ -1,7 +1,10 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
+
 import { BusinessLine } from './business-line.entity';
 import { BusinessLineService } from './business-line.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('business-line')
 export class BusinessLineController {
     constructor(private readonly _businessLineService: BusinessLineService){}

@@ -87,9 +87,8 @@ export class MedicalActService {
         return ma;
     }
 
-    async addFiles(data: any): Promise<boolean>{
-        await this._medicalActFilesRepository.save(data);
-        return true;
+    async addFiles(data: any): Promise<any>{
+        return await this._medicalActFilesRepository.save(data);
     }
 
     async getAllGroup(): Promise<MedicalActFileGroup[]>{

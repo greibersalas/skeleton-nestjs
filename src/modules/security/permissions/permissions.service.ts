@@ -11,28 +11,23 @@ export class PermissionsService {
         if(!id){
             throw new BadRequestException('id must be send');
         }
-
         const permissions = await this._permissionsRepository.findOne(id,{where:{estado:1}});
-
         if(!permissions){
             throw new NotFoundException();
         }
-
         return permissions;
     }
 
-    async getAll(): Promise<Permissions[]>{        
+    async getAll(): Promise<Permissions[]>{
         const permissionss: Permissions[] = await this._permissionsRepository.find({where:{estado:1}});
         return permissionss;
     }
-
     async getByUser(user:number): Promise<Permissions[]>{
         const permissionss: Permissions[] = await this._permissionsRepository.find({where:{estado:1,user:user}});
         return permissionss;
     }
 
     async create(permissions: Permissions): Promise<Permissions>{
-        
         const savePermissions: Permissions = await this._permissionsRepository.save(permissions);
         return savePermissions;
     }
@@ -43,11 +38,9 @@ export class PermissionsService {
 
     async delete(id: number): Promise<void>{
         const permissionsExists = await this._permissionsRepository.findOne(id,{where:{estado:1}});
-
         if(!permissionsExists){
             throw new NotFoundException();
         }
-
         await this._permissionsRepository.update(id,{estado:0});
     }
 }

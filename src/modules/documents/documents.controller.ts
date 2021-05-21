@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Documents } from './documents.entity';
 import { DocumentsService } from './documents.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('documents')
 export class DocumentsController {
 

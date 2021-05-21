@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { Deparments } from './deparments.entity';
 import { DeparmentsService } from './deparments.service';
-
+@UseGuards(JwtAuthGuard)
 @Controller('Deparments')
 export class DeparmentsController {
     constructor(private readonly _DeparmentsService: DeparmentsService){}

@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { ClinicHistory } from './clinic-history.entity';
 import { ClinicHistoryRepository } from './clinic-history.repository';
 
@@ -28,6 +29,7 @@ export class ClinicHistoryService {
     }
 
     async create(bl: ClinicHistory): Promise<ClinicHistory>{
+        bl.insuranceCarrier = null;
         const saveClinicHistory: ClinicHistory = await this._clinicHistoryRepository.save(bl);
         return saveClinicHistory;
     }
@@ -78,5 +80,36 @@ export class ClinicHistoryService {
         }else{
             return 0;
         }
+    }
+
+    async getPdfFichaData(id: number): Promise<any>{
+        let data: any;
+        const patient = await this._clinicHistoryRepository.createQueryBuilder('pt')
+        .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
+        an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
+        an.medic_cellphone as medico_confianza_telefono`)
+        .innerJoin("districts","dt","dt.id = pt.district")
+        .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
+        .where(`pt.id = :id`,{id})
+        .getRawOne();
+        if(!patient){
+            throw new NotFoundException();
+        }
+        data = {
+            patient
+        };
+        return data;
+    }
+
+    async validateNumDoc(documentNumber: string): Promise<boolean>{
+        const exist = await this._clinicHistoryRepository.find({
+            where: {
+                documentNumber
+            }
+        });
+        if(exist.length > 0){
+            return true;
+        }
+        return false;
     }
 }

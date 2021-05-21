@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
+import { DiaryLockRepository } from '../main/diary-lock/diary-lock.repository';
 import { FormFilter, PatientList} from './form.filter';
 import { Reservation } from './reservation.entity';
 import { ReservationRepository } from './reservation.repository';
@@ -13,7 +14,9 @@ export class ReservationService {
 
     constructor(
         @InjectRepository(ReservationRepository)
-        private readonly _reservationRepository: ReservationRepository
+        private readonly _reservationRepository: ReservationRepository,
+        @InjectRepository(DiaryLockRepository)
+        private readonly _diaryLockRepository: DiaryLockRepository
     ){}
 
     async get(id: number): Promise<Reservation>{
@@ -109,7 +112,7 @@ export class ReservationService {
         .createQueryBuilder("re")
         .innerJoinAndSelect("re.doctor","doc")
         .innerJoinAndSelect("re.environment","ev")
-        .innerJoinAndSelect("re.tariff","tf")
+        .leftJoinAndSelect("re.tariff","tf")
         .innerJoinAndSelect("re.patient","ch","ch.id = :ch",{ch: id})
         .where("re.state <> 0").orderBy({"re.date":"DESC"})
         .getMany();
@@ -138,12 +141,25 @@ export class ReservationService {
         return reservation;
     }
 
-    async validateReservation(iddoctor: number,date: string, appointment: string): Promise<boolean>{
+    async validateReservation(iddoctor: number,date: string, appointment: string, idcampus: number): Promise<number>{
+        let hours = appointment.split('-');
+        //Busco si el doctor tiene la hora bloqueda
+        const lock = await this._diaryLockRepository.createQueryBuilder('dl')
+        .where(`dl.date = :date AND
+        ((:since >= time_since and :since < time_until)
+        OR (:until >= time_since AND :until < time_until ))
+        AND dl.campus = :campus AND dl.state = 1 AND dl.doctor = :doctor`,
+        {date,since: hours[0],until: hours[1],campus: idcampus, doctor: iddoctor})
+        //.getQuery();
+        .getMany();
+        if(lock.length > 0){
+            return 2;
+        }
         const reservation = await this._reservationRepository
         .findOne({where:{state: MoreThan(0),doctor: iddoctor,date,appointment}});
         if(reservation)
-            return true;
-        return false;
+            return 1;
+        return 0;
     }
 
     async cancel(id: number): Promise<boolean>{
@@ -154,5 +170,23 @@ export class ReservationService {
             return false;
         }
         return true;
+    }
+
+    async getListFilter(patient: number, doctor: number, state: number): Promise<Reservation[]>{
+        let attr: any = {};
+        if (patient !== 0)
+            attr.patient = patient;
+        if (doctor > 0)
+            attr.doctor = doctor;
+        if(state)
+            attr.state = state;
+
+        const list = await this._reservationRepository.find(
+            {
+                where: attr,
+                order: {date: 'DESC'}
+            }
+        );
+        return list
     }
 }

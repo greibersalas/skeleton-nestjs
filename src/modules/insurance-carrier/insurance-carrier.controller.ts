@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { InsuranceCarrier } from './insurance-carrier.entity';
 import { InsuranceCarrierService } from './insurance-carrier.service';
 
-
+@UseGuards(JwtAuthGuard)
 @Controller('insurance-carrier')
 export class InsuranceCarrierController {
 

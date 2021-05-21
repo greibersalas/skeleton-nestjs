@@ -11,23 +11,19 @@ export class MasterPermissionsService {
         if(!id){
             throw new BadRequestException('id must be send');
         }
-
         const permissions = await this._permissionsRepository.findOne(id,{where:{estado:1}});
-
         if(!permissions){
             throw new NotFoundException();
         }
-
         return permissions;
     }
 
-    async getAll(): Promise<MasterPermissions[]>{        
+    async getAll(): Promise<MasterPermissions[]>{
         const permissionss: MasterPermissions[] = await this._permissionsRepository.find({where:{estado:1}});
         return permissionss;
     }
 
     async create(permissions: MasterPermissions): Promise<MasterPermissions>{
-        
         const saveMasterPermissions: MasterPermissions = await this._permissionsRepository.save(permissions);
         return saveMasterPermissions;
     }
@@ -38,11 +34,9 @@ export class MasterPermissionsService {
 
     async delete(id: number): Promise<void>{
         const permissionsExists = await this._permissionsRepository.findOne(id,{where:{estado:1}});
-
         if(!permissionsExists){
             throw new NotFoundException();
         }
-
         await this._permissionsRepository.update(id,{estado:0});
     }
 }

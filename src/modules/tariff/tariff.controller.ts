@@ -1,8 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+var moment = require('moment-timezone');
+import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
+
+import { Audit } from '../security/audit/audit.entity';
 import { TariffHistory } from './tariff-history.entity';
 import { Tariff } from './tariff.entity';
 import { TariffService } from './tariff.service';
 
+@UseGuards(JwtAuthGuard)
 @Controller('tariff')
 export class TariffController {
 
@@ -21,13 +26,32 @@ export class TariffController {
     }
 
     @Post()
-    async createTariff(@Body() tariff: Tariff): Promise<Tariff>{
+    async createTariff(
+        @Body() tariff: Tariff,
+        @Request() req: any
+    ): Promise<Tariff>{
         const create = await this._tariffService.create(tariff);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = create.id;
+        audit.title = 'tariff';
+        audit.description = 'Insert registro';
+        audit.data = JSON.stringify(create);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return create;
     }
 
     @Put(':id')
-    async updateTariff(@Param('id',ParseIntPipe) id: number, @Body() tariff: Tariff){
+    async updateTariff(
+        @Param('id',ParseIntPipe) id: number,
+        @Body() tariff: Tariff,
+        @Request() req: any
+    ){
         const actualTariff = await this._tariffService.get(id);
         //INSERT HISTORY OF PRICE
         const history = new TariffHistory()
@@ -39,12 +63,39 @@ export class TariffController {
         await this._tariffService.addHistory(history);
         //tariff.tariffHistory = [history];
         const update = await this._tariffService.update(id,tariff);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'tariff';
+        audit.description = 'Update registro';
+        audit.data = JSON.stringify(update);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return update;
     }
 
     @Delete(':id')
-    async deleteTariff(@Param('id',ParseIntPipe) id: number){
+    async deleteTariff(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ){
         await this._tariffService.delete(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'tariff';
+        audit.description = 'Delete registro';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return true;
     }
 
@@ -64,9 +115,9 @@ export class TariffController {
         return await this._tariffService.getLabs();
     }
 
-    @Get('get-by-bl/:idbl')
-    async getByBl(@Param('idbl') idbl): Promise<Tariff[]>{
-        const tariff = await this._tariffService.getByBl(idbl);
+    @Post('/get-by-bl')
+    async getByBl(@Body() data: any): Promise<Tariff[]>{
+        const tariff = await this._tariffService.getByBl(data);
         return tariff;
     }
 }
