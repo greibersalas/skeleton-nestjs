@@ -61,6 +61,9 @@ export class LabOrder extends BaseEntity{
     @Column({type: 'text', default: null, comment:'Observaciones'})
     observation_prescription: string;
 
+    @Column({type: 'varchar', default: null, comment:'Motivo'})
+    reason: string;
+
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
 
