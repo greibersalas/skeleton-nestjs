@@ -67,4 +67,28 @@ export class MailService {
             console.log("Error mail ",err);
         });
     }
+
+    async sendReservation24(data: any){
+        await this._mailerService.sendMail({
+            to: data.email,
+            subject: `${data.name}, mañana tenemos una cita pendiente`,
+            template: './reservation_24',
+            context: {
+                data
+            },
+            attachments: [
+                {
+                    filename: 'header2.png',
+                    path: path.join(__dirname, '../../../assets/img/maxillaris.png'),
+                    cid: 'header'
+                }
+            ],
+        })
+        .then(() => {
+            return true;
+        })
+        .catch((err) => {
+            console.log("Error mail ",err);
+        });
+    }
 }

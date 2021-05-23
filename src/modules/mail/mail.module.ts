@@ -23,7 +23,8 @@ import { Configuration } from '../../config/config.keys';
           },
         },
         defaults: {
-          from: `"No Responder" <greiber.salas@mano.guru>`
+          from: `"No Responder" <maxillaris@mano.guru>`,
+          replyTo: Configuration.MAIL_REPLYTO
         },
         template: {
           dir: join(__dirname, 'templates'),//__dirname + '/templates',

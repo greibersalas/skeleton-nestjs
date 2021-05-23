@@ -196,9 +196,26 @@ export class ReservationService {
         return list
     }
 
-    async sendMailTest(){
-        let data = {name: 'Greiber Salas', email: 'greibersalas@gmail.com'}
-        await this.mailService.sendReservation(data);
+    async sendMailTest(id: number){
+        //Buscamos los datos de la reserva
+        const reser = await this._reservationRepository.createQueryBuilder('rs')
+        .select('rs.date, rs.appointment, ch.name, ch.email')
+        .innerJoin('clinic_history','ch','ch.id = rs.patient')
+        .where("rs.id = :id",{id})
+        .getRawOne();
+        const { name, email, date, appointment } = reser;
+        const reservationDate = moment(date).format('DD/MM/YYYY');
+        const datetime = `${moment(date).format('YYYY-MM-DD')} ${appointment.split('-')[0]}`;
+        const reservationTime = moment(datetime).format('hh:mm a');
+        if(email && email !== ''){
+            console.log("Sending mail...");
+            let dataEmail = {
+                name, email,
+                date: reservationDate,
+                appointment: reservationTime
+            };
+            await this.mailService.sendReservation24(dataEmail);
+        }
     }
 
     async sendMail(id: number, template: string){
@@ -214,7 +231,6 @@ export class ReservationService {
         const reservationTime = moment(datetime).format('hh:mm a');
         if(email && email !== ''){
             console.log("Sending mail...");
-            
             let dataEmail = {
                 name, email,
                 date: reservationDate,

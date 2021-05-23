@@ -456,8 +456,10 @@ export class ReservationController {
     }
 
     @Get('/send-mail/:id')
-    async sendMail(): Promise<boolean>{
-        this._reservationService.sendMailTest();
+    async sendMail(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<boolean>{
+        this._reservationService.sendMailTest(id);
         return true;
     }
 }
