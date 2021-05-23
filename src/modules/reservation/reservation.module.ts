@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClinicHistoryModule } from '../clinic-history/clinic-history.module';
+
+import { MailModule } from '../mail/mail.module';
 import { ClinicHistoryRepository } from '../clinic-history/clinic-history.repository';
 import { ClinicHistoryService } from '../clinic-history/clinic-history.service';
 import { DoctorRepository } from '../doctor/doctor.repository';
@@ -13,7 +14,18 @@ import { ReservationRepository } from './reservation.repository';
 import { ReservationService } from './reservation.service';
 
 @Module({
-  imports: [ TypeOrmModule.forFeature([ReservationRepository,EnvironmentDoctorRepository,DoctorRepository,ClinicHistoryRepository,DiaryLockRepository])],
+  imports: [
+    TypeOrmModule.forFeature(
+      [
+        ReservationRepository,
+        EnvironmentDoctorRepository,
+        DoctorRepository,
+        ClinicHistoryRepository,
+        DiaryLockRepository
+      ]
+    ),
+    MailModule
+  ],
   controllers: [ReservationController],
   providers: [ReservationService, EnvironmentDoctorService, DoctorService, ClinicHistoryService]
 })

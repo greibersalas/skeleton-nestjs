@@ -454,4 +454,10 @@ export class ReservationController {
     ): Promise<Reservation[]>{
         return await this._reservationService.getListFilter(patient,doctor,state);
     }
+
+    @Get('/send-mail/:id')
+    async sendMail(): Promise<boolean>{
+        this._reservationService.sendMailTest();
+        return true;
+    }
 }
