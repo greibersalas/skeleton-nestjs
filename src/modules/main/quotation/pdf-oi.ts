@@ -82,14 +82,14 @@ export class Pdf_oi{
             pdf.SetX(10);
             pdf.Cell(190,5,`S/ ${formatter.format(total_sol)}`,0,0,'R');
         }
-        if(total_sol > 0){
+        if(total_usd > 0){
             pdf.SetFont('Arial','B',10);
             pdf.SetY(y+90);
             pdf.SetX(10);
             pdf.Cell(20,5,`PRESUPUESTO TOTAL`,0,0,'L');
             pdf.SetY(y+90);
             pdf.SetX(10);
-            pdf.Cell(190,5,`$ ${formatter.format(total_sol)}`,0,0,'R');
+            pdf.Cell(190,5,`$ ${formatter.format(total_usd)}`,0,0,'R');
         }
 
         pdf.SetFont('Arial','',7);

@@ -84,7 +84,15 @@ export class EnvironmentDoctorService {
         await this._environmentDoctorRepository.update(id,{state:0});
     }
 
-    async programmingDay(day: string, reser: any, campus: number, doctor:number,patient:number,state:number): Promise<any>{
+    async programmingDay(
+        day: string,
+        reser: any,
+        campus: number,
+        doctor: number,
+        patient: number,
+        state: number,
+        rol: boolean
+    ): Promise<any>{
         //console.log("Reser ",reser);
         let prog: any[] = [];
         //Busco la lista de consultorios
@@ -116,7 +124,7 @@ export class EnvironmentDoctorService {
                         appointment: schedule,
                     }
                     if (doctor != 0)
-                        filter["doctor_id"] = doctor;
+                        //filter["doctor_id"] = doctor;
                     if (patient != 0)
                         filter["patient_id"] = patient;
                     if (state != 0)
@@ -124,13 +132,36 @@ export class EnvironmentDoctorService {
                     const reserv = _.find(reser,filter);
                     let interval = 0;
                     if(reserv){
-                        hours.push({
-                            since: moment(since).format('HH:mm'),
-                            until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                            rowspan: (i.interval/10)*20,
-                            type: 4, //reservado,
-                            data: reserv
-                        });
+                        //Si el rol es doctor o especialista OFM
+                        //Mostramos solo sus reservas y las demas las bloqueamos
+                        if(rol){
+                            if(reserv.doctor_id === doctor){
+                                hours.push({
+                                    since: moment(since).format('HH:mm'),
+                                    until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                    rowspan: (i.interval/10)*20,
+                                    type: 4, //reservado,
+                                    data: reserv
+                                });
+                            }else{
+                                hours.push({
+                                    since: moment(since).format('HH:mm'),
+                                    until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                    rowspan: (i.interval/10)*20,
+                                    type: 0, //no disponible en el perfil
+                                    data: reserv
+                                });
+                            }
+                        }else{
+                            //Si el otro perfil mostramos todo
+                            hours.push({
+                                since: moment(since).format('HH:mm'),
+                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                rowspan: (i.interval/10)*20,
+                                type: 4, //reservado,
+                                data: reserv
+                            });
+                        }
                     }else{
                         let nextTime = moment(since).add(i.interval,'minutes');
                         //Verifico si el siguiente horario supera la hora de refrigerio

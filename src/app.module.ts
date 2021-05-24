@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { MailModule } from './modules/mail/mail.module';
 
 import { Configuration } from './config/config.keys';
 import { AppController } from './app.controller';
@@ -100,7 +101,8 @@ import { AuditModule } from './modules/security/audit/audit.module';
     PermissionsModule,
     MasterPermissionsModule,
     DiaryLockModule,
-    AuditModule
+    AuditModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

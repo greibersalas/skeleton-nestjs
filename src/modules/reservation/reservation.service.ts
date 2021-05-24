@@ -4,10 +4,11 @@ import { MoreThan, Not } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { DiaryLockRepository } from '../main/diary-lock/diary-lock.repository';
-import { FormFilter, PatientList} from './form.filter';
+import { FormFilter} from './form.filter';
 import { Reservation } from './reservation.entity';
 import { ReservationRepository } from './reservation.repository';
-
+import { MailService } from '../mail/mail.service';
+var moment = require('moment-timezone');
 
 @Injectable()
 export class ReservationService {
@@ -16,7 +17,8 @@ export class ReservationService {
         @InjectRepository(ReservationRepository)
         private readonly _reservationRepository: ReservationRepository,
         @InjectRepository(DiaryLockRepository)
-        private readonly _diaryLockRepository: DiaryLockRepository
+        private readonly _diaryLockRepository: DiaryLockRepository,
+        private mailService: MailService
     ){}
 
     async get(id: number): Promise<Reservation>{
@@ -69,6 +71,8 @@ export class ReservationService {
 
     async create(bl: Reservation): Promise<Reservation>{
         const saveReservation: Reservation = await this._reservationRepository.save(bl);
+        //enviamos el correo de notificación al cliente
+        await this.sendMail(saveReservation.id,'R');
         return saveReservation;
     }
 
@@ -123,6 +127,8 @@ export class ReservationService {
         const confirm = await this._reservationRepository.createQueryBuilder()
         .update(Reservation)
         .set({state:2}).where({id}).execute();
+        //enviamos el correo de notificación al cliente
+        await this.sendMail(id,'C');
         return confirm;
     }
 
@@ -188,5 +194,50 @@ export class ReservationService {
             }
         );
         return list
+    }
+
+    async sendMailTest(id: number){
+        //Buscamos los datos de la reserva
+        const reser = await this._reservationRepository.createQueryBuilder('rs')
+        .select('rs.date, rs.appointment, ch.name, ch.email')
+        .innerJoin('clinic_history','ch','ch.id = rs.patient')
+        .where("rs.id = :id",{id})
+        .getRawOne();
+        const { name, email, date, appointment } = reser;
+        const reservationDate = moment(date).format('DD/MM/YYYY');
+        const datetime = `${moment(date).format('YYYY-MM-DD')} ${appointment.split('-')[0]}`;
+        const reservationTime = moment(datetime).format('hh:mm a');
+        if(email && email !== ''){
+            console.log("Sending mail...");
+            let dataEmail = {
+                name, email,
+                date: reservationDate,
+                appointment: reservationTime
+            };
+            await this.mailService.sendReservation24(dataEmail);
+        }
+    }
+
+    async sendMail(id: number, template: string){
+        //Buscamos los datos de la reserva
+        const reser = await this._reservationRepository.createQueryBuilder('rs')
+        .select('rs.date, rs.appointment, ch.name, ch.email')
+        .innerJoin('clinic_history','ch','ch.id = rs.patient')
+        .where("rs.id = :id",{id})
+        .getRawOne();
+        const { name, email, date, appointment } = reser;
+        const reservationDate = moment(date).format('DD/MM/YYYY');
+        const datetime = `${moment(date).format('YYYY-MM-DD')} ${appointment.split('-')[0]}`;
+        const reservationTime = moment(datetime).format('hh:mm a');
+        if(email && email !== ''){
+            console.log("Sending mail...");
+            let dataEmail = {
+                name, email,
+                date: reservationDate,
+                appointment: reservationTime,
+                template
+            };
+            await this.mailService.sendReservation(dataEmail);
+        }
     }
 }

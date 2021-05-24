@@ -7,18 +7,19 @@ export class Pdf_ficha{
     print(data: any){
         const { patient } = data;
         const pdf = new FPDF('P','mm','A4');
-        let y: number = 50;
+        let y: number = 70;
         pdf.AddPage('P','A4');
         pdf.SetTitle('Ficha de evaluacion - '+patient.id);
         pdf.SetFillColor(200,200,200);
 
-        pdf.Image('assets/img/logo.jpg',10,10,60,20,'jpg');
+        //pdf.Image('assets/img/logo.jpg',10,10,60,20,'jpg');
+        pdf.Image('assets/img/hoja_membretada_maxillaris_1.jpg',0,0,211,298,'jpg');
 
         pdf.SetFont('Arial','B',16);
-        pdf.SetY(10);
+        pdf.SetY(30);
         pdf.SetX(10);
-        pdf.Cell(95,20,'',1);
-        pdf.Cell(95,20,'Ficha de Datos',1,0,'C');
+        //pdf.Cell(95,20,'',1);
+        pdf.Cell(190,20,'Ficha de Datos',0,0,'C');
 
         pdf.SetFont('Arial','',12);
         pdf.SetY(y-10);
@@ -104,22 +105,30 @@ export class Pdf_ficha{
         pdf.SetX(10);
         pdf.Cell(40,5,`PARA CASOS DE EMERGENCIA DAR LOS SIGUIENTES DATOS`);
 
+        let medico: string = '';
+        if(patient.medico_confianza){
+            medico = `${patient.medico_confianza} ${patient.medico_confianza_telefono}`;
+        }
         pdf.SetFont('Arial','',10);
         pdf.SetY(y+125);
         pdf.SetX(10);
-        pdf.Cell(40,5,`Médico de confianza: ${patient.medico_confianza} ${patient.medico_confianza_telefono}`);
+        pdf.Cell(40,5,`Médico de confianza: ${medico}`);
 
         pdf.SetY(y+130);
         pdf.SetX(10);
         pdf.Cell(40,5,`Servicio de Ambulancia`);
 
+        let contacto: string = '';
+        if(patient.contacto){
+            contacto = `${patient.contacto} - ${patient.contacto_telefono}`;
+        }
         pdf.SetY(y+135);
         pdf.SetX(10);
-        pdf.Cell(40,5,`En caso de emergencia contactar ${patient.contacto} - ${patient.contacto_telefono}`);
+        pdf.Cell(40,5,`En caso de emergencia contactar ${contacto}`);
 
 
         pdf.SetFont('Arial','',7);
-        pdf.SetY(260);
+        pdf.SetY(250);
         pdf.SetX(10);
         pdf.Cell(15,5,`Fecha de impresión ${moment().tz('America/Lima').format('DD-MM-YYYY HH:mm:ss')}`);
 

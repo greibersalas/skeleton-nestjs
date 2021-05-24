@@ -96,14 +96,22 @@ export class EnvironmentDoctorController {
     }
 
     @Get('programmin-day/:date/:campus/:doctor/:patient/:state')
-    async getProgrammingDay(@Param('date') date: string,
-                            @Param('campus',ParseIntPipe) campus: number,
-                            @Param('doctor',ParseIntPipe) doctor: number,
-                            @Param('patient',ParseIntPipe) patient: number,
-                            @Param('state',ParseIntPipe) state: number
-        ): Promise<any>{
+    async getProgrammingDay(
+        @Param('date') date: string,
+        @Param('campus',ParseIntPipe) campus: number,
+        @Param('doctor',ParseIntPipe) doctor: number,
+        @Param('patient',ParseIntPipe) patient: number,
+        @Param('state',ParseIntPipe) state: number,
+        @Request() req: any
+    ): Promise<any>{
+        const { user } = req;
+        //idroles 4 y 5 Doctor y Especialista OFM
+        let rol: boolean = false;
+        if(user.roles.idrole === 4 || user.roles.idrole === 4){
+            rol = true;
+        }
         const reser = await this._reservationService.getByDay(date,campus);
-        const programmming = await this._edService.programmingDay(date,reser,campus, doctor, patient,state);
+        const programmming = await this._edService.programmingDay(date,reser,campus, doctor, patient,state, rol);
         return programmming;
     }
 }

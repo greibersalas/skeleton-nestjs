@@ -9,7 +9,8 @@ import { LabOrderLabeledService } from '../lab-order-labeled/lab-order-labeled.s
 
 //FPDF
 const FPDF = require('./pdf-barcode');
-//import * as FPDF from './pdf-barcode';
+//Reports PDF
+import { Pdf_lab_resumen } from './pdf/pdf-lab-resume';
 @UseGuards(JwtAuthGuard)
 @Controller('lab-order')
 export class LabOrderController {
@@ -117,7 +118,7 @@ export class LabOrderController {
         return confirm;
     }
 
-    @Get('pdf/:id')
+    @Get('/pdf/:id')
     async getPdf(@Param('id',ParseIntPipe) id: number): Promise<any>{
         const data = await this._labOrderLabeledService.pdf(id);
         let dm: number[] = [50,40];
@@ -169,5 +170,12 @@ export class LabOrderController {
         pdf.Output('F',`uploads/pdf/lab/${nameFile}`);
         let response = {link: `pdf/lab/${nameFile}`}
         return response;
+    }
+
+    @Post('/get-resume-pdf')
+    async getResumePdf(@Body() filters: any): Promise<any>{
+        const pdf = new Pdf_lab_resumen();
+        const data = await this._labOrderService.getAllFilter(filters);
+        return pdf.print(data);
     }
 }

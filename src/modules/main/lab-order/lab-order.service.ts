@@ -99,9 +99,9 @@ export class LabOrderService {
                         WHEN job = 'Reparación' THEN count(job)
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
-                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0`,{    
+                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0`,{
                     since: filters.since,until: filters.until
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
+                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
                 return production;
             }else{
                 const production = await this._labOrderRepository.createQueryBuilder()
@@ -115,9 +115,9 @@ export class LabOrderService {
                         WHEN job = 'Desiste' then count(job)
                     ELSE 0 END as total`)
                 .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0
-                AND job = :job`,{    
+                AND job = :job`,{
                     since: filters.since,until: filters.until, job: filters.state
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();        
+                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
                 return production;
             }
         }else if(filters.option === 'e'){
