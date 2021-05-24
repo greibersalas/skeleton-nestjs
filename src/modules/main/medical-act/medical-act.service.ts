@@ -118,13 +118,13 @@ export class MedicalActService {
     async getFilesByClinicHistory(id: number): Promise<MedicalActFiles[]>{
         const ma: MedicalActFiles[] = await this._medicalActFilesRepository
         .createQueryBuilder("fl")
-        .innerJoinAndSelect("fl.medicalact","ma","ma.state = :state",{state: 1})
-        .innerJoin("ma.reservation","rs","rs.state = 3")
-        .innerJoin("rs.patient","ch","ch.id = :id",{id})
+        //.innerJoinAndSelect("fl.medicalact","ma","ma.state = :state",{state: 1})
+        //.innerJoin("ma.reservation","rs","rs.state = 3")
+        //.innerJoin("rs.patient","ch","ch.id = :id",{id})
         //.innerJoin("rs.qdetail","dq")
         //.innerJoin("dq.quotation","qt")
         .innerJoinAndSelect("fl.filegroup","fg")
-        .where({state: 1})
+        .where({state: 1,clinichistory:id})
         .orderBy({"fl.id":'DESC'})
         .getMany();
         return ma;

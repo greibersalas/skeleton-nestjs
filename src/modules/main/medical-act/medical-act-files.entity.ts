@@ -1,3 +1,4 @@
+import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 import { MedicalActFileGroup } from "./medical-act-file-group.entity";
@@ -18,9 +19,13 @@ export class MedicalActFiles extends BaseEntity{
     @Column({type: 'varchar', nullable: false, length: 10})
     file_ext: string;
 
-    @ManyToOne(type => MedicalAct, ma => ma.id,{cascade:true, nullable:false, eager:false})
+    @ManyToOne(type => MedicalAct, ma => ma.id,{cascade:true, nullable:true, eager:false})
     @JoinColumn()
     medicalact: MedicalAct;
+
+    @ManyToOne(type => ClinicHistory, ch => ch.id,{cascade:true, nullable:true, eager:false})
+    @JoinColumn()
+    clinichistory: ClinicHistory;
 
     @ManyToOne(type => MedicalActFileGroup, mafg => mafg.id,{cascade:true, nullable:false, eager:false})
     @JoinColumn()

@@ -126,6 +126,7 @@ export class MedicalActController {
         const data = {
             fila_name: file.filename,
             file_ext: extname(file.originalname),
+            clinichistory : null,
             medicalact: id,
             filegroup: group,
             desciption: des.description
@@ -149,6 +150,60 @@ export class MedicalActController {
             data: response
         };
     }
+
+    @Post("upload/hc/:group/:id")
+    //@UseInterceptors(FileInterceptor("file",{dest:"./uploads"}))
+    @UseInterceptors(
+        FileInterceptor('file',{
+            storage: diskStorage({
+                destination: './uploads',
+                filename: editFileName
+            }),
+            fileFilter: imageFileFilter,
+        }),
+    )
+    async uploadFileFromHC(
+        @UploadedFile() file: any,
+        @Param('group',ParseIntPipe) group: number,
+        @Param('id',ParseIntPipe) id: number,
+        @Body() des: any,
+        @Request() req: any
+    ){
+        const response = {
+            originalname: file.originalname,
+            filename: file.filename,
+            fileext: extname(file.originalname)
+        };
+        //Data a guadar en la tabla
+        const data = {
+            fila_name: file.filename,
+            file_ext: extname(file.originalname),
+            clinichistory : id,
+            medicalact:null,
+            filegroup: group,
+            desciption: des.description
+        };
+        const fileinsert = await this._medicalActService.addFiles(data);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = fileinsert.id;
+        audit.title = 'clinic-history-file';
+        audit.description = 'Insertar registro';
+        audit.data = JSON.stringify(fileinsert);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return {
+            status: HttpStatus.OK,
+            message: 'Image uploaded successfully!',
+            data: response
+        };
+    }
+
+    
 
     @Get('get-file/:file')
     getFile(@Param('file') file: any, @Res() res: any){
