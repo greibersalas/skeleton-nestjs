@@ -47,4 +47,8 @@ export class Reservation extends BaseEntity{
     @ManyToOne(type => Tariff, tariff => tariff.id,{cascade: true, nullable: true, eager: true})
     @JoinColumn({name:'tariff_id'})
     tariff: Tariff;
+
+    @Column({type: 'boolean', default: false})
+    notify2h: boolean;
+
 }
