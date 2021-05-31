@@ -1,14 +1,13 @@
 import { User } from "../../user/user.entity";
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {MasterPermissions} from "../master-permissions/master-permissions.entity"
+
 
 @Entity('permissions')
 export class Permissions extends BaseEntity{
 
     @PrimaryGeneratedColumn('increment')
     id: number;
-
-    @Column({type:'varchar', length:20, nullable:false})
-    page: string;
 
     @Column({type: 'boolean', default: false})
     view: boolean;
@@ -34,4 +33,10 @@ export class Permissions extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    @ManyToOne(type=>MasterPermissions,{cascade:true,nullable:false,eager:true})
+    @JoinColumn({name:'mpermissions_id'})
+    mpermissions: MasterPermissions;
+
+
 }
