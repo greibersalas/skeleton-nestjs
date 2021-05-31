@@ -51,6 +51,8 @@ import { PermissionsModule } from './modules/security/permissions/permissions.mo
 import { MasterPermissionsModule } from './modules/security/master-permissions/master-permissions.module';
 import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
 import { AuditModule } from './modules/security/audit/audit.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 
 @Module({
@@ -102,7 +104,9 @@ import { AuditModule } from './modules/security/audit/audit.module';
     MasterPermissionsModule,
     DiaryLockModule,
     AuditModule,
-    MailModule
+    MailModule,
+    ScheduleModule.forRoot(),
+    TasksModule
   ],
   controllers: [AppController],
   providers: [AppService],
