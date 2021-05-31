@@ -55,39 +55,66 @@ export class Pdf_oi{
         var total_usd: number = 0;
         var formatter = new Intl.NumberFormat('en-US',{ minimumFractionDigits: 2 });
         data.detail.forEach( (it: QuotationDetail) => {
-            pdf.SetY(y+75);
-            pdf.SetX(10);
-            pdf.Cell(20,5,`${it.quantity} ${it.tariff.name}`,0,0,'L');
-
-            pdf.SetY(y+75);
-            pdf.SetX(10);
-            pdf.Cell(190,5,`${it.coin.code} ${formatter.format(it.total)}`,0,0,'R');
-
             if(it.coin.id === 1){
+                pdf.SetY(y+75);
+                pdf.SetX(10);
+                pdf.Cell(20,5,`${it.quantity} ${it.tariff.name}`,0,0,'L');
+
+                pdf.SetY(y+75);
+                pdf.SetX(10);
+                pdf.Cell(190,5,`${it.coin.code} ${formatter.format(it.total)}`,0,0,'R');
+                total_sol += it.total;
+                y += 5;
+            }
+            /*if(it.coin.id === 1){
                 total_sol += it.total;
             }else if(it.coin.id === 2){
                 total_usd += it.total;
-            }
-
-            y += 5;
+            }*/
         });
 
         //Total
         if(total_sol > 0){
             pdf.SetFont('Arial','B',10);
-            pdf.SetY(y+85);
+            pdf.SetY(y+80);
             pdf.SetX(10);
             pdf.Cell(20,5,`PRESUPUESTO TOTAL`,0,0,'L');
-            pdf.SetY(y+85);
+            pdf.SetY(y+80);
             pdf.SetX(10);
             pdf.Cell(190,5,`S/ ${formatter.format(total_sol)}`,0,0,'R');
+            y += 25
         }
+        
+        pdf.SetFont('Arial','',10);
+        data.detail.forEach( (it: QuotationDetail) => {
+            if(it.coin.id === 2){
+                pdf.SetY(y+75);
+                pdf.SetX(10);
+                pdf.Cell(20,5,`${it.quantity} ${it.tariff.name}`,0,0,'L');
+
+                pdf.SetY(y+75);
+                pdf.SetX(10);
+                pdf.Cell(190,5,`${it.coin.code} ${formatter.format(it.total)}`,0,0,'R');
+                total_usd += it.total
+                y += 5;
+            }
+            
+
+            /*if(it.coin.id === 1){
+                total_sol += it.total;
+            }else if(it.coin.id === 2){
+                total_usd += it.total;
+            }*/
+
+            
+        });
+
         if(total_usd > 0){
             pdf.SetFont('Arial','B',10);
-            pdf.SetY(y+90);
+            pdf.SetY(y+80);
             pdf.SetX(10);
             pdf.Cell(20,5,`PRESUPUESTO TOTAL`,0,0,'L');
-            pdf.SetY(y+90);
+            pdf.SetY(y+80);
             pdf.SetX(10);
             pdf.Cell(190,5,`$ ${formatter.format(total_usd)}`,0,0,'R');
         }
