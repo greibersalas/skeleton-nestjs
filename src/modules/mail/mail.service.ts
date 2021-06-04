@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { template } from 'handlebars';
 const path = require('path');
 
 @Injectable()
