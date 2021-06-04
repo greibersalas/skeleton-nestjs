@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Not } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
@@ -52,6 +52,11 @@ export class ReservationService {
         return Reservation
     }
 
+    async getByDateWithOutNotify(date:Date):Promise<Reservation[]>{
+        const Reservation = await this._reservationRepository.find({where:{date:date,notify2h:false}});
+        return Reservation
+    }
+
     async getByDoctorEnivronment(date:string,doctor:Doctor,environment:EnvironmentDoctor):Promise<Reservation[]>{
         const Reservation = await this._reservationRepository.find({where:{date:date,doctor:doctor,environment:environment}});
         return Reservation
@@ -82,6 +87,17 @@ export class ReservationService {
             throw new NotFoundException();
         }
         await this._reservationRepository.update(id,Reservation);
+        const updateReservation : Reservation = await this._reservationRepository.findOne(id);
+        return updateReservation;
+    }
+
+    async updateNotify2h(id: number): Promise<Reservation>{
+        const ReservationExists = await this._reservationRepository.findOne(id);
+        if(!ReservationExists){
+            throw new NotFoundException();
+        }
+        ReservationExists.notify2h = true
+        await this._reservationRepository.update(id,ReservationExists);
         const updateReservation : Reservation = await this._reservationRepository.findOne(id);
         return updateReservation;
     }

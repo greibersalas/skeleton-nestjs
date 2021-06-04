@@ -6,7 +6,7 @@ export class MasterPermissions extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type:'varchar', length:20, nullable:false})
+    @Column({type:'varchar', length:40, nullable:false})
     page: string;
 
     @Column({type:'int2', nullable:false, default:1})
@@ -17,4 +17,7 @@ export class MasterPermissions extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    @Column({type: 'varchar', length:100, default:""})
+    description: string;
 }
