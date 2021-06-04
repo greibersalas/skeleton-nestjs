@@ -178,12 +178,20 @@ export class ReservationService {
         return true;
     }
 
-    async getListFilter(patient: number, doctor: number, state: number): Promise<Reservation[]>{
+    async getListFilter(
+        patient: number,
+        doctor: number,
+        state: number,
+        date: string
+    ): Promise<Reservation[]>{
         let attr: any = {};
         if (patient !== 0)
             attr.patient = patient;
-        if (doctor > 0)
+        if (doctor > 0){
             attr.doctor = doctor;
+            attr.date = date;
+            console.log("doctor...", doctor);
+        }
         if(state)
             attr.state = state;
 

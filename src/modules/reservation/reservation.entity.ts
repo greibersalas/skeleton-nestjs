@@ -22,6 +22,9 @@ export class Reservation extends BaseEntity{
     @JoinColumn({name:'doctor_id'})
     doctor: Doctor;
 
+    @Column({type: 'int8', default: null, nullable: true})
+    doctor_id2: number;
+
     @Column({type: 'date', nullable:false})
     date: Date;
 

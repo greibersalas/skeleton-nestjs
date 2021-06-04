@@ -57,7 +57,14 @@ export class MedicalActAttentionService {
         if(!id){
             throw new BadRequestException('id must be send.');
         }
-        const medicalActAttention = await this._medicalActAttentionRepository.find({where:{state:1,medicalact:id}});
+        //const medicalActAttention = await this._medicalActAttentionRepository.find({where:{state:1,medicalact:id}});
+        const medicalActAttention = await this._medicalActAttentionRepository.createQueryBuilder('mc')
+        .innerJoinAndSelect("mc.tariff","tr")
+        .innerJoinAndSelect("tr.specialty","sp")
+        .innerJoinAndSelect("sp.businessLines","bl")
+        .innerJoinAndSelect("mc.doctor",'dc')
+        .where("mc.state = 1 AND mc.medicalact = :id",{id})
+        .getMany();
 
         if(!medicalActAttention){
             throw new NotFoundException();

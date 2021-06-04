@@ -446,13 +446,14 @@ export class ReservationController {
         return await this._reservationService.cancel(id);
     }
 
-    @Get('list-filter/:patient/:doctor/:state')
+    @Get('list-filter/:patient/:doctor/:state/:date')
     async getListState(
         @Param('patient', ParseIntPipe) patient: number,
         @Param('doctor', ParseIntPipe) doctor: number,
-        @Param('state', ParseIntPipe) state: number
+        @Param('state', ParseIntPipe) state: number,
+        @Param('date') date: string
     ): Promise<Reservation[]>{
-        return await this._reservationService.getListFilter(patient,doctor,state);
+        return await this._reservationService.getListFilter(patient,doctor,state,date);
     }
 
     @Get('/send-mail/:id')
