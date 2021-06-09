@@ -88,7 +88,7 @@ export class ClinicHistoryService {
         .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
         an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
         an.medic_cellphone as medico_confianza_telefono`)
-        .innerJoin("districts","dt","dt.id = pt.district")
+        .leftJoin("districts","dt","dt.id = pt.district")
         .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
         .where(`pt.id = :id`,{id})
         .getRawOne();

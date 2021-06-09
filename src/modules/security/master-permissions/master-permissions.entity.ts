@@ -6,7 +6,7 @@ export class MasterPermissions extends BaseEntity{
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type:'varchar', length:40, nullable:false})
+    @Column({type:'varchar', length:40, nullable:true})
     page: string;
 
     @Column({type:'int2', nullable:false, default:1})
