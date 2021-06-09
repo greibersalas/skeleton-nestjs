@@ -26,10 +26,24 @@ export class ReservationService {
             throw new BadRequestException('id must be send.');
         }
 
-        const Reservation = await this._reservationRepository.findOne(id,{where:{state: Not(0)}});
+        /*const Reservation = await this._reservationRepository.findOne(id,{where:{state: Not(0)}});
         if(!Reservation){
             throw new NotFoundException();
-        }
+        }*/
+
+        const Reservation = await this._reservationRepository.createQueryBuilder('re')
+        .select(`re.id, re.reason, re.appointment,re.date::DATE,
+            ev.name as environment,ev.id as idenvironment,
+            dr.nameQuote as doctor,dr.id as iddoctor,
+            pa.id as idpatient,ta.id as idtariff,
+            concat(pa.name,' ',"pa"."lastNameFather") as patient,
+            dr2.nameQuote as doctor2, dr2.id as iddoctor2 `)
+        .innerJoin("re.environment","ev")
+        .innerJoin("re.doctor","dr")
+        .innerJoin("re.patient","pa")
+        .innerJoin("re.tariff","ta")
+        .leftJoin("doctor","dr2","dr2.id = re.doctor_id2")
+        .where("re.id = :id AND re.state <> 0",{id}).getRawOne();
 
         return Reservation;
     }

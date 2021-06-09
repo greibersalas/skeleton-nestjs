@@ -64,11 +64,6 @@ export class DoctorService {
         switch(day){
             case 0:
                 sun = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                sun = :sun`,{id,sun})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -85,11 +80,6 @@ export class DoctorService {
                 break;
             case 1:
                 mon = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                mon = :mon`,{id,mon})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -106,11 +96,6 @@ export class DoctorService {
                 break;
             case 2:
                 tue = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                tue = :tue`,{id,tue})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -127,11 +112,6 @@ export class DoctorService {
                 break;
             case 3:
                 wed = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                wed = :wed`,{id,wed})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -148,11 +128,6 @@ export class DoctorService {
                 break;
             case 4:
                 thu = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                thu = :thu`,{id,thu})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -169,11 +144,6 @@ export class DoctorService {
                 break;
             case 5:
                 fri = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND
-                fri = :fri`,{id,fri})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
@@ -190,10 +160,6 @@ export class DoctorService {
                 break;
             case 6:
                 sat = true;
-                /*doctors = await this._doctorRepository
-                .createQueryBuilder()
-                .where(`state <> 0 AND :id = ANY(business_lines) AND sat = :sat`,{id,sat})
-                .getMany();*/
                 doctors = await getManager()
                 .createQueryBuilder()
                 .select("id,nameQuote,morning_schedule,afternoon_schedule")
