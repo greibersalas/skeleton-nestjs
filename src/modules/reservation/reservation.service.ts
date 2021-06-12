@@ -41,7 +41,7 @@ export class ReservationService {
         .innerJoin("re.environment","ev")
         .innerJoin("re.doctor","dr")
         .innerJoin("re.patient","pa")
-        .innerJoin("re.tariff","ta")
+        .leftJoin("re.tariff","ta")
         .leftJoin("doctor","dr2","dr2.id = re.doctor_id2")
         .where("re.id = :id AND re.state <> 0",{id}).getRawOne();
 
