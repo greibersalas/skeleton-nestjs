@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res, HttpStatus } from '@nestjs/common';
 var moment = require('moment-timezone');
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
+import * as readXlsxFile from 'read-excel-file/node';
 
 import { Audit } from '../security/audit/audit.entity';
 import { ClinicHistory } from './clinic-history.entity';
@@ -114,5 +115,17 @@ export class ClinicHistoryController {
     @Get('validate-num-doc/:nro_document')
     async validateNumDoc(@Param('nro_document') doc: string): Promise<boolean>{
         return this._clinicHistoryService.validateNumDoc(doc);
+    }
+
+    @Get('get/xlsx/')
+    async getXlsx(@Res() response,): Promise<any>{
+        await readXlsxFile(`${__dirname}/../../../uploads/ch.xlsx`).then(async (rows: any) => {
+            // `rows` is an array of rows
+            // each row being an array of cells.
+            rows.shift();
+            const resp = await this._clinicHistoryService.regularNumDoc(rows);
+            return response.status(HttpStatus.OK).json(resp);
+
+        });
     }
 }

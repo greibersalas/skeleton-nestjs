@@ -112,4 +112,27 @@ export class ClinicHistoryService {
         }
         return false;
     }
+
+    async regularNumDoc(data: any[]): Promise<any>{
+        let count: number = 0;
+        await Promise.all(
+            data.map(async (it) => {
+                const exist = await this._clinicHistoryRepository.findOne({
+                    where: { history: it[0]}
+                });
+                if(exist){
+                    //console.log(exist.documentNumber, it[1]);
+                    if(exist.documentNumber !== it[1]){
+                        await this._clinicHistoryRepository.createQueryBuilder('ch')
+                        .update(ClinicHistory).set({documentNumber: it[1]})
+                        .where({id: exist.id}).execute();
+                    }
+                    count ++;
+                }
+            })
+        );
+        console.log({count});
+        
+        return count;
+    }
 }
