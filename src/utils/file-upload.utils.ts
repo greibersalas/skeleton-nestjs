@@ -3,7 +3,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 // Allow only images
 export const imageFileFilter = (req: any, file: any, callback: any) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|doc|docx|xls|xlsx|pdf|mp3|mp4|zip)$/)) {
+  if (!file.originalname.match(/\.(jpg|jpeg|png|gif|doc|docx|xls|xlsx|pdf|mp3|mp4|zip|pptx)$/)) {
     return callback(
       new HttpException(
         'Only image files are allowed!',
