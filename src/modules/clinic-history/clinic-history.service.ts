@@ -131,8 +131,19 @@ export class ClinicHistoryService {
                 }
             })
         );
-        console.log({count});
-        
         return count;
+    }
+
+    async search(search: string): Promise<any>{
+        const exist = await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select(`ch.id, CONCAT("ch"."documentNumber",' ',ch.name,' ',"ch"."lastNameFather",' ',"ch"."lastNameMother") as name`)
+        .where(`CONCAT("ch"."documentNumber",' ',ch.name,' ',"ch"."lastNameFather",' ',"ch"."lastNameMother") ILIKE '%${search}%'
+        AND ch.state = 1`)
+        //.getQuery();
+        .getRawMany();
+        if(exist.length === 0){
+            throw new NotFoundException();
+        }
+        return exist;
     }
 }

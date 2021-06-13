@@ -128,4 +128,12 @@ export class ClinicHistoryController {
 
         });
     }
+
+    @Post('search-autocomplet/')
+    async autocomplet(
+        @Body() data: any
+    ): Promise<any>{
+        const { search } = data;
+        return await this._clinicHistoryService.search(search);
+    }
 }
