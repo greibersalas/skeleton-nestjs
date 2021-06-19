@@ -26,7 +26,7 @@ export class AuthService {
         });
 
         if(userExist){
-            throw new ConflictException('User or email already exists');
+            throw new ConflictException('El usuario o el email ya se encuentra registrado');
         }
 
         return this._authRepository.signup(signupDto);

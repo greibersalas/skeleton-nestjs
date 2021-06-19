@@ -401,9 +401,10 @@ export class ReservationController {
         return await this._reservationService.getByClinicHistory(id);
     }
 
-    @Get('confirm/:id')
+    @Get('confirm/:id/:state')
     async confirm(
         @Param('id', ParseIntPipe) id: number,
+        @Param('state', ParseIntPipe) state: number,
         @Request() req: any
     ): Promise<any>{
         //Creamos los datos de la auditoria
@@ -417,7 +418,7 @@ export class ReservationController {
         audit.state = 1;
         //Guardamos la auditoria
         await audit.save();
-        return await this._reservationService.confirm(id);
+        return await this._reservationService.confirm(id,state);
     }
 
     @Get('validate-doctor/:iddoctor/:date/:appointment/:idcampus')
@@ -460,7 +461,7 @@ export class ReservationController {
     async sendMail(
         @Param('id', ParseIntPipe) id: number
     ): Promise<boolean>{
-        this._reservationService.sendMailTest(id);
+        await this._reservationService.sendMailTest(id);
         return true;
     }
 }

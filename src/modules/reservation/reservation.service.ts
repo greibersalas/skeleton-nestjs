@@ -9,6 +9,7 @@ import { Reservation } from './reservation.entity';
 import { ReservationRepository } from './reservation.repository';
 import { MailService } from '../mail/mail.service';
 var moment = require('moment-timezone');
+import {emailValidator} from '../../utils/email.utils';
 
 @Injectable()
 export class ReservationService {
@@ -25,19 +26,13 @@ export class ReservationService {
         if(!id){
             throw new BadRequestException('id must be send.');
         }
-
-        /*const Reservation = await this._reservationRepository.findOne(id,{where:{state: Not(0)}});
-        if(!Reservation){
-            throw new NotFoundException();
-        }*/
-
         const Reservation = await this._reservationRepository.createQueryBuilder('re')
         .select(`re.id, re.reason, re.appointment,re.date::DATE,
             ev.name as environment,ev.id as idenvironment,
             dr.nameQuote as doctor,dr.id as iddoctor,
             pa.id as idpatient,ta.id as idtariff,
             concat(pa.name,' ',"pa"."lastNameFather") as patient,
-            dr2.nameQuote as doctor2, dr2.id as iddoctor2 `)
+            dr2.nameQuote as doctor2, dr2.id as iddoctor2, re.state `)
         .innerJoin("re.environment","ev")
         .innerJoin("re.doctor","dr")
         .innerJoin("re.patient","pa")
@@ -153,12 +148,15 @@ export class ReservationService {
         return data;
     }
 
-    async confirm(id: number): Promise<any>{
-        const confirm = await this._reservationRepository.createQueryBuilder()
+    async confirm(id: number, state: number): Promise<any>{
+
+        /*const confirm = await this._reservationRepository.createQueryBuilder()
         .update(Reservation)
-        .set({state:2}).where({id}).execute();
+        .set({state}).where({id}).execute();*/
+        const confirm = await this._reservationRepository.update({id},{state});
         //enviamos el correo de notificación al cliente
-        await this.sendMail(id,'C');
+        if(state === 2)
+            await this.sendMail(id,'C');
         return confirm;
     }
 
@@ -259,23 +257,42 @@ export class ReservationService {
     async sendMail(id: number, template: string){
         //Buscamos los datos de la reserva
         const reser = await this._reservationRepository.createQueryBuilder('rs')
-        .select('rs.date, rs.appointment, ch.name, ch.email')
+        .select(`rs.date, CONCAT(ch.name,' ',"ch"."lastNameFather",' ',"ch"."lastNameMother") as patient,
+        rs.appointment, tr.description as treatment, dc.name as doctor,
+        ch.name, ch.email, dc.email as dr_email`)
         .innerJoin('clinic_history','ch','ch.id = rs.patient')
+        .leftJoin('rs.doctor','dc')
+        .leftJoin('rs.tariff','tr')
         .where("rs.id = :id",{id})
         .getRawOne();
-        const { name, email, date, appointment } = reser;
+        const { name, email, date, appointment, dr_email, treatment,patient, doctor } = reser;
         const reservationDate = moment(date).format('DD/MM/YYYY');
         const datetime = `${moment(date).format('YYYY-MM-DD')} ${appointment.split('-')[0]}`;
         const reservationTime = moment(datetime).format('hh:mm a');
         if(email && email !== ''){
-            console.log("Sending mail...");
-            let dataEmail = {
-                name, email,
-                date: reservationDate,
-                appointment: reservationTime,
-                template
-            };
-            await this.mailService.sendReservation(dataEmail);
+            if(emailValidator(email)){
+                //console.log("Sending mail...");
+                let dataEmail = {
+                    name, email,
+                    date: reservationDate,
+                    appointment: reservationTime,
+                    template
+                };
+                await this.mailService.sendReservation(dataEmail);
+                //Enviamos notificación al doctor
+                if(emailValidator(dr_email)){
+                    //console.log("Sending mail doctor...");
+                    let dataEmailDoctor = {
+                        name: doctor, email,
+                        date: reservationDate,
+                        appointment: reservationTime,
+                        treatment,
+                        patient,
+                        template: `${template}D`
+                    };
+                    await this.mailService.sendReservation(dataEmailDoctor);
+                }
+            }
         }
     }
 }

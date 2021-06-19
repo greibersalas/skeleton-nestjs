@@ -49,6 +49,14 @@ export class MailService {
         }else if(data.template === 'C'){//Confirmación
             subject= '[Maxillaris] Confirmación de cita reservada';
             data.message = 'confirmada';
+        }else if(data.template === 'RD'){//Reserva doctor
+            subject= '[Maxillaris] Tienes una cita reservada';
+            template ='reservation_doctor';
+            data.message = 'agendada';
+        }else if(data.template === 'CD'){//Reserva doctor
+            subject= '[Maxillaris] Confirmación de cita reservada';
+            template ='reservation_doctor';
+            data.message = 'confirmada';
         }
         await this._mailerService.sendMail({
             to: data.email,
@@ -120,4 +128,5 @@ export class MailService {
             console.log("Error mail ",err);
         });
     }
+
 }
