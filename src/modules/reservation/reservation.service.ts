@@ -279,18 +279,20 @@ export class ReservationService {
                     template
                 };
                 await this.mailService.sendReservation(dataEmail);
-                //Enviamos notificación al doctor
-                if(emailValidator(dr_email)){
-                    //console.log("Sending mail doctor...");
-                    let dataEmailDoctor = {
-                        name: doctor, email,
-                        date: reservationDate,
-                        appointment: reservationTime,
-                        treatment,
-                        patient,
-                        template: `${template}D`
-                    };
-                    await this.mailService.sendReservation(dataEmailDoctor);
+                if(template === 'R' || template === 'C'){
+                    //Enviamos notificación al doctor
+                    if(emailValidator(dr_email)){
+                        //console.log("Sending mail doctor...");
+                        let dataEmailDoctor = {
+                            name: doctor, email,
+                            date: reservationDate,
+                            appointment: reservationTime,
+                            treatment,
+                            patient,
+                            template: `${template}D`
+                        };
+                        await this.mailService.sendReservation(dataEmailDoctor);
+                    }
                 }
             }
         }
