@@ -162,4 +162,24 @@ export class MedicalActService {
         }
         return medicalAct;
     }
+
+    async getFile(id: number): Promise<MedicalActFiles>{
+        const file: MedicalActFiles = await this._medicalActFilesRepository.findOne({id});
+        if(!file){
+            throw new NotFoundException();
+        }
+        return file;
+    }
+
+    async deleteFile(id: number): Promise<boolean>{
+        const file: MedicalActFiles = await this._medicalActFilesRepository.findOne({id});
+        if(!file){
+            throw new NotFoundException();
+        }
+        const deleteFile = await this._medicalActFilesRepository.update(id,{state: 0});
+        if(!deleteFile){
+            throw new BadRequestException('id must be send.');
+        }
+        return true;
+    }
 }

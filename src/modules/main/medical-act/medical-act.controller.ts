@@ -203,8 +203,6 @@ export class MedicalActController {
         };
     }
 
-    
-
     @Get('get-file/:file')
     getFile(@Param('file') file: any, @Res() res: any){
         const response = res.sendFile(file,{root: './uploads'});
@@ -277,5 +275,26 @@ export class MedicalActController {
     @Get('get-by-clinic-history/:id')
     async getMedicalActClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
         return await this._medicalActService.getByClinicHistory(id);
+    }
+
+    @Delete('delete-file/:id')
+    async deleteFile(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ): Promise<boolean>{
+        //Busco los datos del archivo
+        const deleteFile = await this._medicalActService.deleteFile(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'clinic-history-file';
+        audit.description = 'Delete registro';
+        audit.data = '';
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        return true;
     }
 }

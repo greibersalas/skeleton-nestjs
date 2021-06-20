@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Logger } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res, HttpStatus } from '@nestjs/common';
 var moment = require('moment-timezone');
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
+import * as readXlsxFile from 'read-excel-file/node';
 
 import { Audit } from '../security/audit/audit.entity';
 import { ClinicHistory } from './clinic-history.entity';
@@ -120,5 +121,24 @@ export class ClinicHistoryController {
     async createCountry(@Body() data: any): Promise<any>{
         const response = await this._clinicHistoryService.getListWithPagination(data.start,data.length,data.search,data.order) ;
         return response;
+    }
+    @Get('get/xlsx/')
+    async getXlsx(@Res() response,): Promise<any>{
+        await readXlsxFile(`${__dirname}/../../../uploads/ch.xlsx`).then(async (rows: any) => {
+            // `rows` is an array of rows
+            // each row being an array of cells.
+            rows.shift();
+            const resp = await this._clinicHistoryService.regularNumDoc(rows);
+            return response.status(HttpStatus.OK).json(resp);
+
+        });
+    }
+
+    @Post('search-autocomplet/')
+    async autocomplet(
+        @Body() data: any
+    ): Promise<any>{
+        const { search } = data;
+        return await this._clinicHistoryService.search(search);
     }
 }

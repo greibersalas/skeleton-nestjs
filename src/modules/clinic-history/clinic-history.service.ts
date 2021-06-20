@@ -89,7 +89,7 @@ export class ClinicHistoryService {
         .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
         an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
         an.medic_cellphone as medico_confianza_telefono`)
-        .innerJoin("districts","dt","dt.id = pt.district")
+        .leftJoin("districts","dt","dt.id = pt.district")
         .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
         .where(`pt.id = :id`,{id})
         .getRawOne();
@@ -152,4 +152,37 @@ export class ClinicHistoryService {
         return response;
     }
 
+    async regularNumDoc(data: any[]): Promise<any>{
+        let count: number = 0;
+        await Promise.all(
+            data.map(async (it) => {
+                const exist = await this._clinicHistoryRepository.findOne({
+                    where: { history: it[0]}
+                });
+                if(exist){
+                    //console.log(exist.documentNumber, it[1]);
+                    if(exist.documentNumber !== it[1]){
+                        await this._clinicHistoryRepository.createQueryBuilder('ch')
+                        .update(ClinicHistory).set({documentNumber: it[1]})
+                        .where({id: exist.id}).execute();
+                    }
+                    count ++;
+                }
+            })
+        );
+        return count;
+    }
+
+    async search(search: string): Promise<any>{
+        const exist = await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select(`ch.id, CONCAT("ch"."documentNumber",' ',ch.name,' ',"ch"."lastNameFather",' ',"ch"."lastNameMother") as name`)
+        .where(`CONCAT("ch"."documentNumber",' ',ch.name,' ',"ch"."lastNameFather",' ',"ch"."lastNameMother") ILIKE '%${search}%'
+        AND ch.state = 1`)
+        //.getQuery();
+        .getRawMany();
+        if(exist.length === 0){
+            throw new NotFoundException();
+        }
+        return exist;
+    }
 }

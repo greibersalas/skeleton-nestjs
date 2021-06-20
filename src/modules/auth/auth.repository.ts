@@ -7,11 +7,12 @@ import { genSalt, hash } from 'bcryptjs';
 export class AuthRepository extends Repository<User>{
 
     async signup(signupDto: SignupDto){
-        const { username, email, password, roles } = signupDto;
+        const { username, email, password, roles, campus } = signupDto;
         const user = new User();
         user.username = username;
         user.email = email;
         user.roles = roles;
+        user.campus = campus;
         const salt = await genSalt(10);
         user.password = await hash(password, salt);
         await user.save();

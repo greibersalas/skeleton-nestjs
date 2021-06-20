@@ -39,11 +39,11 @@ export class Pdf_ficha{
         pdf.SetY(y+15);
         pdf.SetX(10);
         pdf.Cell(40,5,`Edad: `,0,0,'R');
-        pdf.Cell(40,5,`${moment().diff(patient.birthdate,'years')} año(s)`);
+        pdf.Cell(40,5,`${moment().diff(patient.birthdate,'years') ? moment().diff(patient.birthdate,'years') : ''} año(s)`);
 
         pdf.SetY(y+15);
         pdf.SetX(90);
-        pdf.Cell(40,5,`Fecha de Nacimiento: ${moment(patient.birthdate).format("DD/MM/YYYY")}`,0,0,'R');
+        pdf.Cell(40,5,`Fecha de Nacimiento: ${patient.birthdate ? moment(patient.birthdate).format("DD/MM/YYYY") : ''}`,0,0,'R');
 
         pdf.SetY(y+20);
         pdf.SetX(10);
@@ -61,7 +61,7 @@ export class Pdf_ficha{
         pdf.SetY(y+35);
         pdf.SetX(10);
         pdf.Cell(40,5,`Distrito`,0,0,'R');
-        pdf.Cell(40,5,`${patient.distrito}`);
+        pdf.Cell(40,5,`${patient.distrito ? patient.distrito : ''}`);
 
         pdf.SetY(y+40);
         pdf.SetX(10);

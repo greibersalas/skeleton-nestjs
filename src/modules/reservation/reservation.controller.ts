@@ -401,9 +401,10 @@ export class ReservationController {
         return await this._reservationService.getByClinicHistory(id);
     }
 
-    @Get('confirm/:id')
+    @Get('confirm/:id/:state')
     async confirm(
         @Param('id', ParseIntPipe) id: number,
+        @Param('state', ParseIntPipe) state: number,
         @Request() req: any
     ): Promise<any>{
         //Creamos los datos de la auditoria
@@ -417,7 +418,7 @@ export class ReservationController {
         audit.state = 1;
         //Guardamos la auditoria
         await audit.save();
-        return await this._reservationService.confirm(id);
+        return await this._reservationService.confirm(id,state);
     }
 
     @Get('validate-doctor/:iddoctor/:date/:appointment/:idcampus')
@@ -446,20 +447,21 @@ export class ReservationController {
         return await this._reservationService.cancel(id);
     }
 
-    @Get('list-filter/:patient/:doctor/:state')
+    @Get('list-filter/:patient/:doctor/:state/:date')
     async getListState(
         @Param('patient', ParseIntPipe) patient: number,
         @Param('doctor', ParseIntPipe) doctor: number,
-        @Param('state', ParseIntPipe) state: number
+        @Param('state', ParseIntPipe) state: number,
+        @Param('date') date: string
     ): Promise<Reservation[]>{
-        return await this._reservationService.getListFilter(patient,doctor,state);
+        return await this._reservationService.getListFilter(patient,doctor,state,date);
     }
 
     @Get('/send-mail/:id')
     async sendMail(
         @Param('id', ParseIntPipe) id: number
     ): Promise<boolean>{
-        this._reservationService.sendMailTest(id);
+        await this._reservationService.sendMailTest(id);
         return true;
     }
 }
