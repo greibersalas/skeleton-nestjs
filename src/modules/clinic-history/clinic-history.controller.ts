@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Logger } from '@nestjs/common';
 var moment = require('moment-timezone');
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 
@@ -114,5 +114,11 @@ export class ClinicHistoryController {
     @Get('validate-num-doc/:nro_document')
     async validateNumDoc(@Param('nro_document') doc: string): Promise<boolean>{
         return this._clinicHistoryService.validateNumDoc(doc);
+    }
+
+    @Post("list-pagination")
+    async createCountry(@Body() data: any): Promise<any>{
+        const response = await this._clinicHistoryService.getListWithPagination(data.start,data.length,data.search,data.order) ;
+        return response;
     }
 }

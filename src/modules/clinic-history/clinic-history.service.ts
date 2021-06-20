@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Like, } from 'typeorm';
 
 import { ClinicHistory } from './clinic-history.entity';
 import { ClinicHistoryRepository } from './clinic-history.repository';
@@ -112,4 +113,43 @@ export class ClinicHistoryService {
         }
         return false;
     }
+
+    async getListWithPagination(start:number,length:number,search:any,order:any):Promise<any>{
+        var column = ["id","history","name","documentNumber","cellphone","email"]
+        var query ={}
+        var orderparams = {}
+        if (search.value != ''){
+            query = [
+                {state:1,history:Like("%" + search.value + "%")},
+                {state:1,name:Like("%" + search.value + "%")},
+                {state:1,lastNameFather:Like("%" + search.value + "%")},
+                {state:1,lastNameMother:Like("%" + search.value + "%")},
+                {state:1,email:Like("%" + search.value + "%")},
+                {state:1,documentNumber:Like("%" + search.value + "%")},
+                {state:1,cellphone:Like("%" + search.value + "%")},
+            ]
+        }
+        else
+            query={
+                state:1
+            }
+        
+        if (order[0].column > 0){
+            orderparams[String(column[order[0].column])]=String(order[0].dir).toUpperCase()
+            
+        }
+        const [result, total] = await this._clinicHistoryRepository.findAndCount({
+            where:query,
+            order:orderparams,
+            take:length,
+            skip:start
+        });
+        const response = {
+            data: result,
+            recordsTotal: total,
+            recordsFiltered:total
+        }
+        return response;
+    }
+
 }
