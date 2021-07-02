@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res, HttpStatus } from '@nestjs/common';
 var moment = require('moment-timezone');
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
-import * as readXlsxFile from 'read-excel-file/node';
+import * as readXlsxFile from 'read-excel-file';
 
 import { Audit } from '../security/audit/audit.entity';
 import { ClinicHistory } from './clinic-history.entity';
