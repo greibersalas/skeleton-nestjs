@@ -129,9 +129,7 @@ export class ClinicHistoryService {
                 {state:1,documentNumber:Like("%" + search.value + "%")},
                 {state:1,cellphone:Like("%" + search.value + "%")},
             ];*/
-            where = `state = 1 AND name ILIKE '%${search.value}%'
-            OR "lastNameFather" ILIKE '%${search.value}%'
-            OR "lastNameMother" ILIKE '%${search.value}%'
+            where = `state = 1 AND concat("name",' ',"lastNameFather",' ',"lastNameMother") ILIKE '%${search.value}%'
             OR "history" ILIKE '%${search.value}%'
             OR "email" ILIKE '%${search.value}%'
             OR "documentNumber" ILIKE '%${search.value}%'

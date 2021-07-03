@@ -178,7 +178,7 @@ export class EnvironmentDoctorService {
                             interval = i.interval-Number(moment(nextTime).format('mm'));
                             hours.push({
                                 since: moment(since).format('HH:mm'),
-                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                until: moment(since).add(interval,'minutes').format('HH:mm'),
                                 rowspan: (interval/10)*20,
                                 type: 0 //No disponible
                             });
