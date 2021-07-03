@@ -141,4 +141,9 @@ export class ClinicHistoryController {
         const { search } = data;
         return await this._clinicHistoryService.search(search);
     }
+
+    @Get('patient/cant/')
+    async getPatientCant(): Promise<any>{
+        return this._clinicHistoryService.cantPatient();
+    }
 }

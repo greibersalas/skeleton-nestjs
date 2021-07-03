@@ -115,35 +115,48 @@ export class ClinicHistoryService {
     }
 
     async getListWithPagination(start:number,length:number,search:any,order:any):Promise<any>{
-        var column = ["id","history","name","documentNumber","cellphone","email"]
-        var query ={}
-        var orderparams = {}
+        let column = ["id","history","name","documentNumber","cellphone","email"];
+        //let query = {};
+        let orderparams = {};
+        let where: string = '';
         if (search.value != ''){
-            query = [
+            /*query = [
                 {state:1,history:Like("%" + search.value + "%")},
-                {state:1,name:Like("%" + search.value + "%")},
+                {state:1,name: Like("%" + search.value + "%")},
                 {state:1,lastNameFather:Like("%" + search.value + "%")},
                 {state:1,lastNameMother:Like("%" + search.value + "%")},
                 {state:1,email:Like("%" + search.value + "%")},
                 {state:1,documentNumber:Like("%" + search.value + "%")},
                 {state:1,cellphone:Like("%" + search.value + "%")},
-            ]
+            ];*/
+            where = `state = 1 AND name ILIKE '%${search.value}%'
+            OR "lastNameFather" ILIKE '%${search.value}%'
+            OR "lastNameMother" ILIKE '%${search.value}%'
+            OR "history" ILIKE '%${search.value}%'
+            OR "email" ILIKE '%${search.value}%'
+            OR "documentNumber" ILIKE '%${search.value}%'
+            OR "cellphone" ILIKE '%${search.value}%'`;
+        }else{
+            /*query = {
+                state: 1
+            };*/
+            where = 'state = 1';
         }
-        else
-            query={
-                state:1
-            }
-        
         if (order[0].column > 0){
             orderparams[String(column[order[0].column])]=String(order[0].dir).toUpperCase()
-            
         }
-        const [result, total] = await this._clinicHistoryRepository.findAndCount({
-            where:query,
-            order:orderparams,
-            take:length,
-            skip:start
-        });
+        /*const [result, total] = await this._clinicHistoryRepository.findAndCount({
+            where: query,
+            order: orderparams,
+            take: length,
+            skip: start
+        });*/
+        const [result, total] = await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .where(where)
+        .orderBy(orderparams)
+        .take(length)
+        .skip(start)
+        .getManyAndCount();
         const response = {
             data: result,
             recordsTotal: total,
@@ -184,5 +197,15 @@ export class ClinicHistoryService {
             throw new NotFoundException();
         }
         return exist;
+    }
+
+    async cantPatient(): Promise<any>{
+        const cant = await this._clinicHistoryRepository.count({
+            where: {
+                state: 1
+            }
+        });
+
+        return cant;
     }
 }
