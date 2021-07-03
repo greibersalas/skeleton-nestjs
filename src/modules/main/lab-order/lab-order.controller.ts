@@ -178,4 +178,12 @@ export class LabOrderController {
         const data = await this._labOrderService.getAllFilter(filters);
         return pdf.print(data);
     }
+
+    @Get('get-cant-order/:month/:year')
+    async getCant(
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number
+    ): Promise<any>{
+        return this._labOrderService.getCantMonth(month,year);
+    }
 }

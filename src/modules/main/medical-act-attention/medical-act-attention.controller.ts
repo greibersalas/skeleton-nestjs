@@ -93,4 +93,12 @@ export class MedicalActAttentionController {
         const medicalActAttention = await this._medicalActAttentionService.getByMedicalAct(id);
         return medicalActAttention;
     }
+
+    @Get('attention-cant/:month/:year')
+    async getReservationCant(
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number
+    ): Promise<any>{
+        return this._medicalActAttentionService.cantReservation(month,year);
+    }
 }

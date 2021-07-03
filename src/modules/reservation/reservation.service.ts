@@ -297,4 +297,12 @@ export class ReservationService {
             }
         }
     }
+
+    async cantReservation(month: number, year: number): Promise<any>{
+        const cant = await this._reservationRepository.createQueryBuilder('re')
+        //.select('count(*) as total')
+        .where('EXTRACT(month FROM "date") = :month AND EXTRACT(YEAR FROM "date") = :year AND state <> 0',{month,year})
+        .getCount();
+        return cant;
+    }
 }

@@ -464,4 +464,12 @@ export class ReservationController {
         await this._reservationService.sendMailTest(id);
         return true;
     }
+
+    @Get('reservation/cant/:month/:year')
+    async getReservationCant(
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number
+    ): Promise<any>{
+        return this._reservationService.cantReservation(month,year);
+    }
 }

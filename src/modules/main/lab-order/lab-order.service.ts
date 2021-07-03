@@ -229,4 +229,11 @@ export class LabOrderService {
         .where({id}).execute();
         return confirm;
     }
+
+    async getCantMonth(month: number, year: number): Promise<any>{
+        const cant = await this._labOrderRepository.createQueryBuilder('lo')
+        .where('EXTRACT(month FROM "date") = :month AND EXTRACT(YEAR FROM "date") = :year AND state <> 0',{month,year})
+        .getCount();
+        return cant;
+    }
 }
