@@ -31,10 +31,14 @@ export class QuotationTermsService {
     }
 
     async createMany(quotationTerms: any): Promise<boolean>{
-        var data = quotationTerms.data;
+        let data = quotationTerms.data;
         data.forEach( async (it: QuotationTerms) =>{
-            if(!this._quotationTermsRepository.save(it)){
-                return false;
+            if(it.id === 0){
+                if(!this._quotationTermsRepository.save(it)){
+                    return false;
+                }
+            }else{
+                this._quotationTermsRepository.update(it.id,it);
             }
         });
         return true;

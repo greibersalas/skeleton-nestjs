@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+var moment = require('moment-timezone');
 import { QuotationTerms } from './quotation-terms.entity';
 import { QuotationTermsService } from './quotation-terms.service';
 
-@Controller('quotation-terms')
+import { Audit } from '../../security/audit/audit.entity';
+import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
+@UseGuards(JwtAuthGuard)@Controller('quotation-terms')
 export class QuotationTermsController {
 
     constructor(private readonly _quotationTermsService: QuotationTermsService){}
@@ -39,8 +41,22 @@ export class QuotationTermsController {
     }
 
     @Delete(':id')
-    async deleteQuotationTerms(@Param('id',ParseIntPipe) id: number){
+    async deleteQuotationTerms(
+        @Param('id',ParseIntPipe) id: number,
+        @Request() req: any
+    ){
         await this._quotationTermsService.delete(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'Quotation terms';
+        audit.description = 'Delete item';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return true;
     }
 
