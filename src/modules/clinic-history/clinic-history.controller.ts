@@ -146,4 +146,12 @@ export class ClinicHistoryController {
     async getPatientCant(): Promise<any>{
         return this._clinicHistoryService.cantPatient();
     }
+
+    @Get('patient/new/:year/:month')
+    async getPatientNew(
+        @Param('year',ParseIntPipe) year: number,
+        @Param('month',ParseIntPipe) month: number
+    ): Promise<any>{
+        return this._clinicHistoryService.setPatientsNew(year,month);
+    }
 }

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, } from 'typeorm';
+import { getManager } from 'typeorm';
 
 import { ClinicHistory } from './clinic-history.entity';
 import { ClinicHistoryRepository } from './clinic-history.repository';
@@ -204,6 +204,23 @@ export class ClinicHistoryService {
             }
         });
 
+        return cant;
+    }
+
+    async setPatientsNew(year: number, month: number): Promise<any>{
+        const cant: any = await getManager()
+        .createQueryBuilder()
+        .select('count(*)::NUMERIC as total')
+        .from(sub => {
+            return sub.select('ch.id').distinct(true)
+            .from(ClinicHistory, 'ch')
+            .innerJoin('medical_act_attention','maa',`"maa"."patientId" = ch.id and EXTRACT( month from "maa"."date") = :month
+            AND EXTRACT( year from "ch"."date") = :year`)
+            .where(`EXTRACT( month from "ch"."date") = :month AND EXTRACT( year from "ch"."date") = :year
+            AND ch.state = 1 `,{year,month})
+            .groupBy('ch.id')
+        }, "foo")
+        .getRawOne();
         return cant;
     }
 }

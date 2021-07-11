@@ -80,18 +80,20 @@ export class Pdf_ap{
         pdf.SetX(10);
         pdf.Cell(20,5,`CONTROLES`,0,0,'L');
 
-        let controls = data.terms.find(function(cont: any){
+        let controls = data.terms.filter(function(cont: any){
             return cont.type === 'CONTROLES';
         });
-        if(controls){
+        if(controls.length > 0){
             pdf.SetY(y+70);
             pdf.SetX(13);
             pdf.Cell(20,5,`- Frecuencia de Controles`,0,0,'L');
             pdf.SetFont('Arial','',10);
-            pdf.SetY(y+75);
-            pdf.SetX(15);
-            pdf.MultiCell(180,5,`${controls.description}`);
-
+            controls.forEach((el: any) =>{
+                pdf.SetY(y+75);
+                pdf.SetX(15);
+                pdf.MultiCell(180,5,`${el.description}`,0,'L');
+                el.description.length > 110 ? y += 10 : y += 5;
+            });
         }
         //Adicional
         pdf.SetFont('Arial','B',10);
@@ -121,20 +123,20 @@ export class Pdf_ap{
             });
         }
         //Firma
-        pdf.SetY(y+150);
+        pdf.SetY(260);
         pdf.SetX(13);
         pdf.Cell(20,5,`VALIDO POR 30 DÍAS`,0,0,'L');
 
-        pdf.Line(110,(y+145),180,(y+145));
-        pdf.SetY(y+150);
+        pdf.Line(110,(245),180,(245));
+        pdf.SetY(250);
         pdf.SetX(100);
         pdf.Cell(90,5,`DR. ${data.doctor.nameQuote.toUpperCase()}`,0,0,'C');
-        pdf.SetY(y+155);
+        pdf.SetY(255);
         pdf.SetX(100);
         pdf.Cell(90,5,`COP ${data.doctor.cop}`,0,0,'C');
 
         pdf.SetFont('Arial','',7);
-        pdf.SetY(260);
+        pdf.SetY(265);
         pdf.SetX(10);
         pdf.Cell(15,5,`Fecha de impresión ${moment().tz('America/Lima').format('DD-MM-YYYY HH:mm:ss')}`);
 

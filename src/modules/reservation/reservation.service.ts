@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Not } from 'typeorm';
+import { Like, MoreThan, Not } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { DiaryLockRepository } from '../main/diary-lock/diary-lock.repository';
@@ -190,7 +190,14 @@ export class ReservationService {
             return 2;
         }
         const reservation = await this._reservationRepository
-        .findOne({where:{state: MoreThan(0),doctor: iddoctor,date,appointment}});
+        .findOne({
+            where: {
+                state: MoreThan(0),
+                doctor: iddoctor,
+                date,
+                appointment: Like(`${hours[0]}%`)
+            }
+        });
         if(reservation)
             return 1;
         return 0;
