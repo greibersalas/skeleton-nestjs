@@ -127,7 +127,7 @@ export class ReservationService {
         .innerJoinAndSelect("rs.environment","environment")
         .innerJoinAndSelect("rs.patient","ch")
         .innerJoinAndSelect("rs.tariff","tariff")
-        .where("rs.date BETWEEN :since AND :until AND doctor.id = :iddoctor",{
+        .where("rs.date BETWEEN :since AND :until AND doctor.id = :iddoctor AND rs.state <> 0",{
             since:filters.since,
             until: filters.until,
             iddoctor: filters.doctor
