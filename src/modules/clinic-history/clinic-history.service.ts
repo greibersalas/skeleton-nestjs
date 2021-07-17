@@ -88,7 +88,11 @@ export class ClinicHistoryService {
         const patient = await this._clinicHistoryRepository.createQueryBuilder('pt')
         .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
         an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
-        an.medic_cellphone as medico_confianza_telefono`)
+        an.medic_cellphone as medico_confianza_telefono, an.medicine, an.medicine_name,
+        an.hepatitis, an.hepatitis_type, an.diabetes, an.compensated, an.high_pressure,
+        an.suffers_illness,an.visit_frequency,an.traumatic_experiences,an.extracted_molars,
+        an.complication_anesthesia,an.gums_bleed, an.last_prophylaxis,an.popping,an.satisfied_aesthetic,
+        an.last_date`)
         .leftJoin("districts","dt","dt.id = pt.district")
         .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
         .where(`pt.id = :id`,{id})
@@ -96,8 +100,17 @@ export class ClinicHistoryService {
         if(!patient){
             throw new NotFoundException();
         }
+        //Busco si tiene atenciones para obtener al medico
+        const doctors = await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select('maa.doctorId,"dc"."nameQuote" AS name')
+        .distinct(true)
+        .leftJoin('medical_act_attention','maa','maa.patientId = ch.id')
+        .leftJoin('doctor','dc','dc.id = maa.doctorId')
+        .where(`ch.id = :id AND maa.state = 1`,{id})
+        .getRawMany();
         data = {
-            patient
+            patient,
+            doctors
         };
         return data;
     }

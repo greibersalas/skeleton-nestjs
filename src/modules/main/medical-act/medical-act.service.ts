@@ -154,7 +154,7 @@ export class MedicalActService {
         .innerJoinAndSelect("re.patient","ch","ch.id = :id",{id})
         .innerJoinAndSelect("re.doctor","dc")
         .innerJoinAndSelect("re.environment","en")
-        .innerJoinAndSelect("re.tariff","tr")
+        .leftJoinAndSelect("re.tariff","tr")
         .where("re.state <> 0").orderBy({"re.id" : "DESC"})
         .getMany();
         if(!medicalAct){

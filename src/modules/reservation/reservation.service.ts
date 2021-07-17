@@ -291,7 +291,8 @@ export class ReservationService {
                     if(emailValidator(dr_email)){
                         //console.log("Sending mail doctor...");
                         let dataEmailDoctor = {
-                            name: doctor, email,
+                            name: doctor,
+                            email: dr_email,
                             date: reservationDate,
                             appointment: reservationTime,
                             treatment,
