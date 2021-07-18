@@ -306,11 +306,23 @@ export class ReservationService {
         }
     }
 
+    /**
+     * Reports
+     */
     async cantReservation(month: number, year: number): Promise<any>{
         const cant = await this._reservationRepository.createQueryBuilder('re')
         //.select('count(*) as total')
         .where('EXTRACT(month FROM "date") = :month AND EXTRACT(YEAR FROM "date") = :year AND state <> 0',{month,year})
         .getCount();
         return cant;
+    }
+
+    async patientFrequentCant(since: string, until: string): Promise<any>{
+        const data = await this._reservationRepository.createQueryBuilder('re')
+        .select('patient_id,count(patient_id) as total')
+        .where(`date BETWEEN :since AND :until AND state <> 0`,{since,until})
+        .groupBy('patient_id')
+        .getRawMany();
+        return data;
     }
 }

@@ -472,4 +472,22 @@ export class ReservationController {
     ): Promise<any>{
         return this._reservationService.cantReservation(month,year);
     }
+
+    /**
+     * Metodos para los reportes
+     */
+
+    /**
+     * Metodo para obtener la cantidad
+     * de paciente frecuentes
+     * Pacientes con ultima cita no mayor a 1 año
+     * solo cantidad
+     */
+     @Get('patient-frequen-cant/:since/:until')
+     async getPatientFrequentCant(
+         @Param('since') since: string,
+         @Param('until') until: string
+     ): Promise<any>{
+         return this._reservationService.patientFrequentCant(since,until);
+     }
 }

@@ -129,39 +129,20 @@ export class ClinicHistoryService {
 
     async getListWithPagination(start:number,length:number,search:any,order:any):Promise<any>{
         let column = ["id","history","name","documentNumber","cellphone","email"];
-        //let query = {};
         let orderparams = {};
         let where: string = '';
         if (search.value != ''){
-            /*query = [
-                {state:1,history:Like("%" + search.value + "%")},
-                {state:1,name: Like("%" + search.value + "%")},
-                {state:1,lastNameFather:Like("%" + search.value + "%")},
-                {state:1,lastNameMother:Like("%" + search.value + "%")},
-                {state:1,email:Like("%" + search.value + "%")},
-                {state:1,documentNumber:Like("%" + search.value + "%")},
-                {state:1,cellphone:Like("%" + search.value + "%")},
-            ];*/
             where = `state = 1 AND concat("name",' ',"lastNameFather",' ',"lastNameMother") ILIKE '%${search.value}%'
             OR "history" ILIKE '%${search.value}%'
             OR "email" ILIKE '%${search.value}%'
             OR "documentNumber" ILIKE '%${search.value}%'
             OR "cellphone" ILIKE '%${search.value}%'`;
         }else{
-            /*query = {
-                state: 1
-            };*/
             where = 'state = 1';
         }
         if (order[0].column > 0){
             orderparams[String(column[order[0].column])]=String(order[0].dir).toUpperCase()
         }
-        /*const [result, total] = await this._clinicHistoryRepository.findAndCount({
-            where: query,
-            order: orderparams,
-            take: length,
-            skip: start
-        });*/
         const [result, total] = await this._clinicHistoryRepository.createQueryBuilder('ch')
         .where(where)
         .orderBy(orderparams)
