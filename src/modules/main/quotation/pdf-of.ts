@@ -86,7 +86,7 @@ export class Pdf_of{
             pdf.Cell(20,5,`CONTROLES`,0,0,'L');
             pdf.SetY(y+65);
             pdf.SetX(10);
-            pdf.Cell(190,5,`${control.description} ${formatter.format(control.amount)}`,0,0,'R');
+            pdf.Cell(190,5,`${control.description}`,0,0,'R');
         }
 
         let controls = data.terms.filter(function(cont: any){

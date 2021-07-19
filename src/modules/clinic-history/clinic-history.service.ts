@@ -88,7 +88,11 @@ export class ClinicHistoryService {
         const patient = await this._clinicHistoryRepository.createQueryBuilder('pt')
         .select(`pt.*,dt.name as distrito, an.emergency_contact_name as contacto,
         an.emergency_contact_cellphone as contacto_telefono, an.medic_name as medico_confianza,
-        an.medic_cellphone as medico_confianza_telefono`)
+        an.medic_cellphone as medico_confianza_telefono, an.medicine, an.medicine_name,
+        an.hepatitis, an.hepatitis_type, an.diabetes, an.compensated, an.high_pressure,
+        an.suffers_illness,an.visit_frequency,an.traumatic_experiences,an.extracted_molars,
+        an.complication_anesthesia,an.gums_bleed, an.last_prophylaxis,an.popping,an.satisfied_aesthetic,
+        an.last_date`)
         .leftJoin("districts","dt","dt.id = pt.district")
         .leftJoin("anamnesis","an","an.clinichistoryId = pt.id")
         .where(`pt.id = :id`,{id})
@@ -96,8 +100,17 @@ export class ClinicHistoryService {
         if(!patient){
             throw new NotFoundException();
         }
+        //Busco si tiene atenciones para obtener al medico
+        const doctors = await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select('maa.doctorId,"dc"."nameQuote" AS name')
+        .distinct(true)
+        .leftJoin('medical_act_attention','maa','maa.patientId = ch.id')
+        .leftJoin('doctor','dc','dc.id = maa.doctorId')
+        .where(`ch.id = :id AND maa.state = 1`,{id})
+        .getRawMany();
         data = {
-            patient
+            patient,
+            doctors
         };
         return data;
     }
@@ -116,39 +129,20 @@ export class ClinicHistoryService {
 
     async getListWithPagination(start:number,length:number,search:any,order:any):Promise<any>{
         let column = ["id","history","name","documentNumber","cellphone","email"];
-        //let query = {};
         let orderparams = {};
         let where: string = '';
         if (search.value != ''){
-            /*query = [
-                {state:1,history:Like("%" + search.value + "%")},
-                {state:1,name: Like("%" + search.value + "%")},
-                {state:1,lastNameFather:Like("%" + search.value + "%")},
-                {state:1,lastNameMother:Like("%" + search.value + "%")},
-                {state:1,email:Like("%" + search.value + "%")},
-                {state:1,documentNumber:Like("%" + search.value + "%")},
-                {state:1,cellphone:Like("%" + search.value + "%")},
-            ];*/
             where = `state = 1 AND concat("name",' ',"lastNameFather",' ',"lastNameMother") ILIKE '%${search.value}%'
             OR "history" ILIKE '%${search.value}%'
             OR "email" ILIKE '%${search.value}%'
             OR "documentNumber" ILIKE '%${search.value}%'
             OR "cellphone" ILIKE '%${search.value}%'`;
         }else{
-            /*query = {
-                state: 1
-            };*/
             where = 'state = 1';
         }
         if (order[0].column > 0){
             orderparams[String(column[order[0].column])]=String(order[0].dir).toUpperCase()
         }
-        /*const [result, total] = await this._clinicHistoryRepository.findAndCount({
-            where: query,
-            order: orderparams,
-            take: length,
-            skip: start
-        });*/
         const [result, total] = await this._clinicHistoryRepository.createQueryBuilder('ch')
         .where(where)
         .orderBy(orderparams)
