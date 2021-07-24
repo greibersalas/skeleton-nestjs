@@ -21,9 +21,9 @@ export class TasksService {
         var hour = element.appointment.split("-")[0]
         hour = hour.replace(':','').substring(0,4)
         let datestring = moment().format("YYYYMMDD")+hour
-        this.logger.debug(moment(datestring, "YYYYMMDDhhmm").fromNow());
+        //this.logger.debug(moment(datestring, "YYYYMMDDhhmm").fromNow());
         let tiempo = moment(datestring, "YYYYMMDDhhmm").fromNow()
-        this.logger.debug(tiempo)
+        //this.logger.debug(tiempo)
         if (tiempo=="in 2 hours"){
             this.logger.debug("enviando email correo")
             this._reservation.sendMail(element.id,"R2H").then(()=>{
