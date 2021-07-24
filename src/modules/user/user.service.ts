@@ -18,7 +18,7 @@ export class UserService {
         const user = await this._userRepository.createQueryBuilder("us")
         .innerJoinAndSelect("us.roles","rl")
         .leftJoinAndSelect("us.doctor","dc")
-        .where("us.id = :id AND us.estado = 1",{id}).getOne();
+        .where("us.id = :id AND us.estado <> 0",{id}).getOne();
         if(!user){
             throw new NotFoundException();
         }
@@ -27,7 +27,11 @@ export class UserService {
     }
 
     async getAll(): Promise<User[]>{
-        const users: User[] = await this._userRepository.find({where:{estado:1}});
+        const users: User[] = await this._userRepository.createQueryBuilder('us')
+        .innerJoinAndSelect('us.roles','ro')
+        .where('us.estado <> 0')
+        .getMany();
+
         return users;
     }
 
@@ -57,5 +61,15 @@ export class UserService {
         }
 
         await this._userRepository.update(id,{estado:0});
+    }
+
+    async changeState(id: number,state: number): Promise<any>{
+        const userExists = await this._userRepository.findOne(id);
+
+        if(!userExists){
+            throw new NotFoundException();
+        }
+
+        return await this._userRepository.update(id,{estado: state});
     }
 }

@@ -52,7 +52,6 @@ export class AuthService {
             roles: user.roles
         };
         const token = this._jwtServices.sign(payload);
-        
         return {
             id: user.id,
             email: user.email,
@@ -61,6 +60,7 @@ export class AuthService {
             token,
             capmus: user.campus,
             doctor: user.doctor,
+            state: user.estado
         };
     }
 
