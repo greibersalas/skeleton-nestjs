@@ -57,22 +57,26 @@ export class ReservationService {
     }
 
     async getByDate(date:Date):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date}});
+        const Reservation = await this._reservationRepository.find({where:{date}});
         return Reservation
     }
 
     async getByDateWithOutNotify(date:Date):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,notify2h:false}});
-        return Reservation
+        //const Reservation = await this._reservationRepository.find({where:{date,notify2h:false}});
+        const reservation = await this._reservationRepository.createQueryBuilder('re')
+        .leftJoinAndSelect('re.tariff','tr')
+        .where('re.date >= :date AND (re.notify2h = FALSE OR re.notify24h = FALSE ) AND re.state <> 0',{date})
+        .getMany();
+        return reservation
     }
 
     async getByDoctorEnivronment(date:string,doctor:Doctor,environment:EnvironmentDoctor):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,doctor:doctor,environment:environment}});
+        const Reservation = await this._reservationRepository.find({where:{date,doctor:doctor,environment:environment}});
         return Reservation
     }
 
     async getByEnivronment(date:string,environment:EnvironmentDoctor):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,environment:environment}});
+        const Reservation = await this._reservationRepository.find({where:{date,environment:environment}});
         return Reservation
     }
 
@@ -85,8 +89,13 @@ export class ReservationService {
 
     async create(bl: Reservation): Promise<Reservation>{
         const saveReservation: Reservation = await this._reservationRepository.save(bl);
+        let template = 'R';
+        const tr = Number(bl.tariff);
+        if(bl.tariff && tr === 58){
+            template = 'COFM'; //Control OFM
+        }
         //enviamos el correo de notificación al cliente
-        await this.sendMail(saveReservation.id,'R');
+        await this.sendMail(saveReservation.id,template);
         return saveReservation;
     }
 
@@ -106,6 +115,17 @@ export class ReservationService {
             throw new NotFoundException();
         }
         ReservationExists.notify2h = true
+        await this._reservationRepository.update(id,ReservationExists);
+        const updateReservation : Reservation = await this._reservationRepository.findOne(id);
+        return updateReservation;
+    }
+
+    async updateNotify24h(id: number): Promise<Reservation>{
+        const ReservationExists = await this._reservationRepository.findOne(id);
+        if(!ReservationExists){
+            throw new NotFoundException();
+        }
+        ReservationExists.notify24h = true
         await this._reservationRepository.update(id,ReservationExists);
         const updateReservation : Reservation = await this._reservationRepository.findOne(id);
         return updateReservation;

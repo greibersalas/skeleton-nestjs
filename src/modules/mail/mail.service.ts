@@ -46,6 +46,9 @@ export class MailService {
         }else if(data.template === 'R2H'){//Recordatorio 2 horas
             subject= '[Maxillaris] Tienes una cita en 2 horas';
             template ='reservation_2h';
+        }else if(data.template === 'R24H'){//Recordatorio 2 horas
+            subject= '[Maxillaris] Mañana tienes una cita';
+            template ='reservation_24';
         }else if(data.template === 'C'){//Confirmación
             subject= '[Maxillaris] Confirmación de cita reservada';
             data.message = 'confirmada';
@@ -57,6 +60,18 @@ export class MailService {
             subject= '[Maxillaris] Confirmación de cita reservada';
             template ='reservation_doctor';
             data.message = 'confirmada';
+        }else if(data.template === 'COFM'){//Control OFM
+            subject= '[Maxillaris] TU CITA DE CONTROL OFM SE HA RESERVADO';
+            template ='reservation_control_ofm';
+            data.message = 'agendada';
+        }else if(data.template === 'COFM24H'){//Control OFM recordatorio 24H
+            subject= `${data.name}, mañana es tu cita de control OFM`;
+            template ='reservation_control_ofm';
+            data.message = 'agendada';
+        }else if(data.template === 'COFM2H'){//Control OFM recordatorio 24H
+            subject= `[Maxillaris] Hoy es tu cita de control OFM`;
+            template ='reservation_control_ofm_2H';
+            data.message = 'agendada';
         }
         await this._mailerService.sendMail({
             to: data.email,

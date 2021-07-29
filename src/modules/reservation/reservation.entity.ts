@@ -54,4 +54,7 @@ export class Reservation extends BaseEntity{
     @Column({type: 'boolean', default: false})
     notify2h: boolean;
 
+    @Column({type: 'boolean', default: false})
+    notify24h: boolean;
+
 }
