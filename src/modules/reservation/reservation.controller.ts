@@ -490,4 +490,12 @@ export class ReservationController {
      ): Promise<any>{
          return this._reservationService.patientFrequentCant(since,until);
      }
+
+     @Get('controls-cant/:month/:year')
+     async getCantControls(
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number
+     ): Promise<any>{
+        return this._reservationService.cantControls(month,year);
+     }
 }

@@ -245,7 +245,7 @@ export class ReservationService {
         if (doctor > 0){
             attr.doctor = doctor;
             attr.date = date;
-            console.log("doctor...", doctor);
+            /* console.log("doctor...", doctor); */
         }
         if(state)
             attr.state = state;
@@ -343,6 +343,24 @@ export class ReservationService {
         .where(`date BETWEEN :since AND :until AND state <> 0`,{since,until})
         .groupBy('patient_id')
         .getRawMany();
+        return data;
+    }
+
+    /**
+     * Metodo que me retorna la cantidad de
+     * Controles confirmados y atendidos
+     * en un mes
+     * @params int month, int year
+     */
+    async cantControls(month: number, year: number): Promise<any>{
+        const data = await this._reservationRepository.createQueryBuilder('re')
+        .select(`sum(case when state = 1 then 1 else 0 end) as sin_confirmar,
+        sum(case when state = 2 then 1 else 0 end) as confirmados,
+        sum(case when state = 3 then 1 else 0 end) as atendidos,
+        count(*) as total`)
+        .where(`tariff_id = 58 AND EXTRACT(month from date) = :month
+        AND EXTRACT(year from date) = :year AND state <> 0`,{month,year})
+        .getRawOne();
         return data;
     }
 }

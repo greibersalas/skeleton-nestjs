@@ -6,7 +6,7 @@ import { QuotationDetail } from "./quotation-detail.entity";
 export class Pdf_oi{
 
     print(data: any){
-        //console.log("Data reporte ",data.detail[0]);
+        //console.log("Data reporte ",data);
         const pdf = new FPDF('P','mm','A4');
         var y: number = 50;
         pdf.AddPage('P','A4');
@@ -66,11 +66,6 @@ export class Pdf_oi{
                 total_sol += it.total;
                 y += 5;
             }
-            /*if(it.coin.id === 1){
-                total_sol += it.total;
-            }else if(it.coin.id === 2){
-                total_usd += it.total;
-            }*/
         });
 
         //Total
@@ -84,7 +79,7 @@ export class Pdf_oi{
             pdf.Cell(190,5,`S/ ${formatter.format(total_sol)}`,0,0,'R');
             y += 25
         }
-        
+
         pdf.SetFont('Arial','',10);
         data.detail.forEach( (it: QuotationDetail) => {
             if(it.coin.id === 2){
@@ -98,15 +93,6 @@ export class Pdf_oi{
                 total_usd += it.total
                 y += 5;
             }
-            
-
-            /*if(it.coin.id === 1){
-                total_sol += it.total;
-            }else if(it.coin.id === 2){
-                total_usd += it.total;
-            }*/
-
-            
         });
 
         if(total_usd > 0){
@@ -118,6 +104,20 @@ export class Pdf_oi{
             pdf.SetX(10);
             pdf.Cell(190,5,`$ ${formatter.format(total_usd)}`,0,0,'R');
         }
+        pdf.Line(130,240,180,240);
+        pdf.SetFont('Arial','',9);
+        pdf.SetY(240);
+        pdf.SetX(130);
+        pdf.Cell(50,5,`Dr(a). ${data.doctor.nameQuote}`,0,0,'C');
+        if(data.doctor.cop > 0){
+            pdf.SetY(243);
+            pdf.SetX(130);
+            pdf.Cell(50,5,`COP: ${data.doctor.cop}`,0,0,'C');
+        }
+        pdf.SetFont('Arial','',10);
+        pdf.SetY(250);
+        pdf.SetX(10);
+        pdf.Cell(15,5,`VALIDO POR 30 DÍAS`);
 
         pdf.SetFont('Arial','',7);
         pdf.SetY(260);
