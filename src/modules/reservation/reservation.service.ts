@@ -363,4 +363,17 @@ export class ReservationService {
         .getRawOne();
         return data;
     }
+
+    async patientFrequentDetail(since: string, until: string): Promise<any>{
+        const data = await this._reservationRepository.createQueryBuilder('re')
+        .select(`pa.name as name,"pa"."lastNameFather" as lastnamefather,
+        "pa"."lastNameMother" as lastnamemother,"pa"."documentNumber" AS num_document,
+        pa.history,pa.birthdate,pa.cellphone`)
+        .where(`re.date BETWEEN :since AND :until AND re.state <> 0`,{since,until})
+        .innerJoin('re.patient','pa')
+        .groupBy(`pa.name,"pa"."lastNameFather","pa"."lastNameMother","pa"."documentNumber",
+        pa.history,pa.birthdate,pa.cellphone`)
+        .getRawMany();
+        return data;
+    }
 }
