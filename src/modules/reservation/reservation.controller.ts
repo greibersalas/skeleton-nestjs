@@ -39,6 +39,13 @@ export class ReservationController {
         return Reservation;
     }
 
+    @Get('/enviroments/resumen/day/:id')
+    async getResumenDayByChar(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
+       
+        const Reservation = await this._reservationService.getResumenDayByChar(id);
+        return Reservation;
+    }
+
     @Get('/environments/available/:day/:month/:year')
     async getEnvironmentAvailable(@Param('day',ParseIntPipe) day: number,
                                   @Param('month',ParseIntPipe) month: number,
