@@ -57,22 +57,26 @@ export class ReservationService {
     }
 
     async getByDate(date:Date):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date}});
+        const Reservation = await this._reservationRepository.find({where:{date}});
         return Reservation
     }
 
     async getByDateWithOutNotify(date:Date):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,notify2h:false}});
-        return Reservation
+        //const Reservation = await this._reservationRepository.find({where:{date,notify2h:false}});
+        const reservation = await this._reservationRepository.createQueryBuilder('re')
+        .leftJoinAndSelect('re.tariff','tr')
+        .where('re.date >= :date AND (re.notify2h = FALSE OR re.notify24h = FALSE ) AND re.state <> 0',{date})
+        .getMany();
+        return reservation
     }
 
     async getByDoctorEnivronment(date:string,doctor:Doctor,environment:EnvironmentDoctor):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,doctor:doctor,environment:environment}});
+        const Reservation = await this._reservationRepository.find({where:{date,doctor:doctor,environment:environment}});
         return Reservation
     }
 
     async getByEnivronment(date:string,environment:EnvironmentDoctor):Promise<Reservation[]>{
-        const Reservation = await this._reservationRepository.find({where:{date:date,environment:environment}});
+        const Reservation = await this._reservationRepository.find({where:{date,environment:environment}});
         return Reservation
     }
 
@@ -85,8 +89,13 @@ export class ReservationService {
 
     async create(bl: Reservation): Promise<Reservation>{
         const saveReservation: Reservation = await this._reservationRepository.save(bl);
+        let template = 'R';
+        const tr = Number(bl.tariff);
+        if(bl.tariff && tr === 58){
+            template = 'COFM'; //Control OFM
+        }
         //enviamos el correo de notificación al cliente
-        await this.sendMail(saveReservation.id,'R');
+        await this.sendMail(saveReservation.id,template);
         return saveReservation;
     }
 
@@ -106,6 +115,17 @@ export class ReservationService {
             throw new NotFoundException();
         }
         ReservationExists.notify2h = true
+        await this._reservationRepository.update(id,ReservationExists);
+        const updateReservation : Reservation = await this._reservationRepository.findOne(id);
+        return updateReservation;
+    }
+
+    async updateNotify24h(id: number): Promise<Reservation>{
+        const ReservationExists = await this._reservationRepository.findOne(id);
+        if(!ReservationExists){
+            throw new NotFoundException();
+        }
+        ReservationExists.notify24h = true
         await this._reservationRepository.update(id,ReservationExists);
         const updateReservation : Reservation = await this._reservationRepository.findOne(id);
         return updateReservation;
@@ -225,7 +245,7 @@ export class ReservationService {
         if (doctor > 0){
             attr.doctor = doctor;
             attr.date = date;
-            console.log("doctor...", doctor);
+            /* console.log("doctor...", doctor); */
         }
         if(state)
             attr.state = state;
@@ -326,7 +346,7 @@ export class ReservationService {
         return data;
     }
 
-    async getResumenDayByChar(id:number):Promise<any[]>{
+    async getResumenDayByChar(id:number):Promise<any>{
         
         var today = moment().format('YYYY-MM-DD');
         var lastday = moment().subtract(360,'d').format('YYYY-MM-DD')
@@ -336,6 +356,35 @@ export class ReservationService {
         .where(`date BETWEEN :lastday AND :today AND state <> 0 AND environment_id = :id`,{lastday,today,id})
         .groupBy('date,environment_id')
         .orderBy('date')
+    /**
+     * Metodo que me retorna la cantidad de
+     * Controles confirmados y atendidos
+     * en un mes
+     * @params int month, int year
+     */
+    }
+
+    async cantControls(month: number, year: number): Promise<any>{
+        const data = await this._reservationRepository.createQueryBuilder('re')
+        .select(`sum(case when state = 1 then 1 else 0 end) as sin_confirmar,
+        sum(case when state = 2 then 1 else 0 end) as confirmados,
+        sum(case when state = 3 then 1 else 0 end) as atendidos,
+        count(*) as total`)
+        .where(`tariff_id = 58 AND EXTRACT(month from date) = :month
+        AND EXTRACT(year from date) = :year AND state <> 0`,{month,year})
+        .getRawOne();
+        return data;
+    }
+
+    async patientFrequentDetail(since: string, until: string): Promise<any>{
+        const data = await this._reservationRepository.createQueryBuilder('re')
+        .select(`pa.name as name,"pa"."lastNameFather" as lastnamefather,
+        "pa"."lastNameMother" as lastnamemother,"pa"."documentNumber" AS num_document,
+        pa.history,pa.birthdate,pa.cellphone`)
+        .where(`re.date BETWEEN :since AND :until AND re.state <> 0`,{since,until})
+        .innerJoin('re.patient','pa')
+        .groupBy(`pa.name,"pa"."lastNameFather","pa"."lastNameMother","pa"."documentNumber",
+        pa.history,pa.birthdate,pa.cellphone`)
         .getRawMany();
         return data;
     }

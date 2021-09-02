@@ -23,7 +23,7 @@ import { Configuration } from '../../config/config.keys';
           },
         },
         defaults: {
-          from: `"No Responder" <maxillaris@mano.guru>`,
+          from: `"Brenda de Maxillaris" <maxillaris@mano.guru>`,
           replyTo: Configuration.MAIL_REPLYTO
         },
         template: {

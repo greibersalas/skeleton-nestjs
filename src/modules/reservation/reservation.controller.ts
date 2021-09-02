@@ -23,6 +23,9 @@ import { EnvironmentDoctorService } from '../environment-doctor/environment-doct
 import { ReservationService } from './reservation.service';
 import { FormFilter } from './form.filter';
 
+//pdf
+import { Pdf_frequent_patients } from './pdf/pdf-frequent-patients';
+
 @UseGuards(JwtAuthGuard)
 @Controller('reservation')
 export class ReservationController {
@@ -490,11 +493,29 @@ export class ReservationController {
      * Pacientes con ultima cita no mayor a 1 año
      * solo cantidad
      */
-     @Get('patient-frequen-cant/:since/:until')
-     async getPatientFrequentCant(
-         @Param('since') since: string,
-         @Param('until') until: string
-     ): Promise<any>{
-         return this._reservationService.patientFrequentCant(since,until);
-     }
+    @Get('patient-frequen-cant/:since/:until')
+    async getPatientFrequentCant(
+        @Param('since') since: string,
+        @Param('until') until: string
+    ): Promise<any>{
+        return this._reservationService.patientFrequentCant(since,until);
+    }
+
+    @Get('controls-cant/:month/:year')
+    async getCantControls(
+    @Param('month', ParseIntPipe) month: number,
+    @Param('year', ParseIntPipe) year: number
+    ): Promise<any>{
+        return this._reservationService.cantControls(month,year);
+    }
+
+    @Get('pdf-report-frequent-patients/:since/:until')
+    async getPdfFrequentPatients(
+        @Param('since') since: string,
+        @Param('until') until: string
+    ): Promise<any>{
+        const data = await this._reservationService.patientFrequentDetail(since,until);
+        const pdf = new Pdf_frequent_patients();
+        return pdf.print(data);
+    }
 }

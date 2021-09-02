@@ -101,4 +101,24 @@ export class MedicalActAttentionController {
     ): Promise<any>{
         return this._medicalActAttentionService.cantReservation(month,year);
     }
+
+    //Reports
+
+    @Get('report-treatment-realized/:date/:specialty/:businnesline/:doctor')
+    async getReportTR(
+        @Param('date') date: string,
+        @Param('specialty', ParseIntPipe) specialty: number,
+        @Param('businnesline', ParseIntPipe) businnesline: number,
+        @Param('doctor', ParseIntPipe) doctor: number
+    ): Promise<any>{
+        return await this._medicalActAttentionService.treatmentRealized(date,specialty,businnesline,doctor)
+    }
+
+    @Get('report-top-10-tariff/:since/:until')
+    async getReportTop10Tariff(
+        @Param('since') since: string,
+        @Param('until') until: string
+    ): Promise<any>{
+        return await this._medicalActAttentionService.top10Tariff(since,until);
+    }
 }
