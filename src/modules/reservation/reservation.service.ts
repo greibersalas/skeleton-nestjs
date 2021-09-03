@@ -347,15 +347,15 @@ export class ReservationService {
     }
 
     async getResumenDayByChar(id:number):Promise<any>{
-        
-        var today = moment().format('YYYY-MM-DD');
-        var lastday = moment().subtract(360,'d').format('YYYY-MM-DD')
-       
+        let today = moment().format('YYYY-MM-DD');
+        let lastday = moment().subtract(360,'d').format('YYYY-MM-DD')
         const data = await this._reservationRepository.createQueryBuilder('re')
         .select('date, count(id) as total')
         .where(`date BETWEEN :lastday AND :today AND state <> 0 AND environment_id = :id`,{lastday,today,id})
         .groupBy('date,environment_id')
         .orderBy('date')
+        .getRawMany();
+        return data;
     /**
      * Metodo que me retorna la cantidad de
      * Controles confirmados y atendidos

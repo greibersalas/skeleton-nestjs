@@ -38,15 +38,12 @@ export class ReservationController {
 
     @Get(':id')
     async getReservation(@Param('id',ParseIntPipe) id: number): Promise<Reservation>{
-        const Reservation = await this._reservationService.get(id);
-        return Reservation;
+        return await this._reservationService.get(id);
     }
 
     @Get('/enviroments/resumen/day/:id')
-    async getResumenDayByChar(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
-       
-        const Reservation = await this._reservationService.getResumenDayByChar(id);
-        return Reservation;
+    async getResumenDayByChar(@Param('id',ParseIntPipe) id: number): Promise<any>{
+        return await this._reservationService.getResumenDayByChar(id);
     }
 
     @Get('/environments/available/:day/:month/:year')
