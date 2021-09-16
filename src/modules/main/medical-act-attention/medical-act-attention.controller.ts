@@ -121,4 +121,12 @@ export class MedicalActAttentionController {
     ): Promise<any>{
         return await this._medicalActAttentionService.top10Tariff(since,until);
     }
+
+    @Get('report-top-5-specialty/:since/:until')
+    async getReportTop5Specialty(
+        @Param('since') since: string,
+        @Param('until') until: string
+    ): Promise<any>{
+        return await this._medicalActAttentionService.top5Specialty(since,until);
+    }
 }

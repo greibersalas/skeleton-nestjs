@@ -148,4 +148,21 @@ export class MedicalActAttentionService {
         const entityManager = getManager();
         return await entityManager.query(`SELECT * FROM (${ q1 } UNION ALL ${ q2 }) AS foo ORDER BY foo.bl,foo.cantidad ASC, foo.tratamiento`)
     }
+
+    async top5Specialty(since: string, until: string): Promise<any>{
+        const cant = await this._medicalActAttentionRepository.createQueryBuilder('maa')
+        .select(`"maa"."businesslineId" AS bl,
+        "maa"."specialtyId",
+        "sp"."name" AS especialidad,
+        count("maa"."tariffId")::NUMERIC as cantidad,
+        sum("maa"."value") as total`)
+        .innerJoin('maa.tariff','tr')
+        .innerJoin('maa.specialty','sp')
+        .where(`"maa"."date" BETWEEN '${since}' AND '${until}' AND "maa"."state" = 1 and "maa"."businesslineId" = 2`,{since,until})
+        .groupBy('"maa"."specialtyId","maa"."businesslineId",sp.name')
+        .orderBy('count("maa"."tariffId")','DESC')
+        .limit(5)
+        .getRawMany();
+        return cant;
+    }
 }
