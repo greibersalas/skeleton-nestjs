@@ -236,4 +236,29 @@ export class LabOrderService {
         .getCount();
         return cant;
     }
+
+    //Reports
+
+    /**
+     * Metodo para los reportes de aparatos
+     * elaborados vs no elaborados
+     */
+    async getReportElaboNoElabo(filters: any): Promise<any>{
+        const data = await this._labOrderRepository.createQueryBuilder('lo')
+        .select(`qt.idclinichistory,
+        ch.history,
+        concat_ws(' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother") AS name,
+        lo.state,
+        lo.job,
+        lo.instalation,
+        tr.description AS aparato`)
+        .innerJoin('quotation_detail','qd','qd.id = "lo"."quotationDetailId"')
+        .innerJoin('quotation','qt','qt.id = qd.idquotation')
+        .innerJoin('clinic_history','ch','ch.id = qt.idclinichistory')
+        .innerJoin('tariff','tr','tr.id = "lo"."tariffId"')
+        .where(`lo.instalation BETWEEN :since AND :until AND lo.state IN(1,2)`,{since: filters.since,until: filters.until})
+        .orderBy('lo.elaboration')
+        .getRawMany();
+        return data;
+    }
 }

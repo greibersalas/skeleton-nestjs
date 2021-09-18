@@ -11,6 +11,7 @@ import { LabOrderLabeledService } from '../lab-order-labeled/lab-order-labeled.s
 const FPDF = require('./pdf-barcode');
 //Reports PDF
 import { Pdf_lab_resumen } from './pdf/pdf-lab-resume';
+import { Pdf_report_elabo_noelabo } from './pdf/pdf-report-elabo-noelabo';
 @UseGuards(JwtAuthGuard)
 @Controller('lab-order')
 export class LabOrderController {
@@ -185,5 +186,13 @@ export class LabOrderController {
         @Param('year', ParseIntPipe) year: number
     ): Promise<any>{
         return this._labOrderService.getCantMonth(month,year);
+    }
+
+    /* --- REPORTES --- */
+    @Post('/get-report-pdf-elaborado-noelaborado')
+    async getReportPdfElaboNoelabo(@Body() filters: any): Promise<any>{
+        const pdf = new Pdf_report_elabo_noelabo();
+        const data = await this._labOrderService.getReportElaboNoElabo(filters);
+        return pdf.print(data,filters);
     }
 }
