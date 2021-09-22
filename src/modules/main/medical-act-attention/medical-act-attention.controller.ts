@@ -94,6 +94,12 @@ export class MedicalActAttentionController {
         return medicalActAttention;
     }
 
+    @Get('by-clinic-history/:id')
+    async getByCH(@Param('id',ParseIntPipe) id: number): Promise<MedicalActAttention[]>{
+        const medicalActAttention = await this._medicalActAttentionService.getByCH(id);
+        return medicalActAttention;
+    }
+
     @Get('attention-cant/:month/:year')
     async getReservationCant(
         @Param('month', ParseIntPipe) month: number,

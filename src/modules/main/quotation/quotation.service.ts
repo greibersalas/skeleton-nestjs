@@ -130,7 +130,7 @@ export class QuotationService {
         const labOrdes: any = await this._quotationDetailRepository
         .createQueryBuilder("qd")
         .innerJoinAndSelect("qd.tariff","tr")
-        .innerJoin("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
+        .leftJoin("tr.specialty","sp","sp.laboratory = :checkLab",{checkLab: true})
         .innerJoinAndSelect("qd.quotation","qt","qt.state <> 0")
         .innerJoinAndSelect("qt.clinicHistory","ch")
         .where("qd.state <> 0")
