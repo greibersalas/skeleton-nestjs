@@ -8,7 +8,8 @@ import {
     Post,
     Put,
     UseGuards,
-    Request
+    Request,
+    BadRequestException
 } from '@nestjs/common';
 var moment = require('moment-timezone');
 
@@ -274,10 +275,15 @@ export class ReservationController {
 
     @Post()
     async createReservation(
-        @Body() Reservation: Reservation,
+        @Body() reservation: Reservation,
         @Request() req: any
     ): Promise<Reservation>{
-        const create = await this._reservationService.create(Reservation);
+        //Validamos que no este pcupado el cupo
+        const validate = await this._reservationService.validateCupo(reservation);
+        if(typeof validate !== 'undefined'){
+            throw new BadRequestException('El cupo ya no esta disponible.');
+        }
+        const create = await this._reservationService.create(reservation);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = create.id;

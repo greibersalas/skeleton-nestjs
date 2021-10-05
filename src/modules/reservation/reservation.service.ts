@@ -99,6 +99,18 @@ export class ReservationService {
         return saveReservation;
     }
 
+    async validateCupo(rese: Reservation): Promise<Reservation>{
+        const reservation = await this._reservationRepository.createQueryBuilder('re')
+        .where(`re.date = :date AND re.appointment = :appointment AND re.state <> 0
+        AND re.environment_id = :environment`,{
+            date: rese.date,
+            appointment: rese.appointment,
+            environment: rese.environment
+        })
+        .getOne();
+        return reservation
+    }
+
     async update(id: number, Reservation:Reservation): Promise<Reservation>{
         const ReservationExists = await this._reservationRepository.findOne(id);
         if(!ReservationExists){
