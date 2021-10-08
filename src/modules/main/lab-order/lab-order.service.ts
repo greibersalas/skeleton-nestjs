@@ -261,4 +261,40 @@ export class LabOrderService {
         .getRawMany();
         return data;
     }
+
+    /**
+     * Metodo para los reportes de AOF
+     * produciodos
+     */
+     async getReportElaboProd(filters: any): Promise<any>{
+        let data = await this._labOrderRepository.createQueryBuilder('lo')
+        .select(`tr.name,
+        count(lo.*) AS cantidad,
+        sum(tr.price_usd) AS valor`)
+        .innerJoin('tariff','tr','tr.id = "lo"."tariffId" and tr.bracket = true')
+        .where(`lo.state <> 0 AND lo.job in('Nuevo','Nuevo Adicional')
+        and lo.elaboration BETWEEN :since AND :until`,{since: filters.since,until: filters.until})
+        .groupBy('tr.name')
+        .limit(filters.limit)
+        .getRawMany();
+        return data;
+    }
+
+    /**
+     * Metodo para el reporte de AOF
+     * por estados
+     */
+    async getReportbyState(filters: any): Promise<any>{
+        let data = await this._labOrderRepository.createQueryBuilder('lo')
+        .select(`lo.job,
+        count(lo.*) AS cantidad,
+        sum(tr.price_usd) AS valor`)
+        .innerJoin('tariff','tr','tr.id = "lo"."tariffId" and tr.bracket = true')
+        .where(`lo.state <> 0
+        and lo.elaboration BETWEEN :since AND :until`,{since: filters.since,until: filters.until})
+        .groupBy('lo.job')
+        .orderBy('lo.job')
+        .getRawMany();
+        return data;
+    }
 }

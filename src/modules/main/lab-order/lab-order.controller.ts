@@ -195,4 +195,14 @@ export class LabOrderController {
         const data = await this._labOrderService.getReportElaboNoElabo(filters);
         return pdf.print(data,filters);
     }
+
+    @Post('/get-report-elaborado-production')
+    async getReportProduction(@Body() filters: any): Promise<any>{
+        return await this._labOrderService.getReportElaboProd(filters);
+    }
+
+    @Post('/get-report-by-state')
+    async getReportByState(@Body() filters: any): Promise<any>{
+        return await this._labOrderService.getReportbyState(filters);
+    }
 }
