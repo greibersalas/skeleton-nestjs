@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
 var moment = require('moment-timezone');
 
@@ -13,6 +13,9 @@ const FPDF = require('./pdf-barcode');
 import { Pdf_lab_resumen } from './pdf/pdf-lab-resume';
 import { Pdf_report_elabo_noelabo } from './pdf/pdf-report-elabo-noelabo';
 import { Pdf_report_model_state } from './pdf/pdf-report-model-state';
+import { Pdf_report_receta_doctor } from './pdf/pdf-report-receta-doctor';
+//Excel4Node
+import * as xl from 'excel4node';
 @UseGuards(JwtAuthGuard)
 @Controller('lab-order')
 export class LabOrderController {
@@ -197,6 +200,111 @@ export class LabOrderController {
         return pdf.print(data,filters);
     }
 
+    @Post('/get-report-xlsx-elaborado-noelaborado')
+    async getReportXlsxElaboNoelabo(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._labOrderService.getReportElaboNoElabo(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Elaborados vs pendiente');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,6,true)
+        .string(`Reporte de AOF Elaborados vs pendiente de elaborar`)
+        .style(styleTitle);
+
+        ws.cell(2,1,2,6,true)
+        .string(``);
+        ws.cell(3,1,3,6,true)
+        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,6,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#000000',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Nro. Historia")
+        .style(style);
+        ws.cell(5,2)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Elaboración")
+        .style(style);
+        ws.cell(5,4)
+        .string("Instalación")
+        .style(style);
+        ws.cell(5,5)
+        .string("Aparato")
+        .style(style);
+        ws.cell(5,6)
+        .string("Estado")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(30);
+        ws.column(3).setWidth(15);
+        ws.column(4).setWidth(15);
+        ws.column(5).setWidth(35);
+        ws.column(6).setWidth(23);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                history,
+                name,
+                instalation,
+                aparato,
+                state
+            } = it;
+            let estado = state === 1 ? 'Pendiente' : 'Eleborado';
+            ws.cell(y,1)
+            .string(`${history}`);
+            ws.cell(y,2)
+            .string(`${name}`);
+            ws.cell(y,3)
+            .string(`${moment(instalation).subtract(1,'day').format('DD/MM/YYYY')}`);
+            ws.cell(y,4)
+            .string(`${moment(instalation).format('DD/MM/YYYY')}`);
+            ws.cell(y,5)
+            .string(`${aparato}`);
+            ws.cell(y,6)
+            .string(`${estado}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=file.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
+    }
+
     @Post('/get-report-elaborado-production')
     async getReportProduction(@Body() filters: any): Promise<any>{
         return await this._labOrderService.getReportElaboProd(filters);
@@ -212,5 +320,200 @@ export class LabOrderController {
         const pdf = new Pdf_report_model_state();
         const data = await this._labOrderService.getReportModelState(filters);
         return pdf.print(data,filters);
+    }
+
+    @Post('/get-report-xlsx-model-state')
+    async getReportXlsxModelState(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._labOrderService.getReportModelState(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('modelos Según estado');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,5,true)
+        .string(`Reporte de modelos Según estado, HC y Nombre`)
+        .style(styleTitle);
+
+        ws.cell(2,1,2,5,true)
+        .string(``);
+        ws.cell(3,1,3,5,true)
+        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,5,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Nro. Historia")
+        .style(style);
+        ws.cell(5,2)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Elaboración")
+        .style(style);
+        ws.cell(5,4)
+        .string("Aparato")
+        .style(style);
+        ws.cell(5,5)
+        .string("Estado")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(30);
+        ws.column(3).setWidth(15);
+        ws.column(4).setWidth(35);
+        ws.column(5).setWidth(23);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                history,
+                patient,
+                elaboration,
+                aparato,
+                job
+            } = it;
+            ws.cell(y,1)
+            .string(`${history}`);
+            ws.cell(y,2)
+            .string(`${patient}`);
+            ws.cell(y,3)
+            .string(`${moment(elaboration).format('DD-MM-YYYY')}`);
+            ws.cell(y,4)
+            .string(`${aparato}`);
+            ws.cell(y,5)
+            .string(`${job}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=file.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
+    }
+
+    @Post('/get-report-pdf-receta-doctor')
+    async getReportPdfRecetaDocotor(@Body() filters: any): Promise<any>{
+        const pdf = new Pdf_report_receta_doctor();
+        const data = await this._labOrderService.getReportRecetaDoctor(filters);
+        return pdf.print(data,filters);
+    }
+
+    @Post('/get-report-xlsx-receta-doctor')
+    async getReportExcelRecetaDocotor(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._labOrderService.getReportRecetaDoctor(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Recetas por Odontólogo');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,4,true)
+        .string(`Reporte de Recetas por Odontólogo`)
+        .style(styleTitle);
+        ws.cell(2,1,2,4,true)
+        .string(``);
+        ws.cell(3,1,3,4,true)
+        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,4,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Nro. Historia")
+        .style(style);
+        ws.cell(5,2)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Doctor")
+        .style(style);
+        ws.cell(5,4)
+        .string("Aparato")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(30);
+        ws.column(3).setWidth(25);
+        ws.column(4).setWidth(30);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                history,
+                patient,
+                aparato,
+                doctor
+            } = it;
+            ws.cell(y,1)
+            .string(`${history}`);
+            ws.cell(y,2)
+            .string(`${patient}`);
+            ws.cell(y,3)
+            .string(`${doctor}`);
+            ws.cell(y,4)
+            .string(`${aparato}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=RecetaDocotor.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }

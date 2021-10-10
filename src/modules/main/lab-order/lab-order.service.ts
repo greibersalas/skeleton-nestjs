@@ -321,4 +321,29 @@ export class LabOrderService {
         .getRawMany();
         return data;
     }
+
+    /**
+     * Metodo para los reportes de aparatos
+     * modelos según estado
+     */
+     async getReportRecetaDoctor(filters: any): Promise<any>{
+        const data = await this._labOrderRepository.createQueryBuilder('lo')
+        .select(`lo.id,
+        tr.name AS aparato,
+        lo.job,
+        lo.elaboration,
+        ch.history,
+        concat_ws(' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS patient,
+        "dc"."nameQuote" AS doctor`)
+        .innerJoin('quotation_detail','qd','qd.id = "lo"."quotationDetailId"')
+        .innerJoin('quotation','qt','qt.id = qd.idquotation')
+        .innerJoin('clinic_history','ch','ch.id = qt.idclinichistory')
+        .innerJoin('tariff','tr','tr.id = "lo"."tariffId"')
+        .innerJoin('doctor','dc','dc.id = "lo"."doctorId"')
+        .where(`lo.instalation BETWEEN :since AND :until AND lo.state <> 0
+        AND (lo.superior_indications != '' OR lo.lower_indications IS NOT NULL)`,{since: filters.since,until: filters.until})
+        .orderBy(`lo.elaboration,lo.job,concat_ws(' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" )`)
+        .getRawMany();
+        return data;
+    }
 }
