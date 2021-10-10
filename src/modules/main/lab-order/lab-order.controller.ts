@@ -12,6 +12,7 @@ const FPDF = require('./pdf-barcode');
 //Reports PDF
 import { Pdf_lab_resumen } from './pdf/pdf-lab-resume';
 import { Pdf_report_elabo_noelabo } from './pdf/pdf-report-elabo-noelabo';
+import { Pdf_report_model_state } from './pdf/pdf-report-model-state';
 @UseGuards(JwtAuthGuard)
 @Controller('lab-order')
 export class LabOrderController {
@@ -204,5 +205,12 @@ export class LabOrderController {
     @Post('/get-report-by-state')
     async getReportByState(@Body() filters: any): Promise<any>{
         return await this._labOrderService.getReportbyState(filters);
+    }
+
+    @Post('/get-report-pdf-model-state')
+    async getReportPdfModelState(@Body() filters: any): Promise<any>{
+        const pdf = new Pdf_report_model_state();
+        const data = await this._labOrderService.getReportModelState(filters);
+        return pdf.print(data,filters);
     }
 }

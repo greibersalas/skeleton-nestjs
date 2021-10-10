@@ -287,13 +287,37 @@ export class LabOrderService {
     async getReportbyState(filters: any): Promise<any>{
         let data = await this._labOrderRepository.createQueryBuilder('lo')
         .select(`lo.job,
+        lp.quantity AS capacity,
         count(lo.*) AS cantidad,
         sum(tr.price_usd) AS valor`)
         .innerJoin('tariff','tr','tr.id = "lo"."tariffId" and tr.bracket = true')
+        .innerJoin('lab_programming','lp','lp.job = lo.job and lp.since <= lo.elaboration and lp.until >= lo.elaboration')
         .where(`lo.state <> 0
         and lo.elaboration BETWEEN :since AND :until`,{since: filters.since,until: filters.until})
-        .groupBy('lo.job')
+        .groupBy('lo.job,lp.quantity')
         .orderBy('lo.job')
+        .getRawMany();
+        return data;
+    }
+
+    /**
+     * Metodo para los reportes de aparatos
+     * modelos según estado
+     */
+     async getReportModelState(filters: any): Promise<any>{
+        const data = await this._labOrderRepository.createQueryBuilder('lo')
+        .select(`lo.id,
+        tr.name AS aparato,
+        lo.job,
+        lo.elaboration,
+        ch.history,
+        concat_ws(' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS patient`)
+        .innerJoin('quotation_detail','qd','qd.id = "lo"."quotationDetailId"')
+        .innerJoin('quotation','qt','qt.id = qd.idquotation')
+        .innerJoin('clinic_history','ch','ch.id = qt.idclinichistory')
+        .innerJoin('tariff','tr','tr.id = "lo"."tariffId"')
+        .where(`lo.instalation BETWEEN :since AND :until AND lo.state <> 0`,{since: filters.since,until: filters.until})
+        .orderBy(`lo.elaboration,lo.job,concat_ws(' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" )`)
         .getRawMany();
         return data;
     }
