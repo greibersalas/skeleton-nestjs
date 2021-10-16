@@ -1,10 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
 var moment = require('moment-timezone');
 
 import { Audit } from '../../security/audit/audit.entity';
 import { MedicalActAttention } from './medical-act-attention.entity';
 import { MedicalActAttentionService } from './medical-act-attention.service';
+//Reports PDF
+import { PdfPayPatient } from './pdf/pdf-pay-patient';
+//Excel4Node
+import * as xl from 'excel4node';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-act-attention')
@@ -141,5 +145,104 @@ export class MedicalActAttentionController {
             @Param('date') date: string
     ): Promise<any>{
         return await this._medicalActAttentionService.getTtoByDoctor(date);
+    }
+
+    @Post('/get-report-pdf-pay-patient')
+    async getReportPdfPayPatient(@Body() filters: any): Promise<any>{
+        const pdf = new PdfPayPatient();
+        const data = await this._medicalActAttentionService.getPayPatient(filters);
+        return pdf.print(data,filters);
+    }
+
+    @Post('/get-report-xlsx-pay-patient')
+    async getReportXlsxModelState(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._medicalActAttentionService.getPayPatient(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Pagos por Paciente');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,4,true)
+        .string(`Reporte de Pagos por Paciente`)
+        .style(styleTitle);
+
+        ws.cell(2,1,2,4,true)
+        .string(``);
+        ws.cell(3,1,3,4,true)
+        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,4,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Nro. Historia")
+        .style(style);
+        ws.cell(5,2)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Fecha")
+        .style(style);
+        ws.cell(5,4)
+        .string("Total")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(35);
+        ws.column(3).setWidth(15);
+        ws.column(4).setWidth(15);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                history,
+                paciente,
+                date,
+                moneda,
+                total
+            } = it;
+            ws.cell(y,1)
+            .string(`${history}`);
+            ws.cell(y,2)
+            .string(`${paciente}`);
+            ws.cell(y,3)
+            .string(`${moment(date).format('DD-MM-YYYY')}`);
+            ws.cell(y,4)
+            .string(`${moneda} ${total}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=file.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }

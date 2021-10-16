@@ -197,4 +197,29 @@ export class MedicalActAttentionService {
         .getRawMany();
         return data;
     }
+
+    async getPayPatient(filters: any): Promise<any>{
+        const query = this._medicalActAttentionRepository.createQueryBuilder('maa')
+        .select(`ch.history,
+        concat_ws( ' ', ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
+        maa.quantity,
+        maa.value,
+        maa.date,
+        CASE WHEN tr.price_usd > 0 THEN '$' ELSE 'S/' END as moneda`)
+        .where(`maa.date BETWEEN '${filters.since}' AND '${filters.until}' AND maa.state = 1`)
+        .innerJoin('maa.patient','ch')
+        .innerJoin('maa.tariff','tr')
+        .getQuery();
+        const entityManager = getManager();
+        return await entityManager.query(`SELECT
+        foo.history,
+        foo.paciente,
+        sum(foo.quantity) AS cantidad,
+        sum(foo.value) AS total,
+        foo.date,
+        foo.moneda
+        FROM (${ query }) AS foo
+        GROUP BY foo.history,foo.date,foo.moneda,foo.paciente
+        ORDER BY foo.date,foo.paciente`)
+    }
 }
