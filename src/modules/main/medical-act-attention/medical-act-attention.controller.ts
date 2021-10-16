@@ -135,4 +135,11 @@ export class MedicalActAttentionController {
     ): Promise<any>{
         return await this._medicalActAttentionService.top5Specialty(since,until);
     }
+
+    @Get('report-tto-by-doctor/:date')
+    async getReportTtoByDoctor(
+            @Param('date') date: string
+    ): Promise<any>{
+        return await this._medicalActAttentionService.getTtoByDoctor(date);
+    }
 }

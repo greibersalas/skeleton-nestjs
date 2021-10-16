@@ -183,4 +183,18 @@ export class MedicalActAttentionService {
         .getRawMany();
         return cant;
     }
+
+    async getTtoByDoctor(date: string): Promise<any>{
+        const data = await this._medicalActAttentionRepository.createQueryBuilder('maa')
+        .select(`"maa"."doctorId" AS iddoctor,
+        "dr"."nameQuote" AS doctor,
+        sum(quantity) AS cantidad,
+        sum(value) AS total`)
+        .innerJoin('doctor','dr','dr.id = "maa"."doctorId"')
+        .where(`maa.state <> 0 AND maa.date = '${date}'`)
+        .groupBy(`"maa"."doctorId","dr"."nameQuote"`)
+        .orderBy(`"dr"."nameQuote"`)
+        .getRawMany();
+        return data;
+    }
 }
