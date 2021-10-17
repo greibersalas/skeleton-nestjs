@@ -181,10 +181,6 @@ export class ReservationService {
     }
 
     async confirm(id: number, state: number): Promise<any>{
-
-        /*const confirm = await this._reservationRepository.createQueryBuilder()
-        .update(Reservation)
-        .set({state}).where({id}).execute();*/
         const confirm = await this._reservationRepository.update({id},{state});
         //enviamos el correo de notificación al cliente
         if(state === 2)
@@ -399,5 +395,37 @@ export class ReservationService {
         pa.history,pa.birthdate,pa.cellphone`)
         .getRawMany();
         return data;
+    }
+
+    async getCant(filters: any): Promise<any>{
+        return await this._reservationRepository.createQueryBuilder('re')
+        .select(`count(*) as total,
+        sum(CASE WHEN state = 1 then 1 else 0 end) AS reservada,
+        sum(CASE WHEN state = 2 then 1 else 0 end) AS confirmada,
+        sum(CASE WHEN state = 3 then 1 else 0 end) AS atendida`)
+        .where(`re.date BETWEEN :since AND :until AND re.state <> 0`,{since:filters.since,until:filters.until})
+        .getRawOne();
+    }
+
+    async getCantCanceRepro(filters: any): Promise<any>{
+        return await this._reservationRepository.createQueryBuilder('re')
+        .select(`count(re.*) AS total,
+        sum(CASE WHEN re.state = 0 then 1 else 0 end) AS cancelada,
+        count(au) AS reprogramada`)
+        .leftJoin('audit','au',`au.idregister = re.id AND au.title = 'Reservation' AND au.description = 'Update registro'`)
+        .where(`re.date BETWEEN :since AND :until`,{since:filters.since,until:filters.until})
+        .getRawOne();
+    }
+
+    async getDatesPatient(filters: any): Promise<any>{
+        return await this._reservationRepository.createQueryBuilder('re')
+        .select(`ch.history,
+        concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
+        re.date,
+        re.appointment AS horario`)
+        .leftJoin('clinic_history','ch',`ch.id = re.patient_id`)
+        .where(`re.date BETWEEN :since AND :until AND re.state = 3`,{since:filters.since,until:filters.until})
+        .orderBy(`re.date,ch.name,re.appointment`)
+        .getRawMany();
     }
 }

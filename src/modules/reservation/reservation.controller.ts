@@ -9,7 +9,8 @@ import {
     Put,
     UseGuards,
     Request,
-    BadRequestException
+    BadRequestException,
+    Res
 } from '@nestjs/common';
 var moment = require('moment-timezone');
 
@@ -26,6 +27,9 @@ import { FormFilter } from './form.filter';
 
 //pdf
 import { Pdf_frequent_patients } from './pdf/pdf-frequent-patients';
+import { PdfDatesPatient } from './pdf/pdf-dates-patient';
+//Excel4Node
+import * as xl from 'excel4node';
 
 @UseGuards(JwtAuthGuard)
 @Controller('reservation')
@@ -520,5 +524,112 @@ export class ReservationController {
         const data = await this._reservationService.patientFrequentDetail(since,until);
         const pdf = new Pdf_frequent_patients();
         return pdf.print(data);
+    }
+    @Post('/get-cant-reservation')
+    async getCantReservation(@Body() filters: any): Promise<any>{
+        return await this._reservationService.getCant(filters);
+    }
+
+    @Post('/get-cant-cancelada-reprogramada')
+    async getCantCanceRepro(@Body() filters: any): Promise<any>{
+        return await this._reservationService.getCantCanceRepro(filters);
+    }
+
+    @Post('/get-report-pdf-dates-patient')
+    async getReportPdfPayPatient(@Body() filters: any): Promise<any>{
+        const pdf = new PdfDatesPatient();
+        const data = await this._reservationService.getDatesPatient(filters);
+        return pdf.print(data,filters);
+    }
+
+    @Post('/get-report-xlsx-dates-patient')
+    async getReportXlsxModelState(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._reservationService.getDatesPatient(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Citas por paciente asistido');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,4,true)
+        .string(`Reporte Citas por paciente asistido`)
+        .style(styleTitle);
+
+        ws.cell(2,1,2,4,true)
+        .string(``);
+        ws.cell(3,1,3,4,true)
+        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,4,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Nro. Historia")
+        .style(style);
+        ws.cell(5,2)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Fecha")
+        .style(style);
+        ws.cell(5,4)
+        .string("Horario")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(35);
+        ws.column(3).setWidth(15);
+        ws.column(4).setWidth(15);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                history,
+                paciente,
+                date,
+                horario
+            } = it;
+            ws.cell(y,1)
+            .string(`${history}`);
+            ws.cell(y,2)
+            .string(`${paciente}`);
+            ws.cell(y,3)
+            .string(`${moment(date).format('DD-MM-YYYY')}`);
+            ws.cell(y,4)
+            .string(`${horario}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=file.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }
