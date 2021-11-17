@@ -115,16 +115,24 @@ export class MedicalActService {
      * Return list of files by clinichistory
      * @param id <clinic history>
      */
-    async getFilesByClinicHistory(id: number): Promise<MedicalActFiles[]>{
+    async getFilesByClinicHistory(id: number, idgroup: number): Promise<MedicalActFiles[]>{
+        let where: any = {};
+        if(idgroup === 0){
+            where = {
+                state: 1,
+                clinichistory: id
+            };
+        }else{
+            where = {
+                state: 1,
+                clinichistory: id,
+                filegroup: idgroup
+            }
+        }
         const ma: MedicalActFiles[] = await this._medicalActFilesRepository
         .createQueryBuilder("fl")
-        //.innerJoinAndSelect("fl.medicalact","ma","ma.state = :state",{state: 1})
-        //.innerJoin("ma.reservation","rs","rs.state = 3")
-        //.innerJoin("rs.patient","ch","ch.id = :id",{id})
-        //.innerJoin("rs.qdetail","dq")
-        //.innerJoin("dq.quotation","qt")
         .innerJoinAndSelect("fl.filegroup","fg")
-        .where({state: 1,clinichistory:id})
+        .where(where)
         .orderBy({"fl.id":'DESC'})
         .getMany();
         return ma;
@@ -181,5 +189,16 @@ export class MedicalActService {
             throw new BadRequestException('id must be send.');
         }
         return true;
+    }
+
+    async getQuntityFiles(idclinichistory: number): Promise<any[]>{
+        const quantity: any[] = await this._medicalActFilesRepository.createQueryBuilder("fl")
+        .select(`fg.name AS file_group,
+        count(fg.id) AS quantity,fg.id AS idgroup`)
+        .innerJoin('medical_act_file_group','fg','fg.id = "fl"."filegroupId"')
+        .where(`"fl"."clinichistoryId" = :idclinichistory AND fl.state = 1`,{idclinichistory})
+        .groupBy('fg.name,fg.id')
+        .getRawMany();
+        return quantity;
     }
 }

@@ -73,16 +73,22 @@ export class MedicalActAttentionService {
         return medicalActAttention;
     }
 
-    async getByCH(id: number): Promise<MedicalActAttention[]>{
+    async getByCH(id: number, iddoctor: number): Promise<MedicalActAttention[]>{
         if(!id){
             throw new BadRequestException('id must be send.');
+        }
+        let where: string = '';
+        if(iddoctor === 0){
+            where = `mc.state = 1 AND "mc"."patientId" = ${id}`;
+        }else{
+            where = `mc.state = 1 AND "mc"."patientId" = ${id} AND dc.id = ${iddoctor}`;
         }
         const medicalActAttention = await this._medicalActAttentionRepository.createQueryBuilder('mc')
         .innerJoinAndSelect("mc.tariff","tr")
         .innerJoinAndSelect("tr.specialty","sp")
         .innerJoinAndSelect("sp.businessLines","bl")
         .innerJoinAndSelect("mc.doctor",'dc')
-        .where(`mc.state = 1 AND "mc"."patientId" = :id`,{id})
+        .where(`${where}`)
         .getMany();
 
         if(!medicalActAttention){
@@ -96,6 +102,26 @@ export class MedicalActAttentionService {
         .where('EXTRACT(month FROM "date") = :month AND EXTRACT(YEAR FROM "date") = :year AND state <> 0',{month,year})
         .getCount();
         return cant;
+    }
+
+    async getQuantityAttentions(id: number): Promise<any[]>{
+        if(!id){
+            throw new BadRequestException('id must be send.');
+        }
+        const quantity = await this._medicalActAttentionRepository.createQueryBuilder('ma')
+        .select(`dc.id AS iddoctor,
+        "dc"."nameQuote" AS doctor,
+      count(dc.id) AS quantity`)
+        .innerJoin('doctor','dc','dc.id = "ma"."doctorId"')
+        .where(`"ma"."patientId" = :id AND ma.state = 1`,{id})
+        .groupBy(`dc.id,"dc"."nameQuote"`)
+        .orderBy(`"dc"."nameQuote"`)
+        .getRawMany();
+
+        if(!quantity){
+            throw new NotFoundException();
+        }
+        return quantity;
     }
 
     //Reports

@@ -245,25 +245,40 @@ export class ReservationService {
         patient: number,
         doctor: number,
         state: number,
-        date: string
+        since: string,
+        until: string
     ): Promise<Reservation[]>{
         let attr: any = {};
-        if (patient !== 0)
-            attr.patient = patient;
-        if (doctor > 0){
-            attr.doctor = doctor;
-            attr.date = date;
-            /* console.log("doctor...", doctor); */
+        let where: string = `rs.date::DATE BETWEEN '${since}' AND '${until}'`;
+        if (patient !== 0){
+            //attr.patient = patient;
+            where += ` AND rs.patient = ${patient}`;
         }
-        if(state)
-            attr.state = state;
+        if (doctor > 0){
+            //attr.doctor = doctor;
+            //attr.date = since;
+            where += ` AND rs.doctor = ${doctor}`;
+        }
+        if(state){
+            //attr.state = state;
+            where += ` AND rs.state = ${state}`;
+        }else{
+            where += ` AND rs.state <> 0`;
+        }
 
-        const list = await this._reservationRepository.find(
+        /*const list = await this._reservationRepository.find(
             {
                 where: attr,
                 order: {date: 'DESC'}
             }
-        );
+        );*/
+
+        const list = await this._reservationRepository.createQueryBuilder("rs")
+        .innerJoinAndSelect("rs.doctor","doctor")
+        .innerJoinAndSelect("rs.patient","patient")
+        .innerJoinAndSelect("rs.environment","environment")
+        .where(`${where}`)
+        .getMany();
         return list
     }
 

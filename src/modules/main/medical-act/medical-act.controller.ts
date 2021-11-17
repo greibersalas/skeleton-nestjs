@@ -262,9 +262,12 @@ export class MedicalActController {
         return update;
     }
 
-    @Get('get-files-clinichistory/:id')
-    async getFilesClinicHistory(@Param('id') id): Promise<MedicalActFiles[]>{
-        return await this._medicalActService.getFilesByClinicHistory(id);
+    @Get('get-files-clinichistory/:id/:idgroup')
+    async getFilesClinicHistory(
+        @Param('id', ParseIntPipe) id: number,
+        @Param('idgroup', ParseIntPipe) idgroup: number
+    ): Promise<MedicalActFiles[]>{
+        return await this._medicalActService.getFilesByClinicHistory(id,idgroup);
     }
 
     @Get('get-files-medical-act/:id')
@@ -296,5 +299,12 @@ export class MedicalActController {
         //Guardamos la auditoria
         await audit.save();
         return true;
+    }
+
+    @Get('get-files-quantity/:id')
+    async getFilesQuantity(
+        @Param('id',ParseIntPipe) id: number
+    ): Promise<any[]>{
+        return await this._medicalActService.getQuntityFiles(id);
     }
 }

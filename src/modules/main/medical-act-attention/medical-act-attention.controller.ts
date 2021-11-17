@@ -98,9 +98,12 @@ export class MedicalActAttentionController {
         return medicalActAttention;
     }
 
-    @Get('by-clinic-history/:id')
-    async getByCH(@Param('id',ParseIntPipe) id: number): Promise<MedicalActAttention[]>{
-        const medicalActAttention = await this._medicalActAttentionService.getByCH(id);
+    @Get('by-clinic-history/:id/:iddoctor')
+    async getByCH(
+        @Param('id',ParseIntPipe) id: number,
+        @Param('iddoctor',ParseIntPipe) iddoctor: number
+    ): Promise<MedicalActAttention[]>{
+        const medicalActAttention = await this._medicalActAttentionService.getByCH(id,iddoctor);
         return medicalActAttention;
     }
 
@@ -110,6 +113,14 @@ export class MedicalActAttentionController {
         @Param('year', ParseIntPipe) year: number
     ): Promise<any>{
         return this._medicalActAttentionService.cantReservation(month,year);
+    }
+
+    @Get('get-quantity-attentions/:id')
+    async getQuantityAttentions(
+        @Param('id',ParseIntPipe) id: number
+    ): Promise<MedicalActAttention[]>{
+        const quantity = await this._medicalActAttentionService.getQuantityAttentions(id);
+        return quantity;
     }
 
     //Reports
