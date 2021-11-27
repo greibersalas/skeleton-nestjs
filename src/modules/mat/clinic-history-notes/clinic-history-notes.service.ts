@@ -27,7 +27,7 @@ export class ClinicHistoryNotesService {
     }
 
     async getAll(): Promise<ClinicHistoryNotes[]>{
-        const clinicHistoryNotes: ClinicHistoryNotes[] = await this._clinicHistoryNotesRepository.find({where:{state:1}});
+        const clinicHistoryNotes: ClinicHistoryNotes[] = await this._clinicHistoryNotesRepository.find({where: {state: 1}, order: {id: 'DESC'}});
         return clinicHistoryNotes;
     }
 

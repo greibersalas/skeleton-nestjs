@@ -15,18 +15,21 @@ export class ClinicHistoryNotes extends BaseEntity{
     @Column({type: 'text', nullable:false})
     note: string;
 
-    @ManyToOne(type => ClinicHistory, ch => ch.id,{cascade:true, nullable:false, eager:false})
+    @ManyToOne(type => ClinicHistory, ch => ch.id,{cascade:true, nullable:false, eager: false})
     @JoinColumn({name:'clinichistory'})
     clinichistory: ClinicHistory;
 
-    @ManyToOne(type => Doctor, doctor => doctor.id,{cascade:true, nullable:false, eager:true})
+    @ManyToOne(type => Doctor, doctor => doctor.id,{cascade:true, nullable:false, eager: true})
     @JoinColumn({name:'iddoctor'})
     doctor: Doctor;
 
-    @Column({type: 'int2', default: 1, nullable:false})
+    @Column({type: 'int2', default: 1, nullable: false})
     state: number;
 
-    @CreateDateColumn({type:'timestamp',name:'created_at'})
+    @Column({type: 'int2', default: 1, nullable: true})
+    iduser: number;
+
+    @CreateDateColumn({type: 'timestamp', name: 'created_at'})
     createdAt: Date;
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
