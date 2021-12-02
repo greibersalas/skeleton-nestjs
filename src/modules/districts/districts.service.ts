@@ -25,6 +25,23 @@ export class DistrictsService {
         return Districts;
     }
 
+    async getByProvince(idprovince: number): Promise<Districts[]>{
+        if(!idprovince){
+            throw new BadRequestException('id must be send.');
+        }
+        const Districts = await this._DistrictsRepository.find({
+            where: {
+                provinces: idprovince,
+                state: 1
+            },
+            order: { name: 'ASC' }
+        });
+        if(!Districts){
+            throw new NotFoundException();
+        }
+        return Districts;
+    }
+
     async getAll(): Promise<Districts[]>{
         const Districts: Districts[] = await this._DistrictsRepository
         .createQueryBuilder('dt')

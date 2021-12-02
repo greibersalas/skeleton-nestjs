@@ -14,6 +14,14 @@ export class DistrictsController {
         return Districts;
     }
 
+    @Get('/by-province/:id')
+    async getByProvince(
+        @Param('id',ParseIntPipe) id: number
+    ): Promise<Districts[]>{
+        const Districts = await this._DistrictsService.getByProvince(id);
+        return Districts;
+    }
+
     @Get()
     async getDistrictss(): Promise<Districts[]>{
         const Districts = await this._DistrictsService.getAll();

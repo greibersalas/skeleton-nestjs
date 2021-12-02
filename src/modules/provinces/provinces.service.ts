@@ -25,6 +25,24 @@ export class ProvincesService {
         return Provinces;
     }
 
+    async getByDeparment(iddeparment: number): Promise<Provinces[]>{
+        if(!iddeparment){
+            throw new BadRequestException('id must be send.');
+        }
+        const Provinces = await this._ProvincesRepository.find({
+            where: {
+                deparments: iddeparment,
+                state: 1
+            },
+            order: { name: 'ASC' }
+        });
+        if(!Provinces){
+            throw new NotFoundException();
+        }
+
+        return Provinces;
+    }
+
     async getAll(): Promise<Provinces[]>{
         const Provinces: Provinces[] = await this._ProvincesRepository.find({where:{state:1}});
         return Provinces;

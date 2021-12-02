@@ -15,18 +15,18 @@ export class DeparmentsService {
         if(!id){
             throw new BadRequestException('id must be send.');
         }
-
         const Deparments = await this._DeparmentsRepository.findOne(id,{where:{state:1}});
-
         if(!Deparments){
             throw new NotFoundException();
         }
-
         return Deparments;
     }
 
     async getAll(): Promise<Deparments[]>{
-        const Deparments: Deparments[] = await this._DeparmentsRepository.find({where:{state:1}});
+        const Deparments: Deparments[] = await this._DeparmentsRepository.find({
+            where: { state: 1 },
+            order: { name: 'ASC' }
+        });
         return Deparments;
     }
 
