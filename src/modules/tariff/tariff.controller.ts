@@ -120,4 +120,10 @@ export class TariffController {
         const tariff = await this._tariffService.getByBl(data);
         return tariff;
     }
+
+    @Get('/get-quotation/terms-values')
+    async getTariffQuotationTerms(): Promise<Tariff[]>{
+        const tariff = await this._tariffService.getQuotationTerms();
+        return tariff;
+    }
 }

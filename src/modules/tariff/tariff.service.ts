@@ -124,4 +124,14 @@ export class TariffService {
         }
         return tariff;
     }
+
+    async getQuotationTerms(): Promise<Tariff[]>{
+        const tariff: Tariff[] = await this._tariffRepository
+        .createQueryBuilder("tr")
+        .where("tr.state <> 0 AND tr.id IN(58,171)").orderBy("tr.name","ASC").getMany();
+        if(!tariff){
+            throw new NotFoundException();
+        }
+        return tariff;
+    }
 }

@@ -62,7 +62,7 @@ export class QuotationTermsService {
         }
         const quotationTerms = await this._quotationTermsRepository
         .createQueryBuilder('mb')
-        .where({state:1,quotation: id}).getMany();
+        .where({state: 1,quotation: id}).getMany();
         if(!quotationTerms){
             throw new NotFoundException();
         }
