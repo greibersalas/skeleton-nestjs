@@ -248,4 +248,33 @@ export class MedicalActAttentionService {
         GROUP BY foo.history,foo.date,foo.moneda,foo.paciente
         ORDER BY foo.date,foo.paciente`)
     }
+
+    async getDoctorProduction(params: any): Promise<any>{
+        const { since,until,iddoctor } = params;
+        return await this._medicalActAttentionRepository.createQueryBuilder('maa')
+        .select(`maa.quantity,
+        maa.value,
+        "maa"."businesslineId",
+        "maa"."specialtyId",
+        "maa"."tariffId",
+        "maa"."doctorId",
+        "maa"."coId",
+        "maa"."userId",
+        maa.date,
+        "maa"."patientId",
+        "dc"."nameQuote",
+        dc.type_payment,
+        dc.porcentage,
+        dc.payment,
+        tr.price_sol,
+        tr.price_usd,
+        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother","ch"."name") AS patient`)
+        .innerJoin('maa.doctor','dc')
+        .innerJoin('maa.tariff','tr')
+        .innerJoin('maa.patient','ch')
+        .where(`maa.date BETWEEN :since AND :until
+        AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`,{since,until,iddoctor})
+        .orderBy(`maa.date`)
+        .getRawMany();
+    }
 }

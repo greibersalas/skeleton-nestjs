@@ -7,6 +7,7 @@ import { MedicalActAttention } from './medical-act-attention.entity';
 import { MedicalActAttentionService } from './medical-act-attention.service';
 //Reports PDF
 import { PdfPayPatient } from './pdf/pdf-pay-patient';
+import { PdfDoctorProduction } from './pdf/pdf-doctor-production';
 //Excel4Node
 import * as xl from 'excel4node';
 
@@ -255,5 +256,15 @@ export class MedicalActAttentionController {
 
             response.end(buffer);
         });
+    }
+
+    @Post('/get-report-pdf-doctor-production')
+    async getReportPdfDoctorProduction(
+        @Body() filters: any
+    ): Promise<any>{
+        const pdf = new PdfDoctorProduction();
+        const data = await this._medicalActAttentionService.getDoctorProduction(filters);
+        return pdf.print(data,filters);
+        //return data;
     }
 }
