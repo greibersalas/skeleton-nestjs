@@ -265,6 +265,122 @@ export class MedicalActAttentionController {
         const pdf = new PdfDoctorProduction();
         const data = await this._medicalActAttentionService.getDoctorProduction(filters);
         return pdf.print(data,filters);
-        //return data;
+    }
+
+    @Post('/get-report-xlsx-doctor-production')
+    async getReportExcelDocotorProduction(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._medicalActAttentionService.getDoctorProduction(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Producción');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        const { since,until } = filters;
+        ws.cell(1,1,1,7,true)
+        .string(`Ingresos detallados del Dr(a) ${data[0].doctor} del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`)
+        .style(styleTitle);
+        ws.cell(2,1,2,4,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.cell(5,1)
+        .string("Fecha")
+        .style(style);
+        ws.cell(5,2)
+        .string("Sede")
+        .style(style);
+        ws.cell(5,3)
+        .string("Paciente")
+        .style(style);
+        ws.cell(5,4)
+        .string("%")
+        .style(style);
+        ws.cell(5,5)
+        .string("Bruto")
+        .style(style);
+        ws.cell(5,6)
+        .string("Moneda")
+        .style(style);
+        ws.cell(5,7)
+        .string("Honorario")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(15);
+        ws.column(3).setWidth(30);
+        ws.column(4).setWidth(10);
+        ws.column(5).setWidth(15);
+        ws.column(6).setWidth(10);
+        ws.column(7).setWidth(15);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                date,
+                patient,
+                porcentage,
+                price_sol,
+                price_usd
+            } = it;
+            let bruto = 0;
+            let coin = 'S/';
+            let neto = 0;
+            if(price_sol > 0){
+                bruto = price_sol.toFixed(2);
+                neto = (price_sol*(1-porcentage/100));
+            }else{
+                bruto = price_usd.toFixed(2);
+                coin = '$';
+                neto = Number((price_usd*(1-porcentage/100)));
+            }
+            ws.cell(y,1)
+            .string(`${date}`);
+            ws.cell(y,2)
+            .string(`Miraflores`);
+            ws.cell(y,3)
+            .string(`${patient}`);
+            ws.cell(y,4)
+            .string(`${porcentage}`);
+            ws.cell(y,5)
+            .string(`${bruto}`);
+            ws.cell(y,6)
+            .string(`${coin}`);
+            ws.cell(y,7)
+            .string(`${neto}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=ProduccionDocotor.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }

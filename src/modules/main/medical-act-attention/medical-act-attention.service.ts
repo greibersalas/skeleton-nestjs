@@ -262,7 +262,7 @@ export class MedicalActAttentionService {
         "maa"."userId",
         maa.date,
         "maa"."patientId",
-        "dc"."nameQuote",
+        "dc"."nameQuote" AS doctor,
         dc.type_payment,
         dc.porcentage,
         dc.payment,

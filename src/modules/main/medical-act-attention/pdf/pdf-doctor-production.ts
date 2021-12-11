@@ -21,7 +21,7 @@ export class PdfDoctorProduction{
         pdf.SetFont('Arial','B',10);
         pdf.SetY(y);
         pdf.SetX(10);
-        pdf.Cell(190,5,`Ingresos detallados del Dr(a) del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`,0,0,'C');
+        pdf.Cell(190,5,`Ingresos detallados del Dr(a) ${data[0].doctor} del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`,0,0,'C');
 
         pdf.SetFont('Arial','',7);
         pdf.SetY(267);
