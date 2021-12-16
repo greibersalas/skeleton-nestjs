@@ -154,4 +154,19 @@ export class ClinicHistoryController {
     ): Promise<any>{
         return this._clinicHistoryService.setPatientsNew(year,month);
     }
+
+    @Get('data-report/new-patients/')
+    async getDataNewPatients(): Promise<any>{
+        const since = moment().subtract(12,'month').format('YYYY-MM-DD');
+        const until = moment().format('YYYY-MM-DD');
+        return this._clinicHistoryService.getPatientsNew(since,until);
+    }
+
+    @Get('data-report/new-patients-month/:year/:month')
+    async getPatientNewMonth(
+        @Param('year',ParseIntPipe) year: number,
+        @Param('month',ParseIntPipe) month: number
+    ): Promise<any>{
+        return this._clinicHistoryService.getPatientsNewMonth(year,month);
+    }
 }

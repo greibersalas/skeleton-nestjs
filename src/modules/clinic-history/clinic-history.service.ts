@@ -217,4 +217,26 @@ export class ClinicHistoryService {
         .getRawOne();
         return cant;
     }
+
+    async getPatientsNew(since: string, until: string): Promise<any>{
+        return await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select(`count(*) AS cantidad,
+        to_char(date, 'YYYY-MM') AS mes`)
+        .where(`date BETWEEN :since and :until
+        and state = 1`,{since,until})
+        .groupBy(`to_char(date, 'YYYY-MM')`)
+        .orderBy(`to_char(date, 'YYYY-MM')`)
+        .getRawMany();
+    }
+
+    async getPatientsNewMonth(year: number, month: number): Promise<any>{
+        return await this._clinicHistoryRepository.createQueryBuilder('ch')
+        .select(`count(*) AS cantidad,
+        to_char(date, 'DD') AS dia`)
+        .where(`EXTRACT( month from date) = :month AND EXTRACT( year from date) = :year
+        and state = 1`,{month,year})
+        .groupBy(`to_char(date, 'DD')`)
+        .orderBy(`to_char(date, 'DD')`)
+        .getRawMany();
+    }
 }
