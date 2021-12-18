@@ -212,6 +212,13 @@ export class QuotationService {
         .where({quotation: qt.id, state: 1}).orderBy({description: 'ASC'}).getMany();
         qt.terms = terms;
 
+        // Buscamos si la cotización tiene odontograma
+        const odonto = await this._quotationRepository.createQueryBuilder('qt')
+        .select(`og.*`)
+        .innerJoin('odontograma','og','og.quotation = qt.id AND og.state = 1')
+        .where({id})
+        .getRawOne();
+        qt.odontograma = odonto;
         return qt;
     }
 }
