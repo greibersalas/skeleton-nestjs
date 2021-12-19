@@ -115,36 +115,358 @@ export class Pdf_oi{
 
         /** Odontograma */
         if(odontograma){
+
+            /** CUSTON */
+            const rx = 5;
+            const ry = 3;
+            const lx = (4/3)*(Math.sqrt(2)-1)*rx;
+            const ly = (4/3)*(Math.sqrt(2)-1)*ry;
+            pdf.SetY(y+80);
+            pdf.SetX(40);
+            const k = pdf.k;
+            const h = pdf.h;
+            const x2 = 15;
+            //pdf.Cell(5,5,`lx ${((h-((y+30)-ry))*k).toFixed(2)}`,0,0,'C',0);
+            // 1 ${((x2+rx)*k).toFixed(2)}
+            // 2 ${((h-(y+35))*k).toFixed(2)}
+            // 3 ${((x2+rx)*k).toFixed(2)} abre
+            // 4 ${((h-((y+65)-ly))*k).toFixed(2)}
+            // 5 ${((x2+lx)*k).toFixed(2)}
+            // 6 ${((h-(y-ry))*k).toFixed(2)}
+            // 7 ${(x2*k).toFixed(2)} abre 2
+            // 8 ${((h-((y+30)-ry))*k).toFixed(2)}
+            //pdf.SetXY(15,100);
+            //pdf._out(`${45} ${505} ${56} ${500} ${40} ${580} ${32} ${505} c`);
+            /** END CUSTOM */
             const { name } = odontograma;
             const odonto = JSON.parse(name);
 
-            pdf.Line(20,(y+125),190,(y+125));
-            pdf.Line(100,(y+100),100,(y+150));
+            // titulo del odontogram
+            pdf.SetTextColor(255,255,255);
+            pdf.SetY(y+85);
+            pdf.SetX(10);
+            pdf.Cell(190,5,`Odontograma`,1,0,'C',1);
+            // borde del odontogram
+            pdf.SetY(y+90);
+            pdf.SetX(10);
+            pdf.Cell(190,65,``,1);
+            // linea horizontal
+            pdf.Line(10,(y+122),200,(y+122));
+            // linea vertical
+            pdf.Line(102,(y+90),102,(y+155));
 
+            pdf.SetTextColor(0,0,0);
+            pdf.SetFillColor(244,244,244);
             /** teeth 1 and 2 */
             const teeth1 = odonto[0].teeth.reverse();
             let x = 15;
             pdf.SetFont('Arial','',8);
+            let bg = 0;
             teeth1.map( (tee: any) => {
-                pdf.SetY(y+90);
-                pdf.SetX(x);
+                // console.log({tee});
+                pdf.SetY(y+91);
+                pdf.SetX(x-2);
                 pdf.Cell(5,5,`1${tee.id}`,0,0,'C',0);
-                pdf.SetY(y+100);
-                pdf.SetX(x);
-                pdf.Cell(5,5,'',1,0,'C',1);
-                x+=10;
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x-4);
+                pdf.Cell(3,4,'',1,0,'C',bg);
+                // top
+                bg = 0;
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+96);
+                pdf.SetX(x-1);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x-1);
+                pdf.Cell(4,4,'',1,0,'C',1);
+                // right
+                bg = 0;
+                if(tee.r.state){
+                    switch(tee.r.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x+3);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // button
+                bg = 0;
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+103);
+                pdf.SetX(x-1);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             const teeth2 = odonto[1].teeth;
             x = 110;
             teeth2.map( (tee: any) => {
-                pdf.SetY(y+90);
-                pdf.SetX(x);
+                pdf.SetY(y+91);
+                pdf.SetX(x-1);
                 pdf.Cell(5,5,`2${tee.id}`,0,0,'C',0);
-                pdf.SetY(y+100);
-                pdf.SetX(x);
-                pdf.Cell(5,5,'',1,0,'C',1);
-                x+=10;
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x-4);
+                pdf.Cell(3,4,'',1,0,'C',bg);
+                // top
+                bg = 0;
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+96);
+                pdf.SetX(x-1);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x-1);
+                pdf.Cell(4,4,'',1,0,'C',1);
+                // right
+                bg = 0;
+                if(tee.r.state){
+                    switch(tee.r.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+99);
+                pdf.SetX(x+3);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // button
+                bg = 0;
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+103);
+                pdf.SetX(x-1);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             /** teeth 5 and 6 */
@@ -154,10 +476,152 @@ export class Pdf_oi{
                 pdf.SetY(y+110);
                 pdf.SetX(x);
                 pdf.Cell(3,3,`5${tee.id}`,0,0,'C',0);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+115);
+                pdf.SetX(x-2);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // top
+                bg = 0;
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+113);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
                 pdf.SetY(y+115);
                 pdf.SetX(x);
                 pdf.Cell(3,3,'',1,0,'C',1);
-                x+=10;
+                // right
+                bg = 0;
+                if(tee.r.state){
+                    switch(tee.r.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+115);
+                pdf.SetX(x+3);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // button
+                bg = 0;
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+118);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             const teeth6 = odonto[5].teeth;
@@ -166,62 +630,696 @@ export class Pdf_oi{
                 pdf.SetY(y+110);
                 pdf.SetX(x);
                 pdf.Cell(3,3,`6${tee.id}`,0,0,'C',0);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+115);
+                pdf.SetX(x-2);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // top
+                bg = 0;
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+113);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
                 pdf.SetY(y+115);
                 pdf.SetX(x);
                 pdf.Cell(3,3,'',1,0,'C',1);
-                x+=10;
+                // right
+                bg = 0;
+                if(tee.r.state){
+                    switch(tee.r.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+115);
+                pdf.SetX(x+3);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // button
+                bg = 0;
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+118);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             /** teeth 8 and 7 */
             const teeth8 = odonto[7].teeth.reverse();
             x = 46;
-            teeth5.map( (tee: any) => {
-                pdf.SetY(y+130);
+            teeth8.map( (tee: any) => {
+                pdf.SetY(y+125);
                 pdf.SetX(x);
                 pdf.Cell(3,3,`8${tee.id}`,0,0,'C',0);
-                pdf.SetY(y+135);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+130);
+                pdf.SetX(x-2);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // top
+                bg = 0;
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+128);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+130);
                 pdf.SetX(x);
                 pdf.Cell(3,3,'',1,0,'C',1);
-                x+=10;
+                // right
+                bg = 0;
+                if(tee.r.state){
+                    switch(tee.r.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+130);
+                pdf.SetX(x+3);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // button
+                bg = 0;
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+133);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             const teeth7 = odonto[6].teeth;
             x = 111;
             teeth7.map( (tee: any) => {
-                pdf.SetY(y+130);
+                pdf.SetY(y+125);
                 pdf.SetX(x);
                 pdf.Cell(3,3,`7${tee.id}`,0,0,'C',0);
-                pdf.SetY(y+135);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+130);
+                pdf.SetX(x-2);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // top
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+128);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+130);
                 pdf.SetX(x);
                 pdf.Cell(3,3,'',1,0,'C',1);
-                x+=10;
+                // right
+                pdf.SetY(y+130);
+                pdf.SetX(x+3);
+                pdf.Cell(2,3,'',1,0,'C',0);
+                // button
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+133);
+                pdf.SetX(x);
+                pdf.Cell(3,2,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             /** teeth 4 and 3 */
             const teeth4 = odonto[3].teeth.reverse();
-            x = 15;
+            x = 14;
             pdf.SetFont('Arial','',8);
             teeth4.map( (tee: any) => {
-                pdf.SetY(y+140);
+                pdf.SetY(y+137);
+                pdf.SetX(x-1);
+                pdf.Cell(5,5,`4${tee.id}`,0,0,'C',0);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+145);
+                pdf.SetX(x-3);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // top
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+142);
                 pdf.SetX(x);
-                pdf.Cell(5,5,`1${tee.id}`,0,0,'C',0);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
                 pdf.SetY(y+145);
                 pdf.SetX(x);
-                pdf.Cell(5,5,'',1,0,'C',1);
-                x+=10;
+                pdf.Cell(4,4,'',1,0,'C',1);
+                // right
+                pdf.SetY(y+145);
+                pdf.SetX(x+4);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // button
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+149);
+                pdf.SetX(x);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
 
             const teeth3 = odonto[2].teeth;
-            x = 110;
+            x = 109;
             teeth3.map( (tee: any) => {
-                pdf.SetY(y+140);
+                pdf.SetY(y+137);
+                pdf.SetX(x-1);
+                pdf.Cell(5,5,`3${tee.id}`,0,0,'C',0);
+
+                // left
+                bg = 0;
+                if(tee.l.state){
+                    switch(tee.l.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+145);
+                pdf.SetX(x-3);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // top
+                if(tee.t.state){
+                    switch(tee.t.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+142);
                 pdf.SetX(x);
-                pdf.Cell(5,5,`2${tee.id}`,0,0,'C',0);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+                // center
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                if(tee.c.state){
+                    switch(tee.c.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
                 pdf.SetY(y+145);
                 pdf.SetX(x);
-                pdf.Cell(5,5,'',1,0,'C',1);
-                x+=10;
+                pdf.Cell(4,4,'',1,0,'C',1);
+                // right
+                pdf.SetY(y+145);
+                pdf.SetX(x+4);
+                pdf.Cell(3,4,'',1,0,'C',0);
+                // button
+                if(tee.b.state){
+                    switch(tee.b.toothStatus){
+                        case 1:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
+                        case 2:
+                            pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 10:
+                            pdf.SetFillColor(255,255,162);// yellow
+                            bg = 1;
+                            break;
+                        case 15:
+                            pdf.SetFillColor(82,85,88);// yellow
+                            bg = 1;
+                            break;
+                        default:
+                            pdf.SetFillColor(244,244,244);
+                            bg = 0;
+                    }
+                }
+                pdf.SetY(y+149);
+                pdf.SetX(x);
+                pdf.Cell(4,3,'',1,0,'C',bg);
+
+                bg = 0;
+                pdf.SetFillColor(244,244,244);
+                x+=11;
             });
+
+            pdf.SetFillColor(200,200,200);
         }
         /** Fin odontograma */
         pdf.Line(130,250,180,250);
