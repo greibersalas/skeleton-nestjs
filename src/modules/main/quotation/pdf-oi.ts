@@ -180,6 +180,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// blue
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -206,6 +210,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -237,6 +245,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -265,6 +277,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -291,6 +307,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -334,6 +354,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -360,6 +384,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -391,6 +419,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -419,6 +451,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -445,6 +481,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -489,6 +529,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -515,6 +559,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -546,6 +594,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -574,6 +626,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -600,6 +656,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -643,6 +703,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -669,6 +733,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -700,6 +768,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -728,6 +800,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -754,6 +830,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -798,6 +878,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -824,6 +908,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -855,6 +943,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -883,6 +975,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -909,6 +1005,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -952,6 +1052,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -977,6 +1081,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -1008,6 +1116,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -1037,6 +1149,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -1082,6 +1198,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -1107,6 +1227,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -1138,6 +1262,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -1167,6 +1295,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -1210,6 +1342,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -1235,6 +1371,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:
@@ -1266,6 +1406,10 @@ export class Pdf_oi{
                             pdf.SetFillColor(0,123,255);// blue
                             bg = 1;
                             break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
+                            bg = 1;
+                            break;
                         case 10:
                             pdf.SetFillColor(255,255,162);// yellow
                             bg = 1;
@@ -1295,6 +1439,10 @@ export class Pdf_oi{
                             break;
                         case 2:
                             pdf.SetFillColor(0,123,255);// blue
+                            bg = 1;
+                            break;
+                        case 7:
+                            pdf.SetFillColor(220,53,69);// red
                             bg = 1;
                             break;
                         case 10:

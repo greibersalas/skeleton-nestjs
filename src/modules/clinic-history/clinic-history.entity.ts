@@ -83,6 +83,9 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'varchar', length: 60, nullable: true})
     birthPlace: string;
 
+    @Column({type: 'varchar', length: 80, nullable: true, default: null})
+    attorney: string;
+
     @Column({type: 'boolean', default: false})
     vip: boolean;
 
@@ -94,7 +97,7 @@ export class ClinicHistory extends BaseEntity{
     insuranceCarrier: InsuranceCarrier;
 
     @Column({type: 'int2', default: 1, nullable:false})
-    state: number;    
+    state: number;
 
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
