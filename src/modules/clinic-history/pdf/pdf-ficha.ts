@@ -70,7 +70,7 @@ export class Pdf_ficha{
 
         pdf.SetY(y+20);
         pdf.SetX(10);
-        pdf.Cell(40,5,`Apoderado`,0,0,'R');
+        pdf.Cell(82,5,`Apoderado ${patient.attorney}`,0,0,'R');
         pdf.Cell(100,5,`Parentesco ${patient.relationship}`,0,0,'R');
 
         pdf.SetY(y+25);

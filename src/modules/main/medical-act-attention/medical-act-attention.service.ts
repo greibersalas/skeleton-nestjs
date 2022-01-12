@@ -266,12 +266,18 @@ export class MedicalActAttentionService {
         dc.type_payment,
         dc.porcentage,
         dc.payment,
+        tr.id AS idtariff,
         tr.price_sol,
+        tr.cost,
         tr.price_usd,
-        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother","ch"."name") AS patient`)
+        tr.cost_usd,
+        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother","ch"."name") AS patient,
+        co.code as coin_code,
+        co.id as idcoin`)
         .innerJoin('maa.doctor','dc')
         .innerJoin('maa.tariff','tr')
         .innerJoin('maa.patient','ch')
+        .innerJoin('maa.co','co')
         .where(`maa.date BETWEEN :since AND :until
         AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`,{since,until,iddoctor})
         .orderBy(`maa.date`)

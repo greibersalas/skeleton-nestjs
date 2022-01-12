@@ -43,9 +43,11 @@ export class PdfDoctorProduction{
         pdf.Cell(15,5,`Sede`,1,0,'C',1);
         pdf.Cell(70,5,`Paciente`,1,0,'C',1);
         pdf.Cell(10,5,`%`,1,0,'C',1);
-        pdf.Cell(30,5,`Bruto`,1,0,'C',1);
+        pdf.Cell(15,5,`Unt.`,1,0,'C',1);
+        pdf.Cell(15,5,`Cant.`,1,0,'C',1);
+        pdf.Cell(15,5,`Bruto`,1,0,'C',1);
         pdf.Cell(10,5,`Mon`,1,0,'C',1);
-        pdf.Cell(30,5,`Neto`,1,0,'C',1);
+        pdf.Cell(15,5,`Neto`,1,0,'C',1);
 
         y = 15;
         let bg: boolean = false;
@@ -65,34 +67,41 @@ export class PdfDoctorProduction{
                 date,
                 patient,
                 porcentage,
-                price_sol,
-                price_usd
+                cost,
+                cost_usd,
+                quantity,
+                value,
+                coin_code,
+                idcoin
             } = it;
+            let unit_price = (value/1.18);
             let bruto = 0;
-            let coin = 'S/';
             let neto = 0;
-            if(price_sol > 0){
-                bruto = price_sol.toFixed(2);
-                neto = (price_sol*(1-porcentage/100));
-                total_bruto_sol += price_sol;
+            if(Number(idcoin) === 1){
+                unit_price = unit_price-cost;
+                bruto = unit_price*quantity;
+                neto = (bruto/Number(`1.${porcentage}`));
+                total_bruto_sol += bruto;
                 total_neto_sol += neto;
             }else{
-                bruto = price_usd.toFixed(2);
-                coin = '$';
-                neto = Number((price_usd*(1-porcentage/100)));
-                total_bruto_usd += price_usd;
+                unit_price = unit_price-cost_usd;
+                bruto = unit_price*quantity;
+                neto = (bruto/Number(`1.${porcentage}`));
+                total_bruto_usd += bruto;
                 total_neto_usd += neto;
             }
-            if(cont <= 40){
+            if(cont <= 20){
                 pdf.SetY(y);
                 pdf.SetX(10);
                 pdf.Cell(20,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
                 pdf.Cell(15,10,`Miraflores`,1,0,'C',bg);
                 pdf.Cell(70,10,`${patient}`,1,0,'C',bg);
                 pdf.Cell(10,10,`${porcentage}`,1,0,'C',bg);
-                pdf.Cell(30,10,`${bruto.toLocaleString()}`,1,0,'R',bg);
-                pdf.Cell(10,10,`${coin}`,1,0,'C',bg);
-                pdf.Cell(30,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${unit_price.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${quantity.toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${bruto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(10,10,`${coin_code}`,1,0,'C',bg);
+                pdf.Cell(15,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
             }else{
                 pdf.AddPage('P','A4');
                 y = 10;
@@ -111,9 +120,11 @@ export class PdfDoctorProduction{
                 pdf.Cell(15,5,`Sede`,1,0,'C',1);
                 pdf.Cell(70,5,`Paciente`,1,0,'C',1);
                 pdf.Cell(10,5,`%`,1,0,'C',1);
-                pdf.Cell(30,5,`Bruto`,1,0,'C',1);
+                pdf.Cell(20,5,`Unt.`,1,0,'C',1);
+                pdf.Cell(20,5,`Cant.`,1,0,'C',1);
+                pdf.Cell(20,5,`Bruto`,1,0,'C',1);
                 pdf.Cell(10,5,`Mon`,1,0,'C',1);
-                pdf.Cell(30,5,`Neto`,1,0,'C',1);
+                pdf.Cell(20,5,`Neto`,1,0,'C',1);
 
                 y = 35;
                 pdf.SetFont('Arial','',8);
@@ -126,7 +137,7 @@ export class PdfDoctorProduction{
                 pdf.Cell(70,10,`${patient}`,1,0,'C',bg);
                 pdf.Cell(10,10,`${porcentage}`,1,0,'C',bg);
                 pdf.Cell(30,10,`${bruto.toLocaleString()}`,1,0,'R',bg);
-                pdf.Cell(10,10,`${coin}`,1,0,'C',bg);
+                pdf.Cell(10,10,`${coin_code}`,1,0,'C',bg);
                 pdf.Cell(30,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
 
                 cont = 1;

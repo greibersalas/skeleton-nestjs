@@ -285,11 +285,21 @@ export class MedicalActAttentionController {
                 bold: true
             }
         });
+        const styleFooter = wb.createStyle({
+            alignment: {
+                horizontal: ['right'],
+                vertical: ['bottom']
+            },
+            font: {
+                size: 12,
+                bold: true
+            }
+        });
         const { since,until } = filters;
-        ws.cell(1,1,1,7,true)
+        ws.cell(1,1,1,9,true)
         .string(`Ingresos detallados del Dr(a) ${data[0].doctor} del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`)
         .style(styleTitle);
-        ws.cell(2,1,2,4,true)
+        ws.cell(2,1,2,9,true)
         .string(``);
 
         const style = wb.createStyle({
@@ -321,41 +331,65 @@ export class MedicalActAttentionController {
         .string("%")
         .style(style);
         ws.cell(5,5)
-        .string("Bruto")
+        .string("Unit.")
         .style(style);
         ws.cell(5,6)
-        .string("Moneda")
+        .string("Cant.")
         .style(style);
         ws.cell(5,7)
+        .string("Bruto")
+        .style(style);
+        ws.cell(5,8)
+        .string("Moneda")
+        .style(style);
+        ws.cell(5,9)
         .string("Honorario")
         .style(style);
         // size columns
         ws.column(1).setWidth(15);
         ws.column(2).setWidth(15);
         ws.column(3).setWidth(30);
-        ws.column(4).setWidth(10);
-        ws.column(5).setWidth(15);
+        ws.column(4).setWidth(8);
+        ws.column(5).setWidth(10);
         ws.column(6).setWidth(10);
-        ws.column(7).setWidth(15);
+        ws.column(7).setWidth(10);
+        ws.column(8).setWidth(8);
+        ws.column(9).setWidth(10);
         let y = 6;
+        const style_number = wb.createStyle({
+            numberFormat: '#,##0.00; (#,##0.00); -',
+        });
+        let total_bruto_sol = 0;
+        let total_bruto_usd = 0;
+        let total_neto_sol = 0;
+        let total_neto_usd = 0;
         data.map((it: any) => {
             const {
                 date,
                 patient,
                 porcentage,
-                price_sol,
-                price_usd
+                cost,
+                cost_usd,
+                quantity,
+                value,
+                coin_code,
+                idcoin
             } = it;
+            let unit_price = (value/1.18);
             let bruto = 0;
-            let coin = 'S/';
             let neto = 0;
-            if(price_sol > 0){
-                bruto = price_sol.toFixed(2);
-                neto = (price_sol*(1-porcentage/100));
+            if(Number(idcoin) === 1){
+                unit_price = unit_price-cost;
+                bruto = unit_price*quantity;
+                neto = (bruto/Number(`1.${porcentage}`));
+                total_bruto_sol += bruto;
+                total_neto_sol += neto;
             }else{
-                bruto = price_usd.toFixed(2);
-                coin = '$';
-                neto = Number((price_usd*(1-porcentage/100)));
+                unit_price = unit_price-cost_usd;
+                bruto = unit_price*quantity;
+                neto = (bruto/Number(`1.${porcentage}`));
+                total_bruto_usd += bruto;
+                total_neto_usd += neto;
             }
             ws.cell(y,1)
             .string(`${date}`);
@@ -364,15 +398,38 @@ export class MedicalActAttentionController {
             ws.cell(y,3)
             .string(`${patient}`);
             ws.cell(y,4)
-            .string(`${porcentage}`);
+            .number(porcentage);
             ws.cell(y,5)
-            .string(`${bruto}`);
+            .number(unit_price)
+            .style(style_number);
             ws.cell(y,6)
-            .string(`${coin}`);
+            .number(quantity);
             ws.cell(y,7)
-            .string(`${neto}`);
+            .number(bruto)
+            .style(style_number);
+            ws.cell(y,8)
+            .string(`${coin_code}`);
+            ws.cell(y,9)
+            .number(neto)
+            .style(style_number);
             y++;
         });
+        ws.cell(y,3,y,6,true)
+        .string(`Total Sol`).style(styleFooter);
+        ws.cell(y+1,3,y+1,6,true)
+        .string(`Total USD`).style(styleFooter);
+        ws.cell(y, 7)
+        .number(total_bruto_sol)
+        .style(style_number);
+        ws.cell(y, 9)
+        .number(total_neto_sol)
+        .style(style_number);
+        ws.cell(y+1, 7)
+        .number(total_bruto_usd)
+        .style(style_number);
+        ws.cell(y+1, 9)
+        .number(total_neto_usd)
+        .style(style_number);
         await wb.writeToBuffer().then(function (buffer: any) {
             response.set({
                 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
