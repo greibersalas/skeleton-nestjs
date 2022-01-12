@@ -32,7 +32,8 @@ export class ReservationService {
             dr.nameQuote as doctor,dr.id as iddoctor,
             pa.id as idpatient,ta.id as idtariff,
             concat(pa.name,' ',"pa"."lastNameFather") as patient,
-            dr2.nameQuote as doctor2, dr2.id as iddoctor2, re.state `)
+            dr2.nameQuote as doctor2, dr2.id as iddoctor2, re.state,
+            ta.description AS product`)
         .innerJoin("re.environment","ev")
         .innerJoin("re.doctor","dr")
         .innerJoin("re.patient","pa")
