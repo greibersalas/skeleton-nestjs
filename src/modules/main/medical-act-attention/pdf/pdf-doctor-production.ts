@@ -35,7 +35,7 @@ export class PdfDoctorProduction{
         pdf.Cell(190,5,`--- Pág. ${pdf.PageNo()}/${pages} ---`,0,0,'C');
 
         pdf.SetFont('Arial','B',8);
-        pdf.SetFillColor(200,200,200);
+        pdf.SetFillColor(6,16,80);
         pdf.SetTextColor(255,255,255);
         pdf.SetY(y+10);
         pdf.SetX(10);
@@ -48,6 +48,8 @@ export class PdfDoctorProduction{
         pdf.Cell(15,5,`Bruto`,1,0,'C',1);
         pdf.Cell(10,5,`Mon`,1,0,'C',1);
         pdf.Cell(15,5,`Neto`,1,0,'C',1);
+        pdf.SetFillColor(200,200,200);
+        pdf.SetTextColor(255,255,255);
 
         y = 15;
         let bg: boolean = false;
@@ -67,7 +69,9 @@ export class PdfDoctorProduction{
                 date,
                 patient,
                 porcentage,
+                price_sol,
                 cost,
+                price_usd,
                 cost_usd,
                 quantity,
                 value,
@@ -77,7 +81,8 @@ export class PdfDoctorProduction{
             let unit_price = (value/1.18);
             let bruto = 0;
             let neto = 0;
-            if(Number(idcoin) === 1){
+            let coin = 'S/';
+            if(price_usd > 0){
                 unit_price = unit_price-cost;
                 bruto = unit_price*quantity;
                 neto = (bruto/Number(`1.${porcentage}`));
@@ -89,8 +94,9 @@ export class PdfDoctorProduction{
                 neto = (bruto/Number(`1.${porcentage}`));
                 total_bruto_usd += bruto;
                 total_neto_usd += neto;
+                coin = '$';
             }
-            if(cont <= 20){
+            if(cont <= 24){
                 pdf.SetY(y);
                 pdf.SetX(10);
                 pdf.Cell(20,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
@@ -100,7 +106,7 @@ export class PdfDoctorProduction{
                 pdf.Cell(15,10,`${unit_price.toFixed(2).toLocaleString()}`,1,0,'R',bg);
                 pdf.Cell(15,10,`${quantity.toLocaleString()}`,1,0,'R',bg);
                 pdf.Cell(15,10,`${bruto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
-                pdf.Cell(10,10,`${coin_code}`,1,0,'C',bg);
+                pdf.Cell(10,10,`${coin}`,1,0,'C',bg);
                 pdf.Cell(15,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
             }else{
                 pdf.AddPage('P','A4');
@@ -109,24 +115,24 @@ export class PdfDoctorProduction{
                 pdf.SetFont('Arial','B',10);
                 pdf.SetY(y);
                 pdf.SetX(10);
-                pdf.Cell(190,5,`Ingresos detallados del Dr(a) del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`,0,0,'C');
+                pdf.Cell(190,5,`Ingresos detallados del Dr(a) ${data[0].doctor} del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`,0,0,'C');
 
                 pdf.SetFont('Arial','B',8);
                 pdf.SetFillColor(6,16,80);
                 pdf.SetTextColor(255,255,255);
-                pdf.SetY(y+20);
+                pdf.SetY(y+10);
                 pdf.SetX(10);
                 pdf.Cell(20,5,`Fecha`,1,0,'C',1);
                 pdf.Cell(15,5,`Sede`,1,0,'C',1);
                 pdf.Cell(70,5,`Paciente`,1,0,'C',1);
                 pdf.Cell(10,5,`%`,1,0,'C',1);
-                pdf.Cell(20,5,`Unt.`,1,0,'C',1);
-                pdf.Cell(20,5,`Cant.`,1,0,'C',1);
-                pdf.Cell(20,5,`Bruto`,1,0,'C',1);
+                pdf.Cell(15,5,`Unt.`,1,0,'C',1);
+                pdf.Cell(15,5,`Cant.`,1,0,'C',1);
+                pdf.Cell(15,5,`Bruto`,1,0,'C',1);
                 pdf.Cell(10,5,`Mon`,1,0,'C',1);
-                pdf.Cell(20,5,`Neto`,1,0,'C',1);
+                pdf.Cell(15,5,`Neto`,1,0,'C',1);
 
-                y = 35;
+                y = 25;
                 pdf.SetFont('Arial','',8);
                 pdf.SetTextColor(0,0,0);
                 pdf.SetFillColor(201,202,209);
@@ -136,9 +142,11 @@ export class PdfDoctorProduction{
                 pdf.Cell(15,10,`Miraflores`,1,0,'C',bg);
                 pdf.Cell(70,10,`${patient}`,1,0,'C',bg);
                 pdf.Cell(10,10,`${porcentage}`,1,0,'C',bg);
-                pdf.Cell(30,10,`${bruto.toLocaleString()}`,1,0,'R',bg);
-                pdf.Cell(10,10,`${coin_code}`,1,0,'C',bg);
-                pdf.Cell(30,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${unit_price.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${quantity.toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(15,10,`${bruto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
+                pdf.Cell(10,10,`${coin}`,1,0,'C',bg);
+                pdf.Cell(15,10,`${neto.toFixed(2).toLocaleString()}`,1,0,'R',bg);
 
                 cont = 1;
                 page ++;

@@ -368,7 +368,9 @@ export class MedicalActAttentionController {
                 date,
                 patient,
                 porcentage,
+                price_sol,
                 cost,
+                price_usd,
                 cost_usd,
                 quantity,
                 value,
@@ -378,7 +380,8 @@ export class MedicalActAttentionController {
             let unit_price = (value/1.18);
             let bruto = 0;
             let neto = 0;
-            if(Number(idcoin) === 1){
+            let coin = 'S/';
+            if(price_sol > 0){
                 unit_price = unit_price-cost;
                 bruto = unit_price*quantity;
                 neto = (bruto/Number(`1.${porcentage}`));
@@ -390,6 +393,7 @@ export class MedicalActAttentionController {
                 neto = (bruto/Number(`1.${porcentage}`));
                 total_bruto_usd += bruto;
                 total_neto_usd += neto;
+                coin = '$';
             }
             ws.cell(y,1)
             .string(`${date}`);
@@ -408,7 +412,7 @@ export class MedicalActAttentionController {
             .number(bruto)
             .style(style_number);
             ws.cell(y,8)
-            .string(`${coin_code}`);
+            .string(`${coin}`);
             ws.cell(y,9)
             .number(neto)
             .style(style_number);
