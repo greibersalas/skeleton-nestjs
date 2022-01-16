@@ -69,9 +69,9 @@ export class Pdf_ficha{
         pdf.Cell(40,5,`Fecha de Nacimiento: ${patient.birthdate ? moment(patient.birthdate).format("DD/MM/YYYY") : ''}`,0,0,'R');
 
         pdf.SetY(y+20);
-        pdf.SetX(10);
-        pdf.Cell(82,5,`Apoderado ${patient.attorney}`,0,0,'R');
-        pdf.Cell(100,5,`Parentesco ${patient.relationship}`,0,0,'R');
+        pdf.SetX(33);
+        pdf.Cell(82,5,`Apoderado ${patient.attorney}`,0,0,'L');
+        pdf.Cell(70,5,`Parentesco ${patient.relationship}`,0,0,'R');
 
         pdf.SetY(y+25);
         pdf.SetX(10);
