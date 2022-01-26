@@ -56,8 +56,17 @@ export class MedicalActAttention extends BaseEntity{
     @CreateDateColumn({type:'date',nullable: false})
     date: Date;
 
-    @Column({type: 'int2', default: 1, nullable:false})
+    @Column({type: 'int2', default: 1, nullable: false})
     state: number;
+
+    @Column({type: 'float', default: 0, nullable: false})
+    lab_cost: number;
+
+    @Column({type: 'float', default: 1, nullable: false})
+    idpaymentmethod: number;
+
+    @Column({type: 'int2', default: 0, nullable: false, comment: 'Comisión de las tarjetas'})
+    commission: number;
 
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;

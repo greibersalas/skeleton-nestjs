@@ -14,8 +14,7 @@ export class TasksService {
 
   @Interval(60000)
   async handleInterval() {
-    let now = moment().format("YYYY-MM-DD")
-    //verify two hours before appointment
+    let now = moment().format("YYYY-MM-DD");
     let reservation = await this._reservation.getByDateWithOutNotify(now)
     reservation.forEach(element => {
       let hour = element.appointment.split("-")[0]
@@ -54,6 +53,6 @@ export class TasksService {
             })
         })
       }
-    });
+    });  
   }
 }

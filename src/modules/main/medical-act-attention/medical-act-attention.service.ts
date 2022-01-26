@@ -64,6 +64,7 @@ export class MedicalActAttentionService {
         .innerJoinAndSelect("tr.specialty","sp")
         .innerJoinAndSelect("sp.businessLines","bl")
         .innerJoinAndSelect("mc.doctor",'dc')
+        .innerJoinAndSelect("mc.co",'co')
         .where("mc.state = 1 AND mc.medicalact = :id",{id})
         .getMany();
 
@@ -88,6 +89,7 @@ export class MedicalActAttentionService {
         .innerJoinAndSelect("tr.specialty","sp")
         .innerJoinAndSelect("sp.businessLines","bl")
         .innerJoinAndSelect("mc.doctor",'dc')
+        .innerJoinAndSelect("mc.co",'co')
         .where(`${where}`)
         .getMany();
 
@@ -252,7 +254,7 @@ export class MedicalActAttentionService {
     async getDoctorProduction(params: any): Promise<any>{
         const { since,until,iddoctor } = params;
         return await this._medicalActAttentionRepository.createQueryBuilder('maa')
-        .select(`maa.quantity,
+        .select(`maa.quantity,maa.id AS idattention,
         maa.value,
         "maa"."businesslineId",
         "maa"."specialtyId",
@@ -273,11 +275,15 @@ export class MedicalActAttentionService {
         tr.cost_usd,
         concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother","ch"."name") AS patient,
         co.code as coin_code,
-        co.id as idcoin`)
+        co.id as idcoin,
+        maa.lab_cost,
+        maa.commission,
+        pm.name AS paymentmethod`)
         .innerJoin('maa.doctor','dc')
         .innerJoin('maa.tariff','tr')
         .innerJoin('maa.patient','ch')
         .innerJoin('maa.co','co')
+        .innerJoin('payment_method','pm','pm.id = maa.idpaymentmethod')
         .where(`maa.date BETWEEN :since AND :until
         AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`,{since,until,iddoctor})
         .orderBy(`maa.date`)

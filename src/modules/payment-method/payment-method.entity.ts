@@ -20,4 +20,7 @@ export class PaymentMethod extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    @Column({type: 'float', nullable: false, default: 0})
+    commission: number;
 }
