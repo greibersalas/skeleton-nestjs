@@ -90,11 +90,11 @@ export class Pdf_oi{
         pdf.SetFont('Arial','',10);
         data.detail.forEach( (it: QuotationDetail) => {
             if(it.coin.id === 2){
-                pdf.SetY(y+40);
+                pdf.SetY(y+50);
                 pdf.SetX(10);
                 pdf.Cell(20,5,`${it.quantity} ${it.tariff.name}`,0,0,'L');
 
-                pdf.SetY(y+40);
+                pdf.SetY(y+50);
                 pdf.SetX(10);
                 pdf.Cell(190,5,`${it.coin.code} ${formatter.format(it.total)}`,0,0,'R');
                 total_usd += it.total
@@ -105,10 +105,10 @@ export class Pdf_oi{
         if(total_usd > 0){
             pdf.Line(10,(y+45),200,(y+45));
             pdf.SetFont('Arial','B',10);
-            pdf.SetY(y+45);
+            pdf.SetY(y+55);
             pdf.SetX(10);
             pdf.Cell(20,5,`PRESUPUESTO TOTAL $`,0,0,'L');
-            pdf.SetY(y+45);
+            pdf.SetY(y+55);
             pdf.SetX(10);
             pdf.Cell(190,5,`$ ${formatter.format(total_usd)}`,0,0,'R');
         }
