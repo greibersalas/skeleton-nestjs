@@ -278,11 +278,16 @@ export class MedicalActAttentionService {
         co.id as idcoin,
         maa.lab_cost,
         maa.commission,
-        pm.name AS paymentmethod`)
+        pm.name AS paymentmethod,
+        bl.name AS bl,
+        sp.name AS specialty,
+        tr.name AS treatment`)
         .innerJoin('maa.doctor','dc')
         .innerJoin('maa.tariff','tr')
         .innerJoin('maa.patient','ch')
         .innerJoin('maa.co','co')
+        .innerJoin('maa.businessline','bl')
+        .innerJoin('maa.specialty','sp')
         .innerJoin('payment_method','pm','pm.id = maa.idpaymentmethod')
         .where(`maa.date BETWEEN :since AND :until
         AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`,{since,until,iddoctor})

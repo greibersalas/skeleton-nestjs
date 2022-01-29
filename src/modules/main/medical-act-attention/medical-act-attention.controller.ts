@@ -296,10 +296,11 @@ export class MedicalActAttentionController {
             }
         });
         const { since,until } = filters;
-        ws.cell(1,1,1,12,true)
+        ws.row(5).freeze();
+        ws.cell(1,1,1,15,true)
         .string(`Ingresos detallados del Dr(a) ${data[0].doctor} del ${moment(since).format('DD/MM/YYYY')} al ${moment(until).format('DD/MM/YYYY')}`)
         .style(styleTitle);
-        ws.cell(2,1,2,12,true)
+        ws.cell(2,1,2,15,true)
         .string(``);
 
         const style = wb.createStyle({
@@ -318,6 +319,7 @@ export class MedicalActAttentionController {
                 bold: true
             }
         });
+        ws.row(5).filter();
         ws.cell(5,1)
         .string("Fecha")
         .style(style);
@@ -328,48 +330,67 @@ export class MedicalActAttentionController {
         .string("Paciente")
         .style(style);
         ws.cell(5,4)
-        .string("%")
+        .string("Linea de negocio")
         .style(style);
         ws.cell(5,5)
-        .string("Moneda")
+        .string("Especialidad")
         .style(style);
         ws.cell(5,6)
-        .string("Bruto")
+        .string("Tratamiento")
         .style(style);
         ws.cell(5,7)
-        .string("Laboratorio")
+        .string("%")
         .style(style);
         ws.cell(5,8)
-        .string("Tarjeta/Efectivo")
+        .string("Moneda")
         .style(style);
         ws.cell(5,9)
-        .string("IGV")
+        .string("Bruto")
         .style(style);
         ws.cell(5,10)
-        .string("Costos")
+        .string("Laboratorio")
         .style(style);
         ws.cell(5,11)
-        .string("Util. Bruta")
+        .string("Tarjeta/Efectivo")
         .style(style);
         ws.cell(5,12)
+        .string("IGV")
+        .style(style);
+        ws.cell(5,13)
+        .string("Costos")
+        .style(style);
+        ws.cell(5,14)
+        .string("Util. Bruta")
+        .style(style);
+        ws.cell(5,15)
         .string("Honorarios")
         .style(style);
         // size columns
         ws.column(1).setWidth(15);// A
-        ws.column(2).setWidth(15);// B
+        ws.column(2).setWidth(10);// B
         ws.column(3).setWidth(30);// C
-        ws.column(4).setWidth(8);// D
-        ws.column(5).setWidth(12);// E
-        ws.column(6).setWidth(12);// F
-        ws.column(7).setWidth(12);// G
-        ws.column(8).setWidth(15);// H
-        ws.column(9).setWidth(12);// I
-        ws.column(10).setWidth(12);// J
-        ws.column(11).setWidth(12);// K
-        ws.column(12).setWidth(12);// L
+        ws.column(4).setWidth(20);// C
+        ws.column(5).setWidth(20);// C
+        ws.column(6).setWidth(20);// C
+        ws.column(7).setWidth(8);// D
+        ws.column(8).setWidth(12);// E
+        ws.column(9).setWidth(12);// F
+        ws.column(10).setWidth(12);// G
+        ws.column(11).setWidth(15);// H
+        ws.column(12).setWidth(12);// I
+        ws.column(13).setWidth(12);// J
+        ws.column(14).setWidth(12);// K
+        ws.column(15).setWidth(12);// L
         let y = 6;
         const style_number = wb.createStyle({
             numberFormat: '#,##0.00; (#,##0.00); -',
+        });
+        const styleNumberBold = wb.createStyle({
+            numberFormat: '#,##0.00; (#,##0.00); -',
+            font: {
+                size: 12,
+                bold: true
+            }
         });
         let total_bruto_sol = 0;
         let total_bruto_usd = 0;
@@ -397,7 +418,10 @@ export class MedicalActAttentionController {
                 coin_code,
                 idcoin,
                 lab_cost,
-                commission
+                commission,
+                bl,
+                specialty,
+                treatment
             } = it;
             let bruto = 0;
             let coin = coin_code;
@@ -436,94 +460,100 @@ export class MedicalActAttentionController {
             ws.cell(y,3)// C
             .string(`${patient}`);
             ws.cell(y,4)// D
-            .number(porcentage);
+            .string(`${bl}`);
             ws.cell(y,5)// E
-            .string(coin);
+            .string(`${specialty}`);
             ws.cell(y,6)// F
+            .string(`${treatment}`);
+            ws.cell(y,7)// G
+            .number(porcentage);
+            ws.cell(y,8)// H
+            .string(coin);
+            ws.cell(y,9)// I
             .number(bruto)
             .style(style_number);
-            ws.cell(y,7)// G
+            ws.cell(y,10)// J
             .number(lab_cost)
             .style(style_number);
-            ws.cell(y,8)// H
-            .formula(`F${y}*(${commission}/100)`)
-            .style(style_number);
-            ws.cell(y,9)// I
-            .number(igv)
-            .style(style_number);
-            ws.cell(y,10)// J
-            .number(costo)
-            .style(style_number);
             ws.cell(y,11)// K
-            .formula(`F${y}-SUM(G${y}:J${y})`)
+            .formula(`I${y}*(${commission}/100)`)
             .style(style_number);
             ws.cell(y,12)// L
-            .formula(`K${y}*(D${y}/100)`)
+            .number(igv)
+            .style(style_number);
+            ws.cell(y,13)// M
+            .number(costo)
+            .style(style_number);
+            ws.cell(y,14)// N
+            .formula(`I${y}-SUM(J${y}:M${y})`)
+            .style(style_number);
+            ws.cell(y,15)// O
+            .formula(`N${y}*(G${y}/100)`)
             .style(style_number);
             y++;
         });
-        ws.cell(y,3,y,5,true)
+        ws.cell(y,3,y,8,true)
         .string(`Total Sol`).style(styleFooter);
-        ws.cell(y+1,3,y+1,5,true)
+        ws.cell(y+1,3,y+1,8,true)
         .string(`Total USD`).style(styleFooter);
 
         // TOTAL BRUTO
-        ws.cell(y, 6)
-        .number(total_bruto_sol)
-        .style(style_number);
-        // TOTAL LAB
-        ws.cell(y, 7)
-        .number(total_lab_sol)
-        .style(style_number);
-        // TOTAL COMISIÓN
-        ws.cell(y, 8)
-        .number(total_comision_sol)
-        .style(style_number);
-        // TOTAL IGV
         ws.cell(y, 9)
+        .number(total_bruto_sol)
+        .style(styleNumberBold);
+        // TOTAL LAB
+        ws.cell(y, 10)
+        .number(total_lab_sol)
+        .style(styleNumberBold);
+        // TOTAL COMISIÓN
+        ws.cell(y, 11)
+        .number(total_comision_sol)
+        .style(styleNumberBold);
+        // TOTAL IGV
+        ws.cell(y, 12)
         .number(total_igv_sol)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL COSTOS
-        ws.cell(y,10)
+        ws.cell(y,13)
         .number(total_costos_sol)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL UTILIDAD
-        ws.cell(y,11)
+        ws.cell(y,14)
         .number(total_utilidad_sol)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL HONORARIOS
-        ws.cell(y,12)
+        ws.cell(y,15)
         .number(total_honorario_sol)
-        .style(style_number);
+        .style(styleNumberBold);
 
         // TOTAL BRUTO USD
-        ws.cell(y+1, 6)
-        .number(total_bruto_usd)
-        .style(style_number);
-        // TOTAL LAB USD
-        ws.cell(y+1, 7)
-        .number(total_lab_usd)
-        .style(style_number);
-        // TOTAL COMISIÓN USD
-        ws.cell(y+1, 8)
-        .number(total_comision_usd)
-        .style(style_number);
-        // TOTAL IGV USD
         ws.cell(y+1, 9)
+        .number(total_bruto_usd)
+        .style(styleNumberBold);
+        // TOTAL LAB USD
+        ws.cell(y+1, 10)
+        .number(total_lab_usd)
+        .style(styleNumberBold);
+        // TOTAL COMISIÓN USD
+        ws.cell(y+1, 11)
+        .number(total_comision_usd)
+        .style(styleNumberBold);
+        // TOTAL IGV USD
+        ws.cell(y+1, 12)
         .number(total_igv_usd)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL COSTOS USD
-        ws.cell(y+1,10)
+        ws.cell(y+1,13)
         .number(total_costos_usd)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL UTILIDAD USD
-        ws.cell(y+1,11)
+        ws.cell(y+1,14)
         .number(total_utilidad_usd)
-        .style(style_number);
+        .style(styleNumberBold);
         // TOTAL HONORARIOS USD
-        ws.cell(y+1,12)
+        ws.cell(y+1,15)
         .number(total_honorario_usd)
-        .style(style_number);
+        .style(styleNumberBold);
 
         await wb.writeToBuffer().then(function (buffer: any) {
             response.set({
