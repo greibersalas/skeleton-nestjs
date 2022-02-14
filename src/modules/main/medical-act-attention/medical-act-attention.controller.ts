@@ -369,18 +369,18 @@ export class MedicalActAttentionController {
         ws.column(1).setWidth(15);// A
         ws.column(2).setWidth(10);// B
         ws.column(3).setWidth(30);// C
-        ws.column(4).setWidth(20);// C
-        ws.column(5).setWidth(20);// C
-        ws.column(6).setWidth(20);// C
-        ws.column(7).setWidth(8);// D
-        ws.column(8).setWidth(12);// E
-        ws.column(9).setWidth(12);// F
-        ws.column(10).setWidth(12);// G
-        ws.column(11).setWidth(15);// H
-        ws.column(12).setWidth(12);// I
-        ws.column(13).setWidth(12);// J
-        ws.column(14).setWidth(12);// K
-        ws.column(15).setWidth(12);// L
+        ws.column(4).setWidth(20);// D
+        ws.column(5).setWidth(20);// E
+        ws.column(6).setWidth(20);// F
+        ws.column(7).setWidth(8);// G
+        ws.column(8).setWidth(12);// H
+        ws.column(9).setWidth(12);// I
+        ws.column(10).setWidth(12);// J
+        ws.column(11).setWidth(15);// K
+        ws.column(12).setWidth(12);// L
+        ws.column(13).setWidth(12);// M
+        ws.column(14).setWidth(12);// N
+        ws.column(15).setWidth(12);// O
         let y = 6;
         const style_number = wb.createStyle({
             numberFormat: '#,##0.00; (#,##0.00); -',
@@ -433,7 +433,7 @@ export class MedicalActAttentionController {
                 igv = bruto - (bruto/1.18);
                 total_bruto_sol += bruto;
                 total_comision_sol += (bruto * (commission / 100));
-                costo = cost;
+                costo = cost*quantity;
                 total_lab_sol += lab_cost;
                 total_igv_sol += igv;
                 total_costos_sol += cost;
@@ -445,7 +445,7 @@ export class MedicalActAttentionController {
                 igv = bruto - (bruto/1.18);
                 total_bruto_usd += bruto;
                 total_comision_usd += (bruto * (commission / 100));
-                costo = cost_usd;
+                costo = cost_usd*quantity;
                 total_lab_usd += lab_cost;
                 total_igv_usd += igv;
                 total_costos_usd += cost_usd;

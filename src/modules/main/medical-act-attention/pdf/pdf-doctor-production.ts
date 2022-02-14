@@ -104,7 +104,7 @@ export class PdfDoctorProduction{
                 total_bruto_sol += bruto;
                 comision = (bruto * (commission / 100));
                 total_comision_sol += comision;
-                costo = cost;
+                costo = cost*quantity;
                 total_lab_sol += lab_cost;
                 total_igv_sol += igv;
                 total_costos_sol += cost;
@@ -118,7 +118,7 @@ export class PdfDoctorProduction{
                 total_bruto_usd += bruto;
                 comision = (bruto * (commission / 100));
                 total_comision_usd += comision;
-                costo = cost_usd;
+                costo = cost_usd*quantity;
                 total_lab_usd += lab_cost;
                 total_igv_usd += igv;
                 total_costos_usd += cost_usd;
