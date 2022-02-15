@@ -45,7 +45,8 @@ export class QuotationService {
             },
             order: {
                 id: 'DESC'
-            }
+            },
+            take: 500
         });
         await Promise.all(quotation.map(async (it: any) => {
             let detail = await this._quotationDetailRepository.createQueryBuilder('dt')

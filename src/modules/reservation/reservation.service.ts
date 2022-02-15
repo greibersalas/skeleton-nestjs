@@ -181,6 +181,18 @@ export class ReservationService {
         return data;
     }
 
+    async getById(id: number): Promise<any[]>{
+        const data: any = await this._reservationRepository
+        .createQueryBuilder("re")
+        .innerJoinAndSelect("re.doctor","doc")
+        .innerJoinAndSelect("re.environment","ev")
+        .leftJoinAndSelect("re.tariff","tf")
+        .innerJoinAndSelect("re.patient","ch",)
+        .where("re.state <> 0 AND re.id = :id",{id}).orderBy({"re.date":"DESC"})
+        .getOne();
+        return data;
+    }
+
     async confirm(id: number, state: number): Promise<any>{
         const confirm = await this._reservationRepository.update({id},{state});
         //enviamos el correo de notificación al cliente

@@ -418,6 +418,11 @@ export class ReservationController {
         return await this._reservationService.getByClinicHistory(id);
     }
 
+    @Get('get-by-id/:id')
+    async getById(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
+        return await this._reservationService.getById(id);
+    }
+
     @Get('confirm/:id/:state')
     async confirm(
         @Param('id', ParseIntPipe) id: number,
