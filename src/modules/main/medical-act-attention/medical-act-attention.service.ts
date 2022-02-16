@@ -289,7 +289,7 @@ export class MedicalActAttentionService {
         .innerJoin('maa.businessline','bl')
         .innerJoin('maa.specialty','sp')
         .innerJoin('payment_method','pm','pm.id = maa.idpaymentmethod')
-        .where(`maa.date BETWEEN :since AND :until
+        .where(`maa.date::DATE BETWEEN :since AND :until
         AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`,{since,until,iddoctor})
         .orderBy(`maa.date`)
         .getRawMany();
