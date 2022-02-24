@@ -450,9 +450,25 @@ export class ReservationService {
         .select(`ch.history,
         concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
         re.date,
-        re.appointment AS horario`)
+        re.appointment AS horario,
+        re.reason,
+        ed.name AS environment,
+        "do"."nameQuote" AS doctor,
+        re.state,
+        --au.username,
+        --au.datetime AS date_au,
+        --re.updated_at,
+        --re.id AS idreservation,
+        (SELECT
+            CONCAT_WS(' ','Usuario:',us.username,'Fecha:',to_char(au.datetime,'DD/MM/YYYY HH:MM'))
+            FROM audit au
+            JOIN users us On us.id = au.iduser
+            WHERE au.title = 'Reservation' AND au.state = 1 AND au.idregister = re.id
+            ORDER BY au.idaudit DESC LIMIT 1) AS auditoria`)
         .leftJoin('clinic_history','ch',`ch.id = re.patient_id`)
-        .where(`re.date BETWEEN :since AND :until AND re.state = 3`,{since:filters.since,until:filters.until})
+        .innerJoin('environment_doctor','ed',`ed.id = re.environment_id`)
+        .innerJoin('doctor','do',`do.id = re.doctor_id`)
+        .where(`re.date BETWEEN :since AND :until`,{since:filters.since,until:filters.until})
         .orderBy(`re.date,ch.name,re.appointment`)
         .getRawMany();
     }

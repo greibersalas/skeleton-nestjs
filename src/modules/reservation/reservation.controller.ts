@@ -555,7 +555,7 @@ export class ReservationController {
     ): Promise<any>{
         const data = await this._reservationService.getDatesPatient(filters);
         const wb = new xl.Workbook();
-        const ws = wb.addWorksheet('Citas por paciente asistido');
+        const ws = wb.addWorksheet('Lista de citas'); // Citas por paciente asistido
         const styleTitle = wb.createStyle({
             alignment: {
                 horizontal: ['center'],
@@ -566,15 +566,15 @@ export class ReservationController {
                 bold: true
             }
         });
-        ws.cell(1,1,1,4,true)
-        .string(`Reporte Citas por paciente asistido`)
+        ws.cell(1,1,1,9,true)
+        .string(`Reporte Citas`) //  por paciente asistido
         .style(styleTitle);
 
-        ws.cell(2,1,2,4,true)
+        ws.cell(2,1,2,9,true)
         .string(``);
-        ws.cell(3,1,3,4,true)
+        ws.cell(3,1,3,9,true)
         .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
-        ws.cell(4,1,4,4,true)
+        ws.cell(4,1,4,8,true)
         .string(``);
 
         const style = wb.createStyle({
@@ -593,6 +593,7 @@ export class ReservationController {
                 bold: true
             }
         });
+        ws.row(5).filter();
         ws.cell(5,1)
         .string("Nro. Historia")
         .style(style);
@@ -605,19 +606,63 @@ export class ReservationController {
         ws.cell(5,4)
         .string("Horario")
         .style(style);
+        ws.cell(5,5)
+        .string("Consultario")
+        .style(style);
+        ws.cell(5,6)
+        .string("Doctor(a)")
+        .style(style);
+        ws.cell(5,7)
+        .string("Motivo")
+        .style(style);
+        ws.cell(5,8)
+        .string("Estado")
+        .style(style);
+        ws.cell(5,9)
+        .string("Auditoria")
+        .style(style);
         // size columns
         ws.column(1).setWidth(15);
         ws.column(2).setWidth(35);
         ws.column(3).setWidth(15);
-        ws.column(4).setWidth(15);
+        ws.column(4).setWidth(18);
+        ws.column(5).setWidth(15);
+        ws.column(6).setWidth(25);
+        ws.column(7).setWidth(25);
+        ws.column(8).setWidth(15);
+        ws.column(9).setWidth(30);
         let y = 6;
         data.map((it: any) => {
             const {
                 history,
                 paciente,
                 date,
-                horario
+                horario,
+                environment,
+                doctor,
+                reason,
+                state,
+                auditoria
             } = it;
+            // String state
+            let lblSatte: string;
+            switch (state) {
+                case 0:
+                    lblSatte = 'Cancelada';
+                    break;
+                case 1:
+                    lblSatte = 'Por confirmar';
+                    break;
+                case 2:
+                    lblSatte = 'Confirmada';
+                    break;
+                case 3:
+                    lblSatte = 'Atendido';
+                    break;
+                default:
+                    lblSatte = '';
+                    break;
+            }
             ws.cell(y,1)
             .string(`${history}`);
             ws.cell(y,2)
@@ -626,6 +671,16 @@ export class ReservationController {
             .string(`${moment(date).format('DD-MM-YYYY')}`);
             ws.cell(y,4)
             .string(`${horario}`);
+            ws.cell(y,5)
+            .string(`${environment}`);
+            ws.cell(y,6)
+            .string(`${doctor}`);
+            ws.cell(y,7)
+            .string(`${reason}`);
+            ws.cell(y,8)
+            .string(`${lblSatte}`);
+            ws.cell(y,9)
+            .string(`${auditoria}`);
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
