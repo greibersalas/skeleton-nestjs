@@ -51,4 +51,7 @@ export class Tariff extends BaseEntity{
 
     @UpdateDateColumn({type:'timestamp',name:'updated_at'})
     updatedAt: Date;
+
+    @Column({type: 'int2', default: null, nullable: true})
+    idkeyfacil: number;
 }

@@ -99,6 +99,12 @@ export class ClinicHistory extends BaseEntity{
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
 
+    @Column({type: 'varchar', default: null, nullable: true})
+    invoise_type_document: string;
+
+    @Column({type: 'varchar', default: null, nullable: true})
+    invoise_num_document: string;
+
     @CreateDateColumn({type:'timestamp',name:'created_at'})
     createdAt: Date;
 

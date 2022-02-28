@@ -35,7 +35,7 @@ export class ClinicHistoryService {
         return saveClinicHistory;
     }
 
-    async update(id: number, clinicHistory:ClinicHistory): Promise<ClinicHistory>{
+    async update(id: number, clinicHistory: ClinicHistory): Promise<ClinicHistory>{
         const clinicHistoryExists = await this._clinicHistoryRepository.findOne(id);
         if(!clinicHistoryExists){
             throw new NotFoundException();

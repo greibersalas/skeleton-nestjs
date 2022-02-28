@@ -22,14 +22,14 @@ export class TariffHistory extends BaseEntity{
 
     /* @ManyToOne(() => Tariff, tariff => tariff.tariffHistory)
     tariff: Tariff; */
-    @ManyToOne(type => Tariff, tariff => tariff.id,{cascade:true, nullable:false, eager:false})
-    @JoinColumn({name:'idtariff'})
+    @ManyToOne(type => Tariff, tariff => tariff.id, {cascade:true, nullable: false, eager: false})
+    @JoinColumn({name: 'idtariff'})
     tariff: Tariff;
 
-    @Column({type: 'int2', default: 1, nullable:false})
+    @Column({type: 'int2', default: 1, nullable: false})
     state: number;
 
-    @CreateDateColumn({type:'timestamp',name:'created_at'})
+    @CreateDateColumn({type: 'timestamp', name: 'created_at'})
     createdAt: Date;
 
 }

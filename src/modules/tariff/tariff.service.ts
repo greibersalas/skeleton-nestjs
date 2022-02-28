@@ -20,7 +20,7 @@ export class TariffService {
             throw new BadRequestException('id must be send.');
         }
 
-        const tariff = await this._tariffRepository.findOne(id,{where:{state:1}});
+        const tariff = await this._tariffRepository.findOne(id,{where: {state: 1}});
         if(!tariff){
             throw new NotFoundException();
         }
@@ -29,7 +29,7 @@ export class TariffService {
     }
 
     async getAll(): Promise<Tariff[]>{
-        const tariff: Tariff[] = await this._tariffRepository.find({where:{state:1}});
+        const tariff: Tariff[] = await this._tariffRepository.find({where: {state: 1}});
         return tariff;
     }
 
@@ -61,6 +61,7 @@ export class TariffService {
         tariffExists.bracket = tariff.bracket;
         tariffExists.cost = tariff.cost;
         tariffExists.cost_usd = tariff.cost_usd;
+        tariffExists.idkeyfacil = tariff.idkeyfacil;
         await this._tariffRepository.update(id,tariffExists);
         const updateTariff : Tariff = await this._tariffRepository.findOne(id);
         return updateTariff;
