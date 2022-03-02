@@ -15,10 +15,11 @@ export const databaseProviders = [
                 host: config.get(Configuration.HOST),
                 username: config.get(Configuration.USER),                
                 password: config.get(Configuration.PASSWORD),
-                port : 5444,
+                port : 5432,
                 database: config.get(Configuration.DATABASE),
                 entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-                migrations: [__dirname + '/migrations/*.{.ts,.js}']
+                migrations: [__dirname + '/migrations/*.{.ts,.js}'],
+                //logging: true
             } as ConnectionOptions
         }
     })

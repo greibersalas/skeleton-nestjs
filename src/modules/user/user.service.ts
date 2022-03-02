@@ -1,52 +1,56 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
-import { MapperService } from '../../shared/mapper.service';
-import { Role } from '../role/role.entity';
-import { UserDto } from './dto/user.dto';
-import { UserDetails } from './user.details.entity';
+
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-    constructor(@InjectRepository(UserRepository) private readonly _userRepository:UserRepository,
-    private readonly _mapperService:MapperService){
-        
+    constructor(@InjectRepository(UserRepository) private readonly _userRepository:UserRepository){
+
     }
 
-    async get(id: number): Promise<UserDto>{
+    async get(id: number): Promise<User>{
         if(!id){
             throw new BadRequestException('id must be send');
         }
-
-        const user = await this._userRepository.findOne(id,{where:{estado:1}});
-
+        //const user = await this._userRepository.findOne(id,{where:{estado:1}});
+        const user = await this._userRepository.createQueryBuilder("us")
+        .innerJoinAndSelect("us.roles","rl")
+        .leftJoinAndSelect("us.doctor","dc")
+        .where("us.id = :id AND us.estado <> 0",{id}).getOne();
         if(!user){
             throw new NotFoundException();
         }
-
-        return this._mapperService.map<User, UserDto>(user, new UserDto());
+        user.password = '****';
+        return user;
     }
 
-    async getAll(): Promise<UserDto[]>{        
-        const users: User[] = await this._userRepository.find({where:{estado:1}});
-        return this._mapperService.mapCollection<User, UserDto>(users, new UserDto());
+    async getAll(): Promise<User[]>{
+        const users: User[] = await this._userRepository.createQueryBuilder('us')
+        .innerJoinAndSelect('us.roles','ro')
+        .where('us.estado <> 0')
+        .getMany();
+
+        return users;
     }
 
-    async create(user: User): Promise<UserDto>{
-        const details = new UserDetails;
-        user.details = details;
-
-        const repo = await getConnection().getRepository(Role);
-        const defaultRole: Role = await repo.findOne({where:{idrole:1}});
-        user.roles = defaultRole;
+    async create(user: User): Promise<User>{
         const saveUser: User = await this._userRepository.save(user);
-        return this._mapperService.map<User, UserDto>(saveUser, new UserDto());
+        return saveUser;
     }
 
-    async update(id: number, user: User): Promise<void>{
-        await this._userRepository.update(id,user);
+    async update(id: number, user: User): Promise<any>{
+        //const update = await this._userRepository.update(id,user);
+        const update = await this._userRepository.createQueryBuilder()
+        .update(User).set({
+            username: user.username,
+            email: user.email,
+            roles: user.roles,
+            doctor: user.doctor,
+            campus: user.campus
+        }).where({id}).execute();
+        return update;
     }
 
     async delete(id: number): Promise<void>{
@@ -57,5 +61,15 @@ export class UserService {
         }
 
         await this._userRepository.update(id,{estado:0});
+    }
+
+    async changeState(id: number,state: number): Promise<any>{
+        const userExists = await this._userRepository.findOne(id);
+
+        if(!userExists){
+            throw new NotFoundException();
+        }
+
+        return await this._userRepository.update(id,{estado: state});
     }
 }
