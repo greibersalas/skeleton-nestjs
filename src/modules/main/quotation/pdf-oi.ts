@@ -103,7 +103,7 @@ export class Pdf_oi{
         });
 
         if(total_usd > 0){
-            pdf.Line(10,(y+45),200,(y+45));
+            pdf.Line(10,(y+55),200,(y+55));
             pdf.SetFont('Arial','B',10);
             pdf.SetY(y+55);
             pdf.SetX(10);
