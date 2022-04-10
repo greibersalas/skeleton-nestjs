@@ -62,14 +62,29 @@ export class EnvironmentDoctorService {
     }
 
     async create(ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
-        const saveEd: EnvironmentDoctor = await this._environmentDoctorRepository.save(ed);
-        return saveEd;
+        if( ed.lunch_since === ''){
+            ed.lunch_since = null;
+            ed.lunch_until = null;
+        }
+        if( ed.schedule_afternoon_since === ''){
+            ed.schedule_afternoon_since = null;
+            ed.schedule_afternoon_until = null;
+        }
+        return await this._environmentDoctorRepository.save(ed);
     }
 
     async update(id: number, ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
         const edExists = await this._environmentDoctorRepository.findOne(id);
         if(!edExists){
             throw new NotFoundException();
+        }
+        if( ed.lunch_since === ''){
+            ed.lunch_since = null;
+            ed.lunch_until = null;
+        }
+        if( ed.schedule_afternoon_since === ''){
+            ed.schedule_afternoon_since = null;
+            ed.schedule_afternoon_until = null;
         }
         await this._environmentDoctorRepository.update(id,ed);
         const updateEd : EnvironmentDoctor = await this._environmentDoctorRepository.findOne(id);
