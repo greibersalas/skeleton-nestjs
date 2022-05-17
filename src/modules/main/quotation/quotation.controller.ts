@@ -36,6 +36,11 @@ export class QuotationController {
         return quotation;
     }
 
+    @Post("/get/filters/")
+    async getFilters(@Body() data: any): Promise<any>{
+        return await this._quotationService.getFilters(data);;
+    }
+
     @Get('/reserve/:id')
     async reserveQuotationDetail(@Param('id',ParseIntPipe) id: number, @Body() quotation: QuotationDetail){
         const update = await this._quotationService.reserveDetail(id);

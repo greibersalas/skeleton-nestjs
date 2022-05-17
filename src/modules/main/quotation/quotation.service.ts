@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Between } from 'typeorm';
 import { Odontograma } from '../odontograma/odontograma.entity';
 
 import { OdontogramaRepository } from '../odontograma/odontograma.repository';
@@ -58,6 +59,34 @@ export class QuotationService {
             .getRawMany();
             it.detail = detail;
         }));
+        return quotation;
+    }
+
+    async getFilters(filters: any): Promise<any[]>{
+        const { since, until, patients } = filters;
+        let where = 'qt.date between :since and :until and qt.state <> 0';
+        if ((patients.length === 1 && patients[0] !== '0') || patients.length > 1){
+            where += ' and qt.idclinichistory IN(:...patients)';
+        }
+        const quotation = await this._quotationRepository.createQueryBuilder('qt')
+        .select(`qt.id,
+        qt.date,
+        qt.state,
+        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
+        ch.email,
+        ch.birthdate,
+        "dc"."nameQuote" AS doctor,
+        bl.name AS businessLine,
+        sp.name AS specialty,
+        sp.format`)
+        .innerJoin('clinic_history','ch','ch.id = qt.idclinichistory')
+        .innerJoin('doctor','dc','dc.id = qt.iddoctor')
+        .innerJoin('business_line','bl','bl.id = qt.idbusinessline')
+        .innerJoin('specialty','sp','sp.id = qt.specialty')
+        .where(`${where}`,{since, until, patients})
+        .orderBy('qt.id','DESC')
+        .getRawMany();
+        
         return quotation;
     }
 

@@ -22,31 +22,34 @@ export class Pdf_of{
 
         //Titulo
         pdf.SetFont('Arial','B',12);
-        pdf.SetY(y+20);
+        pdf.SetY(y+15);
         pdf.SetX(10);
         pdf.Cell(200,5,`PRESUPUESTO ODONTOLOGÍCO ${data.id}`,0,0,'C');
 
         //Datos del paciente
         pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+30);
+        pdf.SetY(y+25);
         pdf.SetX(10);
         pdf.Cell(20,5,`PACIENTE:`,0,0,'L');
         pdf.SetFont('Arial','',10);
-        pdf.SetY(y+30);
+        pdf.SetY(y+25);
         pdf.SetX(30);
         pdf.Cell(100,5,`${data.clinicHistory.name} ${data.clinicHistory.lastNameFather} ${data.clinicHistory.lastNameMother}`,0,0,'L');
-        pdf.SetY(y+30);
+        pdf.SetY(y+25);
         pdf.SetX(10);
         pdf.Cell(190,5,`${moment().tz('America/Lima').diff(data.clinicHistory.birthdate,'years')} años`,0,0,'R');
 
         //Linea
-        pdf.Line(10,(y+35),200,(y+35));
+        pdf.Line(10,(y+30),200,(y+30));
 
         //Valores
         pdf.SetFont('Arial','B',10);
-        pdf.SetY(y+40);
+        pdf.SetY(y+30);
         pdf.SetX(10);
         pdf.Cell(20,5,`TRATAMIENTO DE ORTOPEDIA FUNCIONAL DE MAXILARES`,0,0,'L');
+        pdf.SetY(y+40);
+        pdf.SetX(10);
+        pdf.Cell(20,5,`${data.detail[0].tariff.name}`,0,0,'L');
         pdf.SetY(y+40);
         pdf.SetX(10);
         var formatter = new Intl.NumberFormat('en-US',{ minimumFractionDigits: 2 });
