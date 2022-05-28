@@ -88,6 +88,9 @@ export class Anamnesis extends BaseEntity{
     @Column({type: 'date', default: null})
     last_date: string;
 
+    @Column({type: 'text', default: null})
+    observation: string;
+
     @ManyToOne(type => User, us => us.id,{cascade:true, nullable:false, eager:true})
     @JoinColumn()
     user: User;

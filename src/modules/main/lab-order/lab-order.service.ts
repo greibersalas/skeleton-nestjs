@@ -87,140 +87,53 @@ export class LabOrderService {
     }
 
     async getProduction(filters: any): Promise<any>{
-        if(filters.option === 'i'){
-            if(filters.state === '0'){
-                const production = await this._labOrderRepository.createQueryBuilder()
-                .select(`job,
-                    CASE
-                        WHEN job = 'Nuevo' THEN COUNT(job)
-                        WHEN job = 'Nuevo Adicional' THEN count(job)
-                        WHEN job = 'Colocar Chip' then count(job)
-                        WHEN job = 'Modificación' THEN COUNT(job)
-                        WHEN job = 'Reparación' THEN count(job)
-                        WHEN job = 'Desiste' then count(job)
-                    ELSE 0 END as total`)
-                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0`,{
-                    since: filters.since,until: filters.until
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
-                return production;
-            }else{
-                const production = await this._labOrderRepository.createQueryBuilder()
-                .select(`job,
-                    CASE
-                        WHEN job = 'Nuevo' THEN COUNT(job)
-                        WHEN job = 'Nuevo Adicional' THEN count(job)
-                        WHEN job = 'Colocar Chip' then count(job)
-                        WHEN job = 'Modificación' THEN COUNT(job)
-                        WHEN job = 'Reparación' THEN count(job)
-                        WHEN job = 'Desiste' then count(job)
-                    ELSE 0 END as total`)
-                .where(`instalation::DATE BETWEEN :since AND :until AND state <> 0
-                AND job = :job`,{
-                    since: filters.since,until: filters.until, job: filters.state
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
-                return production;
-            }
-        }else if(filters.option === 'e'){
-            if(filters.state === '0'){
-                const production = await this._labOrderRepository.createQueryBuilder()
-                .select(`job,
-                    CASE
-                        WHEN job = 'Nuevo' THEN COUNT(job)
-                        WHEN job = 'Nuevo Adicional' THEN count(job)
-                        WHEN job = 'Colocar Chip' then count(job)
-                        WHEN job = 'Modificación' THEN COUNT(job)
-                        WHEN job = 'Reparación' THEN count(job)
-                        WHEN job = 'Desiste' then count(job)
-                    ELSE 0 END as total`)
-                .where(`elaboration::DATE BETWEEN :since AND :until AND state <> 0`,{
-                    since: filters.since,until: filters.until
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
-                return production;
-            }else{
-                const production = await this._labOrderRepository.createQueryBuilder()
-                .select(`job,
-                    CASE
-                        WHEN job = 'Nuevo' THEN COUNT(job)
-                        WHEN job = 'Nuevo Adicional' THEN count(job)
-                        WHEN job = 'Colocar Chip' then count(job)
-                        WHEN job = 'Modificación' THEN COUNT(job)
-                        WHEN job = 'Reparación' THEN count(job)
-                        WHEN job = 'Desiste' then count(job)
-                    ELSE 0 END as total`)
-                .where(`elaboration::DATE BETWEEN :since AND :until AND state <> 0
-                AND job = :job`,{
-                    since: filters.since,until: filters.until,job: filters.state
-                }).groupBy("job").orderBy({job:'ASC'}).getRawMany();
-                return production;
-            }
+        let where = 'state <> 0';
+        if (filters.state !== '0'){
+            where += ` AND job = '${filters.state}'`;
         }
+        if(filters.option === 'i'){
+            where += ` AND instalation::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        }else if(filters.option === 'e'){
+            where += ` AND elaboration::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        } else if(filters.option === 'r'){
+            where += ` AND created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        }
+        const production = await this._labOrderRepository.createQueryBuilder()
+        .select(`job,
+            CASE
+                WHEN job = 'Nuevo' THEN COUNT(job)
+                WHEN job = 'Nuevo Adicional' THEN count(job)
+                WHEN job = 'Colocar Chip' then count(job)
+                WHEN job = 'Modificación' THEN COUNT(job)
+                WHEN job = 'Reparación' THEN count(job)
+                WHEN job = 'Desiste' then count(job)
+            ELSE 0 END as total`)
+        .where(where).groupBy("job").orderBy({job:'ASC'}).getRawMany();
+        return production;
     }
 
     async getAllFilter(filters: any): Promise<LabOrder[]>{
-        if(filters.option === 'i'){
-            if(filters.state === '0'){
-                const labOrder: LabOrder[] = await this._labOrderRepository
-                .createQueryBuilder("lo")
-                .innerJoinAndSelect("lo.quotation_detail","qd")
-                .innerJoinAndSelect("qd.quotation","qo")
-                .innerJoinAndSelect("qo.clinicHistory","patient")
-                .innerJoinAndSelect("lo.doctor","dr")
-                .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state <> 0`,{
-                    since: filters.since,until: filters.until
-                })
-                .getMany();
-                return labOrder;
-            }else{
-                const labOrder: LabOrder[] = await this._labOrderRepository
-                .createQueryBuilder("lo")
-                .innerJoinAndSelect("lo.quotation_detail","qd")
-                .innerJoinAndSelect("qd.quotation","qo")
-                .innerJoinAndSelect("qo.clinicHistory","patient")
-                .innerJoinAndSelect("lo.doctor","dr")
-                .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.instalation::DATE BETWEEN :since AND :until AND lo.state <> 0
-                AND lo.job = :job`,{
-                    since: filters.since,
-                    until: filters.until,
-                    job: filters.state
-                })
-                .getMany();
-                return labOrder;
-            }
-
-        }else if(filters.option === 'e'){
-            if(filters.state === '0'){
-                const labOrder: LabOrder[] = await this._labOrderRepository
-                .createQueryBuilder("lo")
-                .innerJoinAndSelect("lo.quotation_detail","qd")
-                .innerJoinAndSelect("qd.quotation","qo")
-                .innerJoinAndSelect("qo.clinicHistory","patient")
-                .innerJoinAndSelect("lo.doctor","dr")
-                .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state <> 0`,{
-                    since: filters.since,until: filters.until
-                })
-                .getMany();
-                return labOrder;
-            }else{
-                const labOrder: LabOrder[] = await this._labOrderRepository
-                .createQueryBuilder("lo")
-                .innerJoinAndSelect("lo.quotation_detail","qd")
-                .innerJoinAndSelect("qd.quotation","qo")
-                .innerJoinAndSelect("qo.clinicHistory","patient")
-                .innerJoinAndSelect("lo.doctor","dr")
-                .innerJoinAndSelect("lo.tariff","tr")
-                .where(`lo.elaboration::DATE BETWEEN :since AND :until AND lo.state <> 0
-                AND lo.job = :job`,{
-                    since: filters.since,
-                    until: filters.until,
-                    job: filters.state
-                })
-                .getMany();
-                return labOrder;
-            }
+        let where = 'lo.state <> 0';
+        if (filters.state !== '0'){
+            where += ` AND lo.job = '${filters.state}'`;
         }
+        if(filters.option === 'i'){
+            where += ` AND lo.instalation::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        }else if(filters.option === 'e'){
+            where += ` AND lo.elaboration::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        } else if(filters.option === 'r'){
+            where += ` AND lo.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`;
+        }
+        const labOrder: LabOrder[] = await this._labOrderRepository
+        .createQueryBuilder("lo")
+        .innerJoinAndSelect("lo.quotation_detail","qd")
+        .innerJoinAndSelect("qd.quotation","qo")
+        .innerJoinAndSelect("qo.clinicHistory","patient")
+        .innerJoinAndSelect("lo.doctor","dr")
+        .innerJoinAndSelect("lo.tariff","tr")
+        .where(where)
+        .getMany();
+        return labOrder;
     }
 
     async confirm(id: number, state: number): Promise<any>{
