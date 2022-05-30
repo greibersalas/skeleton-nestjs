@@ -126,12 +126,16 @@ export class QuotationService {
         return saveQuotation;
     }
 
-    async update(id: number, quotation:any): Promise<Quotation>{
+    async update(id: number, quotation: any): Promise<Quotation>{
         const quotationExists = await this._quotationRepository.findOne(id);
         if(!quotationExists){
             throw new NotFoundException();
         }
-        await this._quotationRepository.update(id,quotation);
+        const data: any = {
+            ...quotationExists,
+            doctor: quotation.doctor
+        }
+        await this._quotationRepository.update(id, data);
         const updateQuotation : Quotation = await this._quotationRepository.findOne(id);
         return updateQuotation;
     }
