@@ -168,6 +168,7 @@ export class QuotationService {
         .innerJoinAndSelect("qd.quotation","qt","qt.state <> 0")
         .innerJoinAndSelect("qt.clinicHistory","ch")
         .where("qd.state <> 0")
+        .orderBy('qt.id','DESC')
         .getMany();
         return labOrdes;
     }
