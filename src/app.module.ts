@@ -54,6 +54,7 @@ import { AuditModule } from './modules/security/audit/audit.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ErpModule } from './modules/api/erp/erp.module';
+import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
 
 
 @Module({
@@ -108,7 +109,8 @@ import { ErpModule } from './modules/api/erp/erp.module';
     MailModule,
     ScheduleModule.forRoot(),
     TasksModule,
-    ErpModule
+    ErpModule,
+    LabStateModule
   ],
   controllers: [AppController],
   providers: [AppService],

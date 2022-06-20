@@ -41,23 +41,23 @@ export class EnvironmentDoctor extends BaseEntity{
     businessline: number[];
 
     @Column({type: 'time', nullable: true, default: null, comment:'Horario de la mañana desde'})
-    schedule_morning_since: number;
+    schedule_morning_since: string;
 
     @Column({type: 'time', nullable: true, default: null, comment:'Horario de la mañana hasta'})
-    schedule_morning_until: number;
+    schedule_morning_until: string;
 
     @Column({type: 'time', nullable: true, default: null, comment:'Horario almuerzo desde'})
-    lunch_since: number;
+    lunch_since: string;
 
     @Column({type: 'time', nullable: true, default: null, comment:'Horario almuerzo hasta'})
-    lunch_until: number;
+    lunch_until: string;
 
     //afternoon
     @Column({type: 'time', nullable: true, default: null})
-    schedule_afternoon_since: number;
+    schedule_afternoon_since: string;
 
     @Column({type: 'time', nullable: true, default: null})
-    schedule_afternoon_until: number;
+    schedule_afternoon_until: string;
 
     @Column({type: 'int2', default: 1, nullable:false})
     state: number;
