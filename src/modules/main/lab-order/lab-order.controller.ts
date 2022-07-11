@@ -243,47 +243,55 @@ export class LabOrderController {
         .string("Doctor")
         .style(style);
         ws.cell(5,2)
-        .string("Asistente dental")
+        .string("Asistente")
         .style(style);
         ws.cell(5,3)
-        .string("Paciente")
+        .string("Nombre del Paciente")
         .style(style);
         ws.cell(5,4)
-        .string("Chip")
+        .string("Edad")
         .style(style);
         ws.cell(5,5)
-        .string("Tipo aparato")
+        .string("HC")
         .style(style);
         ws.cell(5,6)
-        .string("Condición")
+        .string("Fecha de ingreso O.L.")
         .style(style);
         ws.cell(5,7)
-        .string("Color")
+        .string("Chip")
         .style(style);
         ws.cell(5,8)
-        .string("Fecha Intalación")
+        .string("Tipo de aparato")
         .style(style);
         ws.cell(5,9)
-        .string("Técnico")
+        .string("Condición")
         .style(style);
         ws.cell(5,10)
-        .string("Observaciones")
+        .string("Color")
         .style(style);
         ws.cell(5,11)
-        .string("Fecha Elaboración")
+        .string("Fecha instalación")
+        .style(style);
+        ws.cell(5,12)
+        .string("Hora")
+        .style(style);
+        ws.cell(5,13)
+        .string("Observación")
         .style(style);
         // size columns
         ws.column(1).setWidth(25);
-        ws.column(2).setWidth(25);
-        ws.column(3).setWidth(40);
+        ws.column(2).setWidth(20);
+        ws.column(3).setWidth(45);
         ws.column(4).setWidth(10);
-        ws.column(5).setWidth(35);
+        ws.column(5).setWidth(15);
         ws.column(6).setWidth(20);
-        ws.column(7).setWidth(23);
-        ws.column(8).setWidth(20);
-        ws.column(9).setWidth(23);
-        ws.column(10).setWidth(35);
-        ws.column(11).setWidth(23);
+        ws.column(7).setWidth(10);
+        ws.column(8).setWidth(30);
+        ws.column(9).setWidth(15);
+        ws.column(10).setWidth(20);
+        ws.column(11).setWidth(20);
+        ws.column(12).setWidth(15);
+        ws.column(13).setWidth(40);
         let y = 6;
         data.map((it: any) => {
             const {
@@ -293,11 +301,11 @@ export class LabOrderController {
                 job,
                 color,
                 instalation,
-                elaboration,
-                technique,
                 tariff,
                 assistant,
-                observation
+                observation,
+                date,
+                hour
             } = it;
             const { nameQuote } = doctor;
             const { quotation } = quotation_detail;
@@ -305,7 +313,9 @@ export class LabOrderController {
             const {
                 name,
                 lastNameFather,
-                lastNameMother
+                lastNameMother,
+                birthdate,
+                history
             } = clinicHistory;
             ws.cell(y,1)
             .string(`${nameQuote}`);
@@ -314,21 +324,25 @@ export class LabOrderController {
             ws.cell(y,3)
             .string(`${name} ${lastNameFather} ${lastNameMother}`);
             ws.cell(y,4)
-            .string(`${chip ? 'Si' : 'No'}`);
+            .string(`${moment().diff(birthdate,'years') ? moment().diff(birthdate,'years') : ''} año(s)`);
             ws.cell(y,5)
-            .string(`${tariff.name}`);
+            .string(`${history}`);
             ws.cell(y,6)
-            .string(`${job}`);
+            .string(`${moment(date).format('DD/MM/YYYY')}`);
             ws.cell(y,7)
-            .string(`${color}`);
+            .string(`${chip ? 'Si' : 'No'}`);
             ws.cell(y,8)
-            .string(`${instalation}`);
+            .string(`${tariff.name}`);
             ws.cell(y,9)
-            .string(`${technique}`);
+            .string(`${job}`);
             ws.cell(y,10)
-            .string(`${observation}`);
+            .string(`${color}`);
             ws.cell(y,11)
-            .string(`${elaboration}`);
+            .string(`${moment(instalation).format('DD/MM/YYYY')}`);
+            ws.cell(y,12)
+            .string(`${hour}`);
+            ws.cell(y,13)
+            .string(`${observation}`);
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
