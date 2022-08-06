@@ -44,9 +44,9 @@ export class PdfPayPatient{
         pdf.SetY(y+20);
         pdf.SetX(10);
         pdf.Cell(25,5,`Nro. Historia`,1,0,'C',1);
-        pdf.Cell(60,5,`Paciente`,1,0,'C',1);
-        pdf.Cell(50,5,`Fecha`,1,0,'C',1);
-        pdf.Cell(50,5,`Monto`,1,0,'C',1);
+        pdf.Cell(100,5,`Paciente`,1,0,'C',1);
+        pdf.Cell(30,5,`Fecha`,1,0,'C',1);
+        pdf.Cell(30,5,`Monto`,1,0,'C',1);
 
         y = 25;
         let bg: boolean = false;
@@ -65,13 +65,13 @@ export class PdfPayPatient{
                 total,
                 moneda
             } = it;
-            if(cont <= 40){
+            if(cont <= 22){
                 pdf.SetY(y);
                 pdf.SetX(10);
                 pdf.Cell(25,10,`${history}`,1,0,'C',bg);
-                pdf.Cell(60,10,`${paciente}`,1,0,'C',bg);
-                pdf.Cell(50,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
-                pdf.Cell(50,10,`${moneda} ${total}`,1,0,'C',bg);
+                pdf.Cell(100,10,`${paciente}`,1,0,'L',bg);
+                pdf.Cell(30,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
+                pdf.Cell(30,10,`${moneda} ${total}`,1,0,'C',bg);
             }else{
                 pdf.AddPage('P','A4');
                 y = 10;
@@ -92,9 +92,9 @@ export class PdfPayPatient{
                 pdf.SetY(y+20);
                 pdf.SetX(10);
                 pdf.Cell(25,5,`Nro. Historia`,1,0,'C',1);
-                pdf.Cell(60,5,`Paciente`,1,0,'C',1);
-                pdf.Cell(50,5,`Fecha`,1,0,'C',1);
-                pdf.Cell(50,5,`Monto`,1,0,'C',1);
+                pdf.Cell(100,5,`Paciente`,1,0,'C',1);
+                pdf.Cell(30,5,`Fecha`,1,0,'C',1);
+                pdf.Cell(30,5,`Monto`,1,0,'C',1);
 
                 y = 35;
                 pdf.SetFont('Arial','',8);
@@ -103,9 +103,9 @@ export class PdfPayPatient{
                 pdf.SetY(y);
                 pdf.SetX(10);
                 pdf.Cell(25,10,`${history}`,1,0,'C',bg);
-                pdf.Cell(60,10,`${paciente}`,1,0,'C',bg);
-                pdf.Cell(50,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
-                pdf.Cell(50,10,`${moneda} ${total}`,1,0,'C',bg);
+                pdf.Cell(100,10,`${paciente}`,1,0,'L',bg);
+                pdf.Cell(30,10,`${moment(date).format('DD/MM/YYYY')}`,1,0,'C',bg);
+                pdf.Cell(30,10,`${moneda} ${total}`,1,0,'C',bg);
 
                 cont = 1;
                 page ++;

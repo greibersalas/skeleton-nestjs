@@ -239,6 +239,7 @@ export class LabOrderController {
                 bold: true
             }
         });
+        ws.row(5).filter();
         ws.cell(5,1)
         .string("Doctor")
         .style(style);
@@ -323,12 +324,13 @@ export class LabOrderController {
             .string(`${assistant}`);
             ws.cell(y,3)
             .string(`${name} ${lastNameFather} ${lastNameMother}`);
+            const years: number = moment().diff(birthdate,'years') ? Number(moment().diff(birthdate,'years')) : 0;
             ws.cell(y,4)
-            .string(`${moment().diff(birthdate,'years') ? moment().diff(birthdate,'years') : ''} año(s)`);
+            .number(years);
             ws.cell(y,5)
             .string(`${history}`);
             ws.cell(y,6)
-            .string(`${moment(date).format('DD/MM/YYYY')}`);
+            .date(new Date(date)).style({ numberFormat: 'dd/mm/yyyy' });
             ws.cell(y,7)
             .string(`${chip ? 'Si' : 'No'}`);
             ws.cell(y,8)
@@ -338,7 +340,7 @@ export class LabOrderController {
             ws.cell(y,10)
             .string(`${color}`);
             ws.cell(y,11)
-            .string(`${moment(instalation).format('DD/MM/YYYY')}`);
+            .date(new Date(instalation)).style({ numberFormat: 'dd/mm/yyyy' });
             ws.cell(y,12)
             .string(`${hour}`);
             ws.cell(y,13)
