@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
+var moment = require('moment-timezone');
+//Excel4Node
+import * as xl from 'excel4node';
+
+import { Audit } from '../../security/audit/audit.entity';
 import { ClinicHistoryNotes } from './clinic-history-notes.entity';
 import { ClinicHistoryNotesService } from './clinic-history-notes.service';
-var moment = require('moment-timezone');
-import { Audit } from '../../security/audit/audit.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('clinic-history-notes')
@@ -76,5 +79,121 @@ export class ClinicHistoryNotesController {
     @Get('get-patient-notes/:id')
     async getByPatient(@Param('id') id): Promise<ClinicHistoryNotes[]>{
         return await this._chnService.getByPatient(id);
+    }
+
+    // Reportes
+    @Post('/get-report-xlsx/list/historic')
+    async getReportXlsxListHistoric(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const { since, until } = filters;
+        const data = await this._chnService.getHistorial(since, until);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet('Notas');
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,4,true)
+        .string(`Lista de notas`)
+        .style(styleTitle);
+
+        ws.cell(2,1,2,4,true)
+        .string(``);
+        ws.cell(3,1,3,4,true)
+        .string(`Filtros: Desde ${moment(since).format('DD-MM-YYYY')} | Hasta ${moment(until).format('DD-MM-YYYY')}`);
+        ws.cell(4,1,4,4,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#808080',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        // Filtros en la celdas
+        ws.row(5).filter();
+        ws.cell(5,1)
+        .string("Fecha registro")
+        .style(style);
+        ws.cell(5,2)
+        .string("Doctor")
+        .style(style);
+        ws.cell(5,3)
+        .string("Titulo")
+        .style(style);
+        ws.cell(5,4)
+        .string("Nota")
+        .style(style);
+        ws.cell(5,5)
+        .string("Usuario")
+        .style(style);
+        ws.cell(5,6)
+        .string("Fecha Ult. modificación")
+        .style(style);
+        ws.cell(5,7)
+        .string("Historia")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(30);
+        ws.column(3).setWidth(40);
+        ws.column(4).setWidth(50);
+        ws.column(5).setWidth(20);
+        ws.column(6).setWidth(20);
+        ws.column(7).setWidth(20);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                title,
+                note,
+                created,
+                last_modification,
+                doctor,
+                username,
+                history,
+            } = it;
+            ws.cell(y,1)
+            .date(new Date(created)).style({ numberFormat: 'dd/mm/yyyy' });
+            ws.cell(y,2)
+            .string(`${doctor}`);
+            ws.cell(y,3)
+            .string(`${title}`);
+            ws.cell(y,4)
+            .string(`${note}`);
+            ws.cell(y,5)
+            .string(`${username}`);
+            ws.cell(y,6)
+            .date(new Date(last_modification)).style({ numberFormat: 'dd/mm/yyyy' });
+            ws.cell(y,7)
+            .string(`${history}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=file.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }
