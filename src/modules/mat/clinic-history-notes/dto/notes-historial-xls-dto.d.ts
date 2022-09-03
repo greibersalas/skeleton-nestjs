@@ -10,4 +10,5 @@ export interface NotesHistoricXlxDto{
     doctor: string;
     username: string;
     history: string;
+    patient: string;
 }

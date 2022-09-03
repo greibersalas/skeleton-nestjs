@@ -151,14 +151,18 @@ export class ClinicHistoryNotesController {
         ws.cell(5,7)
         .string("Historia")
         .style(style);
+        ws.cell(5,8)
+        .string("Paciente")
+        .style(style);
         // size columns
-        ws.column(1).setWidth(15);
+        ws.column(1).setWidth(20);
         ws.column(2).setWidth(30);
         ws.column(3).setWidth(40);
         ws.column(4).setWidth(50);
         ws.column(5).setWidth(20);
         ws.column(6).setWidth(20);
         ws.column(7).setWidth(20);
+        ws.column(8).setWidth(40);
         let y = 6;
         data.map((it: any) => {
             const {
@@ -169,9 +173,10 @@ export class ClinicHistoryNotesController {
                 doctor,
                 username,
                 history,
+                patient
             } = it;
             ws.cell(y,1)
-            .date(new Date(created)).style({ numberFormat: 'dd/mm/yyyy' });
+            .date(new Date(created)).style({ numberFormat: 'dd/mm/yyyy hh:mm:ss' });
             ws.cell(y,2)
             .string(`${doctor}`);
             ws.cell(y,3)
@@ -181,9 +186,11 @@ export class ClinicHistoryNotesController {
             ws.cell(y,5)
             .string(`${username}`);
             ws.cell(y,6)
-            .date(new Date(last_modification)).style({ numberFormat: 'dd/mm/yyyy' });
+            .date(new Date(last_modification)).style({ numberFormat: 'dd/mm/yyyy hh:mm:ss' });
             ws.cell(y,7)
             .string(`${history}`);
+            ws.cell(y,8)
+            .string(`${patient}`);
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {

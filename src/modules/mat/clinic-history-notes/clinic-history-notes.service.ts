@@ -75,7 +75,8 @@ export class ClinicHistoryNotesService {
     async getHistorial(since: string, until: string): Promise<NotesHistoricXlxDto[]>{
         return this._clinicHistoryNotesRepository.createQueryBuilder('chn')
         .select(`chn.id, chn.title, chn.note, chn.updated_at AS last_modification, chn.clinichistory, chn.iddoctor, chn.iduser,
-        "dc"."nameQuote" AS doctor,us.username,ch.history, chn.created_at AS created`)
+        "dc"."nameQuote" AS doctor,us.username,ch.history, chn.created_at AS created,
+        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient`)
         .innerJoin('chn.doctor','dc')
         .innerJoin('chn.clinichistory','ch')
         .innerJoin('users', 'us', 'us.id = chn.iduser')
