@@ -136,8 +136,12 @@ export class ClinicHistoryService {
             OR "history" ILIKE '%${search.value}%'
             OR "email" ILIKE '%${search.value}%'
             OR "documentNumber" ILIKE '%${search.value}%'
-            OR "cellphone" ILIKE '%${search.value}%'
-            OR "id" = ${search.value})`;
+            OR "cellphone" ILIKE '%${search.value}%'`;
+            if (!isNaN(search.value)) {
+                where += ` OR "id" = ${search.value}`;
+            }
+            where += ')';
+    
         }else{
             where = 'ch.state = 1';
         }
