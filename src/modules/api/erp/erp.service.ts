@@ -29,7 +29,7 @@ export class ErpService {
         .innerJoin('maa.patient','ch')
         .innerJoin('maa.co','co')
         .innerJoin('payment_method','pm','pm.id = maa.idpaymentmethod')
-        .where(`maa.state = 1 AND "ch"."documentNumber" = :nro_doc`,{nro_doc})
+        .where(`maa.state = 1 AND "ch"."invoise_num_document" = :nro_doc`,{nro_doc})
         .orderBy(`maa.date`)
         .getRawMany();
     }

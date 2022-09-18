@@ -61,8 +61,11 @@ export class ClinicHistoryNotesService {
                 where: {
                     state: 1,
                     clinichistory: id
+                },
+                order: {
+                    id: 'DESC'
                 }
-            }
+            },
         );
     }
 
