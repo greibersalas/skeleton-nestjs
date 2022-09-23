@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards, Request, Post, Body } from '@nestjs/common';
 var moment = require('moment-timezone');
 
 // Guards
@@ -38,5 +38,29 @@ export class ErpController {
         await audit.save();
         //Respondemos al usuario
         return await this._erpService.getPendingPayment(nro_doc);
+    }
+
+    @Post('payment')
+    async setPay(
+        @Body() ids: number[],
+        @Request() req: any
+    ): Promise<any>{
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = 0;
+        audit.title = 'api-erp';
+        audit.description = 'Set payment';
+        audit.data = JSON.stringify({ids});
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        const update = await this._erpService.setPayment(ids);
+        if (update) {
+            return true
+        }
+        return false
     }
 }

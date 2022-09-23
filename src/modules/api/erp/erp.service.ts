@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 // Repositories
 import { MedicalActAttentionRepository } from 'src/modules/main/medical-act-attention/medical-act-attention.repository';
+import { MedicalActAttention } from 'src/modules/main/medical-act-attention/medical-act-attention.entity';
 import { PendingPaymentDto } from './dto/pending-payment.dto';
 
 @Injectable()
@@ -32,5 +33,13 @@ export class ErpService {
         .where(`maa.state = 1 AND "ch"."invoise_num_document" = :nro_doc`,{nro_doc})
         .orderBy(`maa.date`)
         .getRawMany();
+    }
+
+    async setPayment(ids: number[]): Promise<any>{
+        return await this._medicalActAttentionRepository.createQueryBuilder()
+            .update(MedicalActAttention)
+            .set({state: 2})
+            .where(`id IN (:...ids)`,{ids})
+            .execute();
     }
 }
