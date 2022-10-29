@@ -53,6 +53,8 @@ import { DiaryLockModule } from './modules/main/diary-lock/diary-lock.module';
 import { AuditModule } from './modules/security/audit/audit.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { ErpModule } from './modules/api/erp/erp.module';
+import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
 
 
 @Module({
@@ -106,7 +108,9 @@ import { TasksModule } from './modules/tasks/tasks.module';
     AuditModule,
     MailModule,
     ScheduleModule.forRoot(),
-    TasksModule
+    TasksModule,
+    ErpModule,
+    LabStateModule
   ],
   controllers: [AppController],
   providers: [AppService],

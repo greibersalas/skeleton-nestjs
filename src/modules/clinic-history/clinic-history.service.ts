@@ -132,23 +132,28 @@ export class ClinicHistoryService {
         let orderparams = {};
         let where: string = '';
         if (search.value != ''){
-            where = `state = 1 AND concat("name",' ',"lastNameFather",' ',"lastNameMother") ILIKE '%${search.value}%'
+            where = `ch.state = 1 AND (concat("name",' ',"lastNameFather",' ',"lastNameMother") ILIKE '%${search.value}%'
             OR "history" ILIKE '%${search.value}%'
             OR "email" ILIKE '%${search.value}%'
             OR "documentNumber" ILIKE '%${search.value}%'
             OR "cellphone" ILIKE '%${search.value}%'`;
+            if (!isNaN(search.value)) {
+                where += ` OR "id" = ${search.value}`;
+            }
+            where += ')';
+    
         }else{
-            where = 'state = 1';
+            where = 'ch.state = 1';
         }
         if (order[0].column > 0){
             orderparams[String(column[order[0].column])]=String(order[0].dir).toUpperCase()
-        }
+        }        
         const [result, total] = await this._clinicHistoryRepository.createQueryBuilder('ch')
-        .where(where)
-        .orderBy(orderparams)
-        .take(length)
-        .skip(start)
-        .getManyAndCount();
+            .where(where)
+            .orderBy(orderparams)
+            .take(length)
+            .skip(start)
+            .getManyAndCount();
         const response = {
             data: result,
             recordsTotal: total,

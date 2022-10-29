@@ -177,11 +177,185 @@ export class LabOrderController {
         return response;
     }
 
+    /* --- REPORTES --- */
     @Post('/get-resume-pdf')
     async getResumePdf(@Body() filters: any): Promise<any>{
         const pdf = new Pdf_lab_resumen();
         const data = await this._labOrderService.getAllFilter(filters);
         return pdf.print(data);
+    }
+
+    @Post('/get-resume-xlsx')
+    async getReportResumeXlsx(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any>{
+        const data = await this._labOrderService.getAllFilter(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet(`Listado`);
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            font: {
+                size: 14,
+                bold: true
+            }
+        });
+        ws.cell(1,1,1,11,true)
+        .string(`Resumen ordenes de laboratorio`)
+        .style(styleTitle);
+
+        let filterDate = '';
+        if (filters.option === 'e') {
+            filterDate = 'Fecha elaboración';
+        } else if (filters.option === 'i') {
+            filterDate = 'Fecha instalación';
+        } else if (filters.option === 'r') {
+            filterDate = 'Fecha registro';
+        }
+        let state = filters.state === '0' ? 'Todos' : filters.state;
+        ws.cell(2,1,2,6,true)
+        .string(``);
+        ws.cell(3,1,3,6,true)
+        .string(`Filtros: ${filterDate} Desde ${filters.since} | Hasta ${filters.until} | Estado: ${state}`);
+        ws.cell(4,1,4,6,true)
+        .string(``);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#000000',
+                fgColor: '#808080',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            }
+        });
+        ws.row(5).filter();
+        ws.cell(5,1)
+        .string("Doctor")
+        .style(style);
+        ws.cell(5,2)
+        .string("Asistente")
+        .style(style);
+        ws.cell(5,3)
+        .string("Nombre del Paciente")
+        .style(style);
+        ws.cell(5,4)
+        .string("Edad")
+        .style(style);
+        ws.cell(5,5)
+        .string("HC")
+        .style(style);
+        ws.cell(5,6)
+        .string("Fecha de ingreso O.L.")
+        .style(style);
+        ws.cell(5,7)
+        .string("Chip")
+        .style(style);
+        ws.cell(5,8)
+        .string("Tipo de aparato")
+        .style(style);
+        ws.cell(5,9)
+        .string("Condición")
+        .style(style);
+        ws.cell(5,10)
+        .string("Color")
+        .style(style);
+        ws.cell(5,11)
+        .string("Fecha instalación")
+        .style(style);
+        ws.cell(5,12)
+        .string("Hora")
+        .style(style);
+        ws.cell(5,13)
+        .string("Observación")
+        .style(style);
+        // size columns
+        ws.column(1).setWidth(25);
+        ws.column(2).setWidth(20);
+        ws.column(3).setWidth(45);
+        ws.column(4).setWidth(10);
+        ws.column(5).setWidth(15);
+        ws.column(6).setWidth(20);
+        ws.column(7).setWidth(10);
+        ws.column(8).setWidth(30);
+        ws.column(9).setWidth(15);
+        ws.column(10).setWidth(20);
+        ws.column(11).setWidth(20);
+        ws.column(12).setWidth(15);
+        ws.column(13).setWidth(40);
+        let y = 6;
+        data.map((it: any) => {
+            const {
+                doctor,
+                quotation_detail,
+                chip,
+                job,
+                color,
+                instalation,
+                tariff,
+                assistant,
+                observation,
+                date,
+                hour
+            } = it;
+            const { nameQuote } = doctor;
+            const { quotation } = quotation_detail;
+            const { clinicHistory } = quotation;
+            const {
+                name,
+                lastNameFather,
+                lastNameMother,
+                birthdate,
+                history
+            } = clinicHistory;
+            ws.cell(y,1)
+            .string(`${nameQuote}`);
+            ws.cell(y,2)
+            .string(`${assistant}`);
+            ws.cell(y,3)
+            .string(`${name} ${lastNameFather} ${lastNameMother}`);
+            const years: number = moment().diff(birthdate,'years') ? Number(moment().diff(birthdate,'years')) : 0;
+            ws.cell(y,4)
+            .number(years);
+            ws.cell(y,5)
+            .string(`${history}`);
+            ws.cell(y,6)
+            .date(new Date(date)).style({ numberFormat: 'dd/mm/yyyy' });
+            ws.cell(y,7)
+            .string(`${chip ? 'Si' : 'No'}`);
+            ws.cell(y,8)
+            .string(`${tariff.name}`);
+            ws.cell(y,9)
+            .string(`${job}`);
+            ws.cell(y,10)
+            .string(`${color}`);
+            ws.cell(y,11)
+            .date(new Date(instalation)).style({ numberFormat: 'dd/mm/yyyy' });
+            ws.cell(y,12)
+            .string(`${hour}`);
+            ws.cell(y,13)
+            .string(`${observation}`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=resume-ordenes-lab.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 
     @Get('get-cant-order/:month/:year')
@@ -192,7 +366,6 @@ export class LabOrderController {
         return this._labOrderService.getCantMonth(month,year);
     }
 
-    /* --- REPORTES --- */
     @Post('/get-report-pdf-elaborado-noelaborado')
     async getReportPdfElaboNoelabo(@Body() filters: any): Promise<any>{
         const pdf = new Pdf_report_elabo_noelabo();

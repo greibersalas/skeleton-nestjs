@@ -227,6 +227,10 @@ export class MedicalActAttentionService {
     }
 
     async getPayPatient(filters: any): Promise<any>{
+        let where = `maa.date BETWEEN '${filters.since}' AND '${filters.until}' AND maa.state = 1`;
+        if (filters.patientId !== 0) {
+            where += ` AND ch.id = ${filters.patientId}`
+        }
         const query = this._medicalActAttentionRepository.createQueryBuilder('maa')
         .select(`ch.history,
         concat_ws( ' ', ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
@@ -234,7 +238,7 @@ export class MedicalActAttentionService {
         maa.value,
         maa.date,
         CASE WHEN tr.price_usd > 0 THEN '$' ELSE 'S/' END as moneda`)
-        .where(`maa.date BETWEEN '${filters.since}' AND '${filters.until}' AND maa.state = 1`)
+        .where(where)
         .innerJoin('maa.patient','ch')
         .innerJoin('maa.tariff','tr')
         .getQuery();

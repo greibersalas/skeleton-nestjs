@@ -62,14 +62,29 @@ export class EnvironmentDoctorService {
     }
 
     async create(ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
-        const saveEd: EnvironmentDoctor = await this._environmentDoctorRepository.save(ed);
-        return saveEd;
+        if( ed.lunch_since === ''){
+            ed.lunch_since = null;
+            ed.lunch_until = null;
+        }
+        if( ed.schedule_afternoon_since === ''){
+            ed.schedule_afternoon_since = null;
+            ed.schedule_afternoon_until = null;
+        }
+        return await this._environmentDoctorRepository.save(ed);
     }
 
     async update(id: number, ed: EnvironmentDoctor): Promise<EnvironmentDoctor>{
         const edExists = await this._environmentDoctorRepository.findOne(id);
         if(!edExists){
             throw new NotFoundException();
+        }
+        if( ed.lunch_since === ''){
+            ed.lunch_since = null;
+            ed.lunch_until = null;
+        }
+        if( ed.schedule_afternoon_since === ''){
+            ed.schedule_afternoon_since = null;
+            ed.schedule_afternoon_until = null;
         }
         await this._environmentDoctorRepository.update(id,ed);
         const updateEd : EnvironmentDoctor = await this._environmentDoctorRepository.findOne(id);
@@ -117,12 +132,14 @@ export class EnvironmentDoctorService {
                 //Calculamos el horario de la mañana
                 if(i.schedule_morning_since && timetable.schedule_morning_since <= since && since < timetable.schedule_morning_until){
                     //Busco si hay reserva en la hora
+                    const intervalo = i.time_cleaning === 0 ? (i.interval - 10) : i.interval; // Nuevo - 2022-04-02
                     const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(i.interval,'minutes').format('HH:mm:ss')}`;
+                    const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo,'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
                     //crear objeto para filtrar
                     let filter = {
                         environment_id: i.id,
                         appointment: schedule,
-                    }
+                    };
                     if (doctor != 0)
                         //filter["doctor_id"] = doctor;
                     if (patient != 0)
@@ -130,8 +147,13 @@ export class EnvironmentDoctorService {
                     if (state != 0)
                         filter["state"] = state;
                     const reserv = _.find(reser,filter);
+                    // Nuevo cambio 2022-04-02
+                    let filter2 = filter;
+                    filter2.appointment = schedule2;
+                    const reserv2 = _.find(reser,filter2);
+                    // Fin nuevo cambio
                     let interval = 0;
-                    if(reserv){
+                    if(reserv || reserv2){
                         //Si el rol es doctor o especialista OFM
                         //Mostramos solo sus reservas y las demas las bloqueamos
                         if(rol){
@@ -159,7 +181,7 @@ export class EnvironmentDoctorService {
                                 until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                                 rowspan: (i.interval/10)*20,
                                 type: 4, //reservado,
-                                data: reserv
+                                data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
                             });
                         }
                     }else{
@@ -211,7 +233,9 @@ export class EnvironmentDoctorService {
                 }else if(i.schedule_afternoon_since && timetable.schedule_afternoon_since <= since && since < timetable.schedule_afternoon_until){
                     //Calculamos el horario de la tarde
                     //Busco si hay reserva en la hora
+                    const intervalo = i.time_cleaning === 0 ? (i.interval - 10) : i.interval; // Nuevo - 2022-04-02
                     const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(i.interval,'minutes').format('HH:mm:ss')}`;
+                    const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo,'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
                     //crear objeto para filtrar
                     let filter = {
                         environment_id: i.id,
@@ -224,13 +248,18 @@ export class EnvironmentDoctorService {
                     if (state != 0)
                         filter["state"] = state;
                     const reserv = _.find(reser,filter);
-                    if(reserv){
+                    // Nuevo cambio 2022-04-02
+                    let filter2 = filter;
+                    filter2.appointment = schedule2;
+                    const reserv2 = _.find(reser,filter2);
+                    // Fin nuevo cambio
+                    if(reserv || reserv2){
                         hours.push({
                             since: moment(since).format('HH:mm'),
                             until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                             rowspan: (i.interval/10)*20,
                             type: 4, //reservado,
-                            data: reserv
+                            data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
                         });
                     }else{
                         hours.push({
