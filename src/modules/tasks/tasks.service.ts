@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Interval} from '@nestjs/schedule';
+import { Interval } from '@nestjs/schedule';
 import { ReservationService } from '../reservation/reservation.service';
 
 var moment = require('moment-timezone');
@@ -9,13 +9,13 @@ export class TasksService {
   private readonly logger = new Logger(TasksService.name);
 
   constructor(
-      private _reservation: ReservationService
-  ){}
+    private _reservation: ReservationService
+  ) { }
 
   @Interval(60000)
   async handleInterval() {
     let now = moment().format("YYYY-MM-DD");
-    let reservation = await this._reservation.getByDateWithOutNotify(now)
+    /* let reservation = await this._reservation.getByDateWithOutNotify(now)
     reservation.forEach(element => {
       let hour = element.appointment.split("-")[0]
       hour = hour.replace(':','').substring(0,4)
@@ -53,6 +53,6 @@ export class TasksService {
             })
         })
       }
-    });
+    }); */
   }
 }

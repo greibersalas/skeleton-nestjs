@@ -5,6 +5,9 @@ const moment = require('moment-timezone');
 // Entity
 import { Audit } from 'src/modules/security/audit/audit.entity';
 import { ServiceOrder } from './entity/service-order.entity';
+import { ServiceOrderDetail } from './entity/service-order-detail.entity';
+// Dto
+import { ServiceOrderDto } from './dto/service-order-dto';
 
 // Service
 import { ServiceOrderService } from './service-order.service';
@@ -19,21 +22,41 @@ export class ServiceOrderController {
     ) { }
 
     @Get(':id')
-    async getOne(@Param('id', ParseIntPipe) id: number): Promise<ServiceOrder> {
+    async getOne(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<ServiceOrderDto> {
         return await this.service.getOne(id);
     }
 
     @Get()
-    async getAll(): Promise<ServiceOrder[]> {
+    async getAll(): Promise<ServiceOrderDto[]> {
         return await this.service.getAll();
     }
 
     @Post()
     async create(
-        @Body() data: ServiceOrder,
+        @Body() data: ServiceOrderDto,
         @Request() req: any
     ): Promise<ServiceOrder> {
-        const create = await this.service.create(data);
+        const order: ServiceOrder = new ServiceOrder();
+        order.clinichistory = data.idclinichistory;
+        order.type = data.type;
+        order.user = Number(req.user.id);
+        const create = await this.service.create(order);
+        // Insertamos el detalle
+        if (create) {
+            for await (const item of data.detail) {
+                const det: ServiceOrderDetail = new ServiceOrderDetail();
+                det.serviceorder = create;
+                det.tariff = item.idtariff;
+                det.coin = item.idcoin;
+                det.quantity = item.quantity;
+                det.price = item.price;
+                det.total = item.total;
+                det.idorigin = item.idorigin;
+                await this.service.insertDetail(det);
+            }
+        }
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = create.id;
