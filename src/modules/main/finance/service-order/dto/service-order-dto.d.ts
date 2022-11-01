@@ -7,9 +7,10 @@ export interface ServiceOrderDto {
     state: number;
     num_doc: string;
     date_doc: string;
+    idorigin: number;
     date_order?: string;
     patient_doc?: string;
     history?: string;
     patient?: string;
-    detail?: ServiceOrderDetailDto[]
+    detail?: ServiceOrderDetailDto[];
 }

@@ -10,4 +10,5 @@ export interface ServiceOrderDetailDto {
     state: number;
     tariff?: string;
     coin?: string;
+    check?: boolean;
 }

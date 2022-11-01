@@ -27,6 +27,9 @@ export class ServiceOrder extends BaseEntity {
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;
 
+    @Column({ type: 'int2', nullable: true })
+    idorigin: number;
+
     @Column({ type: 'varchar', nullable: true })
     num_doc: string;
 

@@ -42,6 +42,7 @@ export class ServiceOrderController {
         order.clinichistory = data.idclinichistory;
         order.type = data.type;
         order.user = Number(req.user.id);
+        order.idorigin = data.idorigin;
         const create = await this.service.create(order);
         // Insertamos el detalle
         if (create) {
