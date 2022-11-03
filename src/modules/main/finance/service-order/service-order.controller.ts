@@ -11,6 +11,7 @@ import { ServiceOrderDto } from './dto/service-order-dto';
 
 // Service
 import { ServiceOrderService } from './service-order.service';
+import { ServiceOrderDetailDto } from './dto/service-order-detail-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('service-order')
@@ -28,9 +29,30 @@ export class ServiceOrderController {
         return await this.service.getOne(id);
     }
 
+    @Get('/detail/:id')
+    async getDetail(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<ServiceOrderDetailDto[]> {
+        return await this.service.getDataDetail(id);
+    }
+
     @Get()
     async getAll(): Promise<ServiceOrderDto[]> {
         return await this.service.getAll();
+    }
+
+    @Post('/filters')
+    async getDataFilters(
+        @Body() body: any
+    ): Promise<ServiceOrderDto[]> {
+        return await this.service.getDataFilters(body);
+    }
+
+    @Post('/pending')
+    async getDataFiltersPending(
+        @Body() body: any
+    ): Promise<ServiceOrderDto[]> {
+        return await this.service.getDataFilters(body, 1);
     }
 
     @Post()
@@ -47,15 +69,17 @@ export class ServiceOrderController {
         // Insertamos el detalle
         if (create) {
             for await (const item of data.detail) {
-                const det: ServiceOrderDetail = new ServiceOrderDetail();
-                det.serviceorder = create;
-                det.tariff = item.idtariff;
-                det.coin = item.idcoin;
-                det.quantity = item.quantity;
-                det.price = item.price;
-                det.total = item.total;
-                det.idorigin = item.idorigin;
-                await this.service.insertDetail(det);
+                if (item.check) {
+                    const det: ServiceOrderDetail = new ServiceOrderDetail();
+                    det.serviceorder = create;
+                    det.tariff = item.idtariff;
+                    det.coin = item.idcoin;
+                    det.quantity = item.quantity;
+                    det.price = item.price;
+                    det.total = item.total;
+                    det.idorigin = item.idorigin;
+                    await this.service.insertDetail(det);
+                }
             }
         }
         //Creamos los datos de la auditoria
@@ -85,6 +109,29 @@ export class ServiceOrderController {
         audit.idregister = id;
         audit.title = this.module;
         audit.description = 'Update registro';
+        audit.data = JSON.stringify(update);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return update;
+    }
+
+    @Put('/set-data-invoice/:id')
+    async setDataInvoice(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() data: ServiceOrder,
+        @Request() req: any
+    ) {
+        data.user = Number(req.user.id);
+        const update = await this.service.setDataInvoice(id, data);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = this.module;
+        audit.description = 'Data factara';
         audit.data = JSON.stringify(update);
         audit.iduser = Number(req.user.id);
         audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');

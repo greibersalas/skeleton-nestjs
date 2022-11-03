@@ -13,4 +13,6 @@ export interface ServiceOrderDto {
     history?: string;
     patient?: string;
     detail?: ServiceOrderDetailDto[];
+    total_sol?: number;
+    total_usd?: number;
 }
