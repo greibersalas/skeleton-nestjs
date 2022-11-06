@@ -16,33 +16,33 @@ import { Pdf_oi } from './pdf-oi';
 @Controller('quotation')
 export class QuotationController {
 
-    constructor(private readonly _quotationService: QuotationService){}
+    constructor(private readonly _quotationService: QuotationService) { }
 
     @Get('/id/:id')
-    async getQuotation(@Param('id',ParseIntPipe) id: number): Promise<Quotation>{
+    async getQuotation(@Param('id', ParseIntPipe) id: number): Promise<Quotation> {
         const quotation = await this._quotationService.get(id);
         return quotation;
     }
 
     @Get('/number/:id')
-    async getDetailQuotation(@Param('id',ParseIntPipe) id: number): Promise<QuotationDetail[]>{
+    async getDetailQuotation(@Param('id', ParseIntPipe) id: number): Promise<QuotationDetail[]> {
         const quotationDetail = await this._quotationService.getDetail(id);
         return quotationDetail;
     }
 
     @Get()
-    async getQuotations(): Promise<Quotation[]>{
+    async getQuotations(): Promise<Quotation[]> {
         const quotation = await this._quotationService.getAll();
         return quotation;
     }
 
     @Post("/get/filters/")
-    async getFilters(@Body() data: any): Promise<any>{
+    async getFilters(@Body() data: any): Promise<any> {
         return await this._quotationService.getFilters(data);;
     }
 
     @Get('/reserve/:id')
-    async reserveQuotationDetail(@Param('id',ParseIntPipe) id: number, @Body() quotation: QuotationDetail){
+    async reserveQuotationDetail(@Param('id', ParseIntPipe) id: number, @Body() quotation: QuotationDetail) {
         const update = await this._quotationService.reserveDetail(id);
         return update;
     }
@@ -51,7 +51,7 @@ export class QuotationController {
     async createQuotation(
         @Body() quotation: Quotation,
         @Request() req: any
-    ): Promise<Quotation>{
+    ): Promise<Quotation> {
         const create = await this._quotationService.create(quotation);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -70,11 +70,11 @@ export class QuotationController {
 
     @Put(':id')
     async updateQuotation(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() quotation: Quotation,
         @Request() req: any
-    ){
-        const update = await this._quotationService.update(id,quotation);
+    ) {
+        const update = await this._quotationService.update(id, quotation);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -92,9 +92,9 @@ export class QuotationController {
 
     @Delete(':id')
     async deleteQuotation(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._quotationService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -112,20 +112,27 @@ export class QuotationController {
     }
 
     @Get('get-orden-lab-pending/:id')
-    async getOrdenLabs(@Param('id') id: string): Promise<any[]>{
+    async getOrdenLabs(@Param('id') id: string): Promise<any[]> {
         return await this._quotationService.getLabPending();
     }
 
     @Get('get-by-clinic-history/:id')
-    async getByClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
+    async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
         return await this._quotationService.getByClinicHistory(id);
+    }
+
+    @Get('/get-by-patient/:id')
+    async getByPatient(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<any> {
+        return await this._quotationService.getByPatient(id);
     }
 
     @Post('add-item/')
     async addItem(
         @Body() item: QuotationDetail,
         @Request() req: any
-    ): Promise<QuotationDetail>{
+    ): Promise<QuotationDetail> {
         const create = await this._quotationService.addItem(item);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -144,9 +151,9 @@ export class QuotationController {
 
     @Delete('remove-item/:id')
     async deleteItem(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._quotationService.deleteItem(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -165,11 +172,11 @@ export class QuotationController {
 
     @Put('update-item/:id')
     async updateItem(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() item: QuotationDetail,
         @Request() req: any
-    ): Promise<any>{
-        const update = await this._quotationService.updateItem(id,item);
+    ): Promise<any> {
+        const update = await this._quotationService.updateItem(id, item);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -186,15 +193,15 @@ export class QuotationController {
     }
 
     @Get('pdf/:id/:format')
-    async getPdf(@Param('id',ParseIntPipe) id: number, @Param('format') format: string): Promise<any>{
+    async getPdf(@Param('id', ParseIntPipe) id: number, @Param('format') format: string): Promise<any> {
         const data = await this._quotationService.dataPdf(id);
-        if(format === 'OF'){
+        if (format === 'OF') {
             const pdf = new Pdf_of();
             return pdf.print(data);
-        }else if(format === 'AP'){
+        } else if (format === 'AP') {
             const pdf = new Pdf_ap();
             return pdf.print(data);
-        }else{
+        } else {
             const pdf = new Pdf_oi();
             return pdf.print(data);
         }

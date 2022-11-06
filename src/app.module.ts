@@ -55,6 +55,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ErpModule } from './modules/api/erp/erp.module';
 import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
+import { ServiceOrderModule } from './modules/main/finance/service-order/service-order.module';
 
 
 @Module({
@@ -110,7 +111,8 @@ import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
     ScheduleModule.forRoot(),
     TasksModule,
     ErpModule,
-    LabStateModule
+    LabStateModule,
+    ServiceOrderModule
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -118,7 +120,7 @@ import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
 export class AppModule {
   static port: number | string;
 
-  constructor(private readonly _configService: ConfigService){
+  constructor(private readonly _configService: ConfigService) {
     AppModule.port = this._configService.get(Configuration.PORT);
   }
 }
