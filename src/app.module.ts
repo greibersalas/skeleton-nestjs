@@ -56,6 +56,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { ErpModule } from './modules/api/erp/erp.module';
 import { LabStateModule } from './modules/mat/lab-state/lab-state.module';
 import { ServiceOrderModule } from './modules/main/finance/service-order/service-order.module';
+import { ContractModule } from './modules/main/finance/contract/contract.module';
 
 
 @Module({
@@ -112,7 +113,8 @@ import { ServiceOrderModule } from './modules/main/finance/service-order/service
     TasksModule,
     ErpModule,
     LabStateModule,
-    ServiceOrderModule
+    ServiceOrderModule,
+    ContractModule
   ],
   controllers: [AppController],
   providers: [AppService],
