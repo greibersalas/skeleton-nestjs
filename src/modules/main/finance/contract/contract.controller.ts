@@ -61,22 +61,29 @@ export class ContractController {
         const order: Contract = new Contract();
         order.clinichistory = data.idclinichistory;
         order.type = data.type;
+        order.date = data.date;
+        order.duration = data.duration;
+        order.amount = data.amount;
+        order.quota = data.quota;
+        order.exchange_house = data.exchange_house;
+        order.exchange_house_url = data.exchange_house_url;
+        order.amount = data.amount;
+        order.num = data.num;
+        order.amount_controls = data.amount_controls;
         order.user = Number(req.user.id);
         const create = await this.service.create(order);
         // Insertamos el detalle
         if (create) {
             for await (const item of data.detail) {
-                if (item.check) {
-                    const det: ContractDetail = new ContractDetail();
-                    det.contract = create;
-                    det.description = item.description;
-                    det.observation = item.observation;
-                    det.date = item.date;
-                    det.amount = item.amount;
-                    det.created_at = moment().format('YYYY-MM-DD HH:mm:ss');
-                    det.user = Number(req.user.id);
-                    await this.service.insertDetail(det);
-                }
+                const det: ContractDetail = new ContractDetail();
+                det.contract = create;
+                det.description = item.description;
+                det.observation = item.observation;
+                det.date = item.date;
+                det.amount = item.amount;
+                det.created_at = moment().format('YYYY-MM-DD HH:mm:ss');
+                det.user = Number(req.user.id);
+                await this.service.insertDetail(det);
             }
         }
         //Creamos los datos de la auditoria

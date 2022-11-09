@@ -71,7 +71,7 @@ export class ContractService {
     async getDataDetail(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
-            dt.date, dt.amout, dt.state`)
+            dt.date, dt.amount, dt.state`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state <> 0')
             .getRawMany();
