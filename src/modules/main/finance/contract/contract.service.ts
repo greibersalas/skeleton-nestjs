@@ -6,6 +6,7 @@ import { ContractDetailDto } from './dto/contract-detail-dto';
 // Dto
 import { ContractDto } from './dto/contract-dto';
 import { ContractDetail } from './entity/contract-detail.entity';
+import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
 
 // Entity
 import { Contract } from './entity/contract.entity';
@@ -17,7 +18,9 @@ export class ContractService {
         @InjectRepository(Contract)
         private readonly repository: Repository<Contract>,
         @InjectRepository(ContractDetail)
-        private readonly repositoryDetail: Repository<ContractDetail>
+        private readonly repositoryDetail: Repository<ContractDetail>,
+        @InjectRepository(ContractQuotaPayment)
+        private readonly repositoryPayment: Repository<ContractQuotaPayment>
     ) { }
 
     async getOne(id: number): Promise<ContractDto> {
@@ -77,6 +80,15 @@ export class ContractService {
             .getRawMany();
     }
 
+    async getDataDetailForPayment(idcontract: number): Promise<ContractDetailDto[]> {
+        return await this.repositoryDetail.createQueryBuilder('dt')
+            .select(`dt.id, dt.idcontract, dt.description, dt.observation,
+            dt.date, dt.amount, dt.state`)
+            .where(`dt.idcontract = ${idcontract}`)
+            .andWhere('dt.state = 1')
+            .getRawMany();
+    }
+
     async create(data: Contract): Promise<Contract> {
         return await this.repository.save(data);
     }
@@ -100,6 +112,22 @@ export class ContractService {
             throw new NotFoundException();
         }
         await this.repository.update(id, { state: 0 });
+    }
+
+    // Payment
+    async insertPayment(data: ContractQuotaPayment): Promise<any> {
+        return this.repositoryPayment.save(data);
+    }
+
+    async updateDetailPayment(id: number, idpayment: number): Promise<ContractDetail> {
+        const exists = await this.repositoryDetail.findOne(id);
+        if (!exists) {
+            throw new NotFoundException();
+        }
+        exists.state = 2;
+        exists.quotaPayment = idpayment;
+        await exists.save();
+        return await this.repositoryDetail.findOne(id);
     }
 
 }

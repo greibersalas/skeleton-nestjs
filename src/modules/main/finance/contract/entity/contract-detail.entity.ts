@@ -10,6 +10,7 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
+import { ContractQuotaPayment } from "./contract-quota-payment.entity";
 import { Contract } from "./contract.entity";
 
 @Entity('contract_detail')
@@ -21,6 +22,10 @@ export class ContractDetail extends BaseEntity {
     @ManyToOne(type => Contract, co => co.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'idcontract' })
     contract: Contract | number;
+
+    @ManyToOne(type => ContractQuotaPayment, qp => qp.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idcontractquotapayment' })
+    quotaPayment: ContractQuotaPayment | number;
 
     @Column({ type: 'varchar', length: 40, nullable: false })
     description: string;

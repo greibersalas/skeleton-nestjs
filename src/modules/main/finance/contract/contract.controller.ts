@@ -1,15 +1,26 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete, UseInterceptors, UploadedFile, HttpStatus } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 const moment = require('moment-timezone');
 
 // Entity
 import { Audit } from 'src/modules/security/audit/audit.entity';
 import { Contract } from './entity/contract.entity';
-
-import { ContractService } from './contract.service';
-import { ContractDetailDto } from './dto/contract-detail-dto';
-import { ContractDto } from './dto/contract-dto';
 import { ContractDetail } from './entity/contract-detail.entity';
+import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
+
+// Dto
+import { ContractDto } from './dto/contract-dto';
+import { ContractDetailDto } from './dto/contract-detail-dto';
+import { ContractQuotaPaymentDto } from './dto/contract-quota-payment-dto';
+
+// Services
+import { ContractService } from './contract.service';
+
+// utils
+import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -32,6 +43,13 @@ export class ContractController {
         @Param('id', ParseIntPipe) id: number
     ): Promise<ContractDetailDto[]> {
         return await this.service.getDataDetail(id);
+    }
+
+    @Get('/detail/for-payment/:id')
+    async getDetailForPayment(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<ContractDetailDto[]> {
+        return await this.service.getDataDetailForPayment(id);
     }
 
     @Get()
@@ -144,4 +162,66 @@ export class ContractController {
         //Respondemos al usuario
         return true;
     }
+
+    // Payment
+    @Post("/payment-quota/:id/:group")
+    @UseInterceptors(
+        FileInterceptor('file', {
+            storage: diskStorage({
+                destination: './uploads/contract/payment',
+                filename: editFileName
+            }),
+            fileFilter: imageFileFilter,
+        }),
+    )
+    async uploadFile(
+        @UploadedFile() file: any,
+        @Body() body: any,
+        @Request() req: any
+    ) {
+        body = JSON.parse(body.body);
+        let response = {};
+        if (file) {
+            response = {
+                originalname: file.originalname,
+                filename: file.filename,
+                fileext: extname(file.originalname)
+            };
+        }
+        //Data a guadar en la tabla
+        const data: ContractQuotaPayment = new ContractQuotaPayment();
+        data.payment_date = body.payment_date;
+        data.coin = body.coin;
+        data.amount = body.amount;
+        data.observation = body.observation;
+        data.file_name = file ? file.filename : null;
+        data.file_ext = file ? extname(file.originalname) : null;
+        data.user = Number(req.user.id);
+        const insert = await this.service.insertPayment(data);
+        if (insert) {
+            for await (const iterator of body.contract_detail) {
+                if (iterator.check) {
+                    await this.service.updateDetailPayment(iterator.id, insert.id);
+                }
+            }
+        }
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = insert.id;
+        audit.title = 'contract-quota-payment';
+        audit.description = 'Insertar registro';
+        audit.data = JSON.stringify(insert);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return {
+            status: HttpStatus.OK,
+            message: 'Image uploaded successfully!',
+            data: response
+        };
+    }
 }
+
