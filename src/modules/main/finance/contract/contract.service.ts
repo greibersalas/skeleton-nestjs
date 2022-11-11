@@ -5,11 +5,12 @@ import { ContractDetailDto } from './dto/contract-detail-dto';
 
 // Dto
 import { ContractDto } from './dto/contract-dto';
-import { ContractDetail } from './entity/contract-detail.entity';
-import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
+import { PaymentDto } from './dto/payment-dto';
 
 // Entity
 import { Contract } from './entity/contract.entity';
+import { ContractDetail } from './entity/contract-detail.entity';
+import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
 
 @Injectable()
 export class ContractService {
@@ -74,9 +75,10 @@ export class ContractService {
     async getDataDetail(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
-            dt.date, dt.amount, dt.state`)
+            dt.date::DATE, dt.amount, dt.state`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state <> 0')
+            .orderBy('dt.id', 'ASC')
             .getRawMany();
     }
 
@@ -128,6 +130,37 @@ export class ContractService {
         exists.quotaPayment = idpayment;
         await exists.save();
         return await this.repositoryDetail.findOne(id);
+    }
+
+    async getPaymentList(filters: any): Promise<PaymentDto[]> {
+        let where = 'qp.state <> 0';
+        if (filters.state > 0) {
+            where = `qp.state = ${filters.state}`;
+        }
+        return await this.repositoryPayment.createQueryBuilder('qp')
+            .select(`qp.id, qp.payment_date AS date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
+            co.code AS coin, ct.id AS idcontract, count(cd) AS cuotas, ct.idclinichistory, ct.num AS num_contract,
+            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history`)
+            .innerJoin('coin', 'co', 'co.id = qp.idcoin')
+            .innerJoin('contract_detail', 'cd', 'cd.idcontractquotapayment = qp.id')
+            .innerJoin('contract', 'ct', 'ct.id = cd.idcontract')
+            .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .where(`${where}`)
+            .andWhere(`qp.payment_date BETWEEN '${filters.since}' AND '${filters.until}'`)
+            .groupBy(`qp.id, qp.payment_date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
+            co.code, ct.id, ct.idclinichistory, ct.num,"ch"."lastNameFather","ch"."lastNameMother",ch.name,ch.history`)
+            .getRawMany();
+    }
+
+    async changeStatePayment(id: number, state: number, user: number): Promise<any> {
+        const exists = await this.repositoryPayment.findOne(id);
+        if (!exists) {
+            throw new NotFoundException();
+        }
+        exists.state = state;
+        exists.user = user;
+        await exists.save();
+        return await this.repositoryPayment.findOne(id);
     }
 
 }

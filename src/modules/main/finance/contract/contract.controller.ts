@@ -14,7 +14,7 @@ import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
 // Dto
 import { ContractDto } from './dto/contract-dto';
 import { ContractDetailDto } from './dto/contract-detail-dto';
-import { ContractQuotaPaymentDto } from './dto/contract-quota-payment-dto';
+import { PaymentDto } from './dto/payment-dto';
 
 // Services
 import { ContractService } from './contract.service';
@@ -222,6 +222,36 @@ export class ContractController {
             message: 'Image uploaded successfully!',
             data: response
         };
+    }
+
+    @Post('/payments')
+    async getDataPaymentsFilters(
+        @Body() body: any
+    ): Promise<PaymentDto[]> {
+        return await this.service.getPaymentList(body);
+    }
+
+    @Put('/payment/change-state/:id')
+    async changeStatusPayment(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() data: any,
+        @Request() req: any
+    ) {
+        const user = Number(req.user.id);
+        const update = await this.service.changeStatePayment(id, Number(data.state), user);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = this.module;
+        audit.description = 'Change state payment';
+        audit.data = JSON.stringify(update);
+        audit.iduser = user;
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return update;
     }
 }
 
