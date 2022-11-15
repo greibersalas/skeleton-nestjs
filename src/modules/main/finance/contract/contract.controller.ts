@@ -21,6 +21,7 @@ import { ContractService } from './contract.service';
 
 // utils
 import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
+import { KpiQuotaDto } from './dto/kpi-quota-detail-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -252,6 +253,18 @@ export class ContractController {
         await audit.save();
         //Respondemos al usuario
         return update;
+    }
+
+    @Get('/kpi/quotas')
+    async getOverdueQuota(): Promise<KpiQuotaDto> {
+        const overdueQuota = await this.service.getOverdueQuota();
+        const quotaExpiration = await this.service.getQuotaToExpiration();
+        const kpiQuotaDetail = await this.service.getKpiQuotasDetail();
+        return {
+            overdueQuota,
+            quotaExpiration,
+            kpiQuotaDetail
+        }
     }
 }
 

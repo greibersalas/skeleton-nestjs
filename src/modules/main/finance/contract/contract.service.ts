@@ -11,6 +11,8 @@ import { PaymentDto } from './dto/payment-dto';
 import { Contract } from './entity/contract.entity';
 import { ContractDetail } from './entity/contract-detail.entity';
 import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
+import { KpiQuotaDetailDto } from './dto/kpi-quota-detail-dto';
+const moment = require('moment-timezone');
 
 @Injectable()
 export class ContractService {
@@ -161,6 +163,43 @@ export class ContractService {
         exists.user = user;
         await exists.save();
         return await this.repositoryPayment.findOne(id);
+    }
+
+    async getOverdueQuota(): Promise<number> {
+        const date = moment().format('YYYY-MM-DD');
+        const cant = await this.repositoryDetail.createQueryBuilder('dt')
+            .select('count(*) AS total')
+            .where(`dt.date < '${date}'`)
+            .andWhere(`dt.state = 1`)
+            .getRawOne();
+        return cant.total;
+    }
+    async getQuotaToExpiration(): Promise<number> {
+        const since = moment().format('YYYY-MM-DD');
+        const until = moment().add(1, 'M').format('YYYY-MM-DD');
+        const cant = await this.repositoryDetail.createQueryBuilder('dt')
+            .select('count(*) AS total')
+            .where(`dt.date BETWEEN '${since}' AND '${until}'`)
+            .andWhere(`dt.state = 1`)
+            .getRawOne();
+        return cant.total;
+    }
+
+    async getKpiQuotasDetail(): Promise<KpiQuotaDetailDto[]> {
+        const until = moment().add(1, 'M').format('YYYY-MM-DD');
+        return await this.repositoryDetail.createQueryBuilder('det')
+            .select(`ct.id AS idcontract, ct.idclinichistory, ct.num AS num_contract,
+            det.description, det.date, det.amount, det.observation,
+            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
+            ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
+            ch.email AS patient_email`)
+            .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
+            .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .where(`det.date < '${until}'`)
+            .andWhere(`det.state = 1`)
+            .orderBy('det.date', 'ASC')
+            .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
+            .getRawMany();
     }
 
 }
