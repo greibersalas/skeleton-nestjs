@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete, UseInterceptors, UploadedFile, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete, UseInterceptors, UploadedFile, HttpStatus, Res } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 const moment = require('moment-timezone');
+//Excel4Node
+import * as xl from 'excel4node';
 
 // Entity
 import { Audit } from 'src/modules/security/audit/audit.entity';
@@ -22,6 +24,8 @@ import { ContractService } from './contract.service';
 // utils
 import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 import { KpiQuotaDto } from './dto/kpi-quota-detail-dto';
+import { getMonthName } from 'src/utils/date.utils';
+import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_detail.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -100,6 +104,7 @@ export class ContractController {
                 det.observation = item.observation;
                 det.date = item.date;
                 det.amount = item.amount;
+                det.balance = item.amount;
                 det.created_at = moment().format('YYYY-MM-DD HH:mm:ss');
                 det.user = Number(req.user.id);
                 await this.service.insertDetail(det);
@@ -195,6 +200,8 @@ export class ContractController {
         data.coin = body.coin;
         data.amount = body.amount;
         data.observation = body.observation;
+        data.bank = body.bank;
+        data.contract = body.contract_detail[0].idcontract;
         data.file_name = file ? file.filename : null;
         data.file_ext = file ? extname(file.originalname) : null;
         data.user = Number(req.user.id);
@@ -202,7 +209,12 @@ export class ContractController {
         if (insert) {
             for await (const iterator of body.contract_detail) {
                 if (iterator.check) {
-                    await this.service.updateDetailPayment(iterator.id, insert.id);
+                    const paymenteDetail: ContractQuotaPaymentDetail = new ContractQuotaPaymentDetail();
+                    paymenteDetail.contractdetail = iterator.id;
+                    paymenteDetail.contractquotapayment = insert.id;
+                    paymenteDetail.amount = iterator.balance;
+                    paymenteDetail.save();
+                    await this.service.updateDetailPayment(iterator.id, iterator.balance);
                 }
             }
         }
@@ -255,16 +267,251 @@ export class ContractController {
         return update;
     }
 
-    @Get('/kpi/quotas')
-    async getOverdueQuota(): Promise<KpiQuotaDto> {
+    @Post('/kpi/quotas')
+    async getOverdueQuota(
+        @Body() body: any
+    ): Promise<KpiQuotaDto> {
         const overdueQuota = await this.service.getOverdueQuota();
         const quotaExpiration = await this.service.getQuotaToExpiration();
-        const kpiQuotaDetail = await this.service.getKpiQuotasDetail();
+        const kpiQuotaDetail = await this.service.getKpiQuotasDetail(body);
         return {
             overdueQuota,
             quotaExpiration,
             kpiQuotaDetail
         }
+    }
+
+    @Post('/kpi/get-resume-xlsx')
+    async getReportResumeXlsx(
+        @Res() response,
+        @Body() filters: any
+    ): Promise<any> {
+        const data = await this.service.getDataQuotasDetailXls(filters);
+        const wb = new xl.Workbook();
+        const ws = wb.addWorksheet(`DATA M.`);
+        const styleTitle = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#ffffff',
+                fgColor: '#989898',
+            },
+            font: {
+                size: 14,
+                bold: true
+            },
+            border: {
+                outline: true,
+                top: {
+                    color: '#ffffff',
+                }
+            }
+        });
+        const styleTitleStatus = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#ffffff',
+                fgColor: '#008000',
+            },
+            font: {
+                size: 14,
+                bold: true
+            },
+            border: {
+                outline: true,
+                top: {
+                    color: '#ffffff',
+                }
+            }
+        });
+        ws.cell(1, 1, 1, 9, true)
+            .string(`Datos generales`)
+            .style(styleTitle);
+        ws.cell(1, 10, 1, 21, true)
+            .string(`Estatus de Cobranza`)
+            .style(styleTitleStatus);
+
+        const style = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#ffffff',
+                fgColor: '#989898',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            },
+            border: {
+                outline: true,
+                top: {
+                    color: '#ffffff',
+                }
+            }
+        });
+        const styleStatus = wb.createStyle({
+            alignment: {
+                horizontal: ['center'],
+                vertical: ['center']
+            },
+            fill: {
+                type: 'pattern',
+                patternType: 'solid',
+                bgColor: '#ffffff',
+                fgColor: '#006400',
+            },
+            font: {
+                color: '#ffffff',
+                bold: true
+            },
+            border: {
+                outline: true,
+                top: {
+                    color: '#ffffff',
+                }
+            }
+        });
+        ws.row(2).filter();
+        ws.cell(2, 1)
+            .string("Historia")
+            .style(style);
+        ws.cell(2, 2)
+            .string("Cliente")
+            .style(style);
+        ws.cell(2, 3)
+            .string("Paciente")
+            .style(style);
+        ws.cell(2, 4)
+            .string("Ejecutivo")
+            .style(style);
+        ws.cell(2, 5)
+            .string("Mes de contrato")
+            .style(style);
+        ws.cell(2, 6)
+            .string("Año")
+            .style(style);
+        ws.cell(2, 7)
+            .string("Presupuesto Total")
+            .style(style);
+        ws.cell(2, 8)
+            .string("Cuota Inicial")
+            .style(style);
+        ws.cell(2, 9)
+            .string("N° Cuotas Contrato")
+            .style(style);
+        ws.cell(2, 10)
+            .string("Abonos Acumulados")
+            .style(styleStatus);
+        ws.cell(2, 11)
+            .string("Saldo por Cobrar")
+            .style(styleStatus);
+        ws.cell(2, 12)
+            .string("Importe de cuota (Contrato)")
+            .style(styleStatus);
+        ws.cell(2, 13)
+            .string("Tipo de cartera")
+            .style(styleStatus);
+        ws.cell(2, 14)
+            .string("Matriz de Seg")
+            .style(styleStatus);
+        ws.cell(2, 15)
+            .string("Segmentación")
+            .style(styleStatus);
+        ws.cell(2, 16)
+            .string("N° de cuota")
+            .style(styleStatus);
+        ws.cell(2, 17)
+            .string("Fecha Venc. Cuota")
+            .style(styleStatus);
+        ws.cell(2, 18)
+            .string("N° de Cuota")
+            .style(styleStatus);
+        ws.cell(2, 19)
+            .string("Días de Moridad")
+            .style(styleStatus);
+        ws.cell(2, 20)
+            .string("Clasificacion")
+            .style(styleStatus);
+        ws.cell(2, 21)
+            .string("Ejecución")
+            .style(styleStatus);
+        // size columns
+        ws.column(1).setWidth(15);
+        ws.column(2).setWidth(30);
+        ws.column(3).setWidth(30);
+        ws.column(4).setWidth(30);
+        ws.column(5).setWidth(15);
+        ws.column(6).setWidth(10);
+        ws.column(7).setWidth(15);
+        ws.column(8).setWidth(30);
+        ws.column(9).setWidth(20);
+        ws.column(10).setWidth(20);
+        ws.column(11).setWidth(20);
+        ws.column(12).setWidth(15);
+        ws.column(13).setWidth(40);
+        let y = 3;
+        data.map((it: any) => {
+            const {
+                history,
+                patient,
+                attorney,
+                contract_date,
+                contract_amount,
+                contract_quota,
+                initial_amount,
+                payment
+            } = it;
+
+            ws.cell(y, 1)
+                .string(`${history}`); // Nro de historia
+            ws.cell(y, 2)
+                .string(`${attorney ? attorney : ''}`); // Cliente
+            ws.cell(y, 3)
+                .string(`${patient}`); // Paciente
+            ws.cell(y, 4)
+                .string(``); // Ejecutivo
+            ws.cell(y, 5)
+                .string(`${getMonthName(Number(moment(contract_date).format('M')))}`); // Mes de contrato
+            ws.cell(y, 6)
+                .number(Number(moment(contract_date).format('YYYY'))); // año
+            ws.cell(y, 7)
+                .number(Number(contract_amount.toFixed(2))); // Presupuesto Total
+            ws.cell(y, 8)
+                .number(Number(initial_amount.toFixed(2))); // Cuota Inicial
+            ws.cell(y, 9)
+                .number(Number(contract_quota.toFixed(2))); // N° Cuotas Contrato
+            ws.cell(y, 10)
+                .number(Number(payment.toFixed(2))); // Abonos Acumulados
+            ws.cell(y, 11)
+                .formula(`G${y}-J${y}`); // Saldo por Cobrar
+            ws.cell(y, 12)
+                .string(`-`);
+            ws.cell(y, 13)
+                .string(`-`);
+            y++;
+        });
+        await wb.writeToBuffer().then(function (buffer: any) {
+            response.set({
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename=reporte-cobranza.xlsx',
+                'Content-Length': buffer.length
+            })
+
+            response.end(buffer);
+        });
     }
 }
 

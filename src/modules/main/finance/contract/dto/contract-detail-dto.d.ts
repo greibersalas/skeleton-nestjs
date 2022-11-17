@@ -5,6 +5,7 @@ export interface ContractDetailDto {
     observation: string;
     date: string;
     amount: number;
+    balance: number;
     state: number;
     check?: boolean;
 }

@@ -15,4 +15,5 @@ export interface ContractDto {
     patient?: string;
     patient_doc?: string;
     history?: string;
+    balance?: number;
 }

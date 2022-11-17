@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { User } from "src/modules/user/user.entity";
 import { Coin } from "src/modules/coin/coin.entity";
+import { Contract } from "./contract.entity";
 
 @Entity('contract_quota_payment')
 export class ContractQuotaPayment extends BaseEntity {
@@ -20,15 +21,22 @@ export class ContractQuotaPayment extends BaseEntity {
     @Column({ type: 'date', nullable: false })
     payment_date: string;
 
-    @ManyToOne(type => Coin, co => co.id, { cascade: true, nullable: false, eager: true })
+    @ManyToOne(type => Coin, co => co.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'idcoin' })
     coin: Coin | number;
+
+    @ManyToOne(type => Contract, ct => ct.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idcontract' })
+    contract: Contract | number;
 
     @Column({ type: 'float', nullable: false })
     amount: number;
 
     @Column({ type: 'varchar', length: 200, nullable: true })
     observation: string;
+
+    @Column({ type: 'varchar', length: 20, nullable: true })
+    bank: string;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
     file_name: string;

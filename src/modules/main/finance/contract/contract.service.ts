@@ -67,10 +67,15 @@ export class ContractService {
             .select(`so.id, so.type, so.idclinichistory, so.state, so.date,
             so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
             so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient`)
+            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
+            SUM(cd.balance) AS balance`)
             .innerJoin('so.clinichistory', 'ch')
+            .innerJoin('contract_detail', 'cd', 'cd.idcontract = so.id')
             .where(where)
             .andWhere(`so.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`)
+            .groupBy(`so.id, so.type, so.idclinichistory, so.state, so.date,
+            so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
+            so.amount_controls, so.num,ch.history, "ch"."documentNumber","ch"."lastNameFather", "ch"."lastNameMother", ch.name`)
             .getRawMany();
     }
 
@@ -87,9 +92,10 @@ export class ContractService {
     async getDataDetailForPayment(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
-            dt.date, dt.amount, dt.state`)
+            dt.date, dt.amount, dt.state, dt.balance`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state = 1')
+            .orderBy('dt.date', 'ASC')
             .getRawMany();
     }
 
@@ -123,13 +129,15 @@ export class ContractService {
         return this.repositoryPayment.save(data);
     }
 
-    async updateDetailPayment(id: number, idpayment: number): Promise<ContractDetail> {
+    async updateDetailPayment(id: number, balance: number): Promise<ContractDetail> {
         const exists = await this.repositoryDetail.findOne(id);
         if (!exists) {
             throw new NotFoundException();
         }
-        exists.state = 2;
-        exists.quotaPayment = idpayment;
+        exists.balance = exists.balance - balance;
+        if (exists.balance === 0) {
+            exists.state = 2;
+        }
         await exists.save();
         return await this.repositoryDetail.findOne(id);
     }
@@ -144,8 +152,8 @@ export class ContractService {
             co.code AS coin, ct.id AS idcontract, count(cd) AS cuotas, ct.idclinichistory, ct.num AS num_contract,
             concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history`)
             .innerJoin('coin', 'co', 'co.id = qp.idcoin')
-            .innerJoin('contract_detail', 'cd', 'cd.idcontractquotapayment = qp.id')
-            .innerJoin('contract', 'ct', 'ct.id = cd.idcontract')
+            .innerJoin('contract_quota_payment_detail', 'cd', 'cd.idcontractquotapayment = qp.id')
+            .innerJoin('contract', 'ct', 'ct.id = qp.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .where(`${where}`)
             .andWhere(`qp.payment_date BETWEEN '${filters.since}' AND '${filters.until}'`)
@@ -185,8 +193,8 @@ export class ContractService {
         return cant.total;
     }
 
-    async getKpiQuotasDetail(): Promise<KpiQuotaDetailDto[]> {
-        const until = moment().add(1, 'M').format('YYYY-MM-DD');
+    async getKpiQuotasDetail(filters: any): Promise<KpiQuotaDetailDto[]> {
+        // const until = moment().add(1, 'M').format('YYYY-MM-DD');
         return await this.repositoryDetail.createQueryBuilder('det')
             .select(`ct.id AS idcontract, ct.idclinichistory, ct.num AS num_contract,
             det.description, det.date, det.amount, det.observation,
@@ -195,10 +203,35 @@ export class ContractService {
             ch.email AS patient_email`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
-            .where(`det.date < '${until}'`)
+            .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .andWhere(`det.state = 1`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
+            .getRawMany();
+    }
+
+    async getDataQuotasDetailXls(filters: any): Promise<any> {
+        return await this.repositoryDetail.createQueryBuilder('det')
+            .select(`ct.id AS idcontract, ct.idclinichistory, ct.num AS num_contract,
+            det.description, det.date, det.amount, det.observation,
+            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
+            ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
+            ch.email AS patient_email, ch.attorney, ct.date AS contract_date,
+            ct.amount AS contract_amount, ct.quota AS contract_quota,
+            ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment`)
+            .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
+            .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .innerJoin('contract_detail', 'ctd', `ctd.idcontract = det.idcontract AND ctd.description like '%nicial%'`)
+            .innerJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
+            .innerJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
+            .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
+            .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
+            "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,
+            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount`)
+            .andWhere(`det.state = 1`)
+            .orderBy('det.date', 'ASC')
+            .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
+            // .getQuery();
             .getRawMany();
     }
 
