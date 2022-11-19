@@ -1,3 +1,5 @@
+import { PaymentDetailDto } from "./payment-detail-dto";
+
 export interface PaymentDto {
     id: number;
     payment_date: string;
@@ -14,4 +16,7 @@ export interface PaymentDto {
     num_contract: string;
     patient: string;
     history: string;
+    bank?: string;
+    patient_doc?: string;
+    detail?: PaymentDetailDto[];
 }

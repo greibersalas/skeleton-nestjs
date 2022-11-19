@@ -1,18 +1,20 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ContractDetailDto } from './dto/contract-detail-dto';
+const moment = require('moment-timezone');
 
 // Dto
 import { ContractDto } from './dto/contract-dto';
+import { ContractDetailDto } from './dto/contract-detail-dto';
+import { KpiQuotaDetailDto } from './dto/kpi-quota-detail-dto';
 import { PaymentDto } from './dto/payment-dto';
+import { PaymentDetailDto } from './dto/payment-detail-dto';
 
 // Entity
 import { Contract } from './entity/contract.entity';
 import { ContractDetail } from './entity/contract-detail.entity';
 import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
-import { KpiQuotaDetailDto } from './dto/kpi-quota-detail-dto';
-const moment = require('moment-timezone');
+import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_detail.entity';
 
 @Injectable()
 export class ContractService {
@@ -23,7 +25,9 @@ export class ContractService {
         @InjectRepository(ContractDetail)
         private readonly repositoryDetail: Repository<ContractDetail>,
         @InjectRepository(ContractQuotaPayment)
-        private readonly repositoryPayment: Repository<ContractQuotaPayment>
+        private readonly repositoryPayment: Repository<ContractQuotaPayment>,
+        @InjectRepository(ContractQuotaPaymentDetail)
+        private readonly repositoryPaymentDetail: Repository<ContractQuotaPaymentDetail>
     ) { }
 
     async getOne(id: number): Promise<ContractDto> {
@@ -193,6 +197,29 @@ export class ContractService {
         return cant.total;
     }
 
+    async getPaymentData(idpayment: number): Promise<PaymentDto> {
+        return this.repositoryPayment.createQueryBuilder('qp')
+            .select(`qp.id, qp.payment_date, qp.idcoin, qp.amount, qp.observation, qp.state,
+            qp.file_name, qp.file_ext, qp.bank, qp.idcontract, co.code AS coin, ct.idclinichistory,
+            ct.num AS num_contract, concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
+            ch.history, "ch"."documentNumber" AS patient_doc`)
+            .innerJoin(`coin`, `co`, `co.id = qp.idcoin`)
+            .innerJoin(`contract`, `ct`, `ct.id = qp.idcontract`)
+            .innerJoin(`clinic_history`, `ch`, `ch.id = ct.idclinichistory`)
+            .where(`qp.id = ${idpayment}`)
+            .getRawOne();
+    }
+
+    async getPaymentDetail(idpayment: number): Promise<PaymentDetailDto[]> {
+        return this.repositoryPaymentDetail.createQueryBuilder('qpd')
+            .select(`qpd.id, qpd.idcontractdetail, qpd.amount,
+            cd.description, cd.date AS quota_date, cd.amount AS quota_amount, cd.observation`)
+            .innerJoin(`contract_detail`, `cd`, `cd.id = qpd.idcontractdetail`)
+            .where(`qpd.idcontractquotapayment = ${idpayment}`)
+            .andWhere(`qpd.state = 1`)
+            .getRawMany();
+    }
+
     async getKpiQuotasDetail(filters: any): Promise<KpiQuotaDetailDto[]> {
         // const until = moment().add(1, 'M').format('YYYY-MM-DD');
         return await this.repositoryDetail.createQueryBuilder('det')
@@ -218,7 +245,8 @@ export class ContractService {
             ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
             ch.email AS patient_email, ch.attorney, ct.date AS contract_date,
             ct.amount AS contract_amount, ct.quota AS contract_quota,
-            ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment`)
+            ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment,
+            ctd.date AS date_quota`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .innerJoin('contract_detail', 'ctd', `ctd.idcontract = det.idcontract AND ctd.description like '%nicial%'`)
@@ -227,7 +255,7 @@ export class ContractService {
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
             "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,
-            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount`)
+            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date`)
             .andWhere(`det.state = 1`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')

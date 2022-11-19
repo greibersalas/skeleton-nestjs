@@ -147,7 +147,6 @@ export class ContractController {
         return update;
     }
 
-
     @Delete(':id')
     async delete(
         @Param('id', ParseIntPipe) id: number,
@@ -265,6 +264,17 @@ export class ContractController {
         await audit.save();
         //Respondemos al usuario
         return update;
+    }
+
+    // Detalle de un pago
+    @Get('/payment/detail/:id')
+    async getPaymentDetail(
+        @Param('id', ParseIntPipe) id: number,
+    ): Promise<PaymentDto> {
+        const data = await this.service.getPaymentData(id);
+        const detail = await this.service.getPaymentDetail(id);
+        data.detail = detail;
+        return data;
     }
 
     @Post('/kpi/quotas')
@@ -461,7 +471,8 @@ export class ContractController {
         ws.column(10).setWidth(20);
         ws.column(11).setWidth(20);
         ws.column(12).setWidth(15);
-        ws.column(13).setWidth(40);
+        ws.column(13).setWidth(20);
+        ws.column(14).setWidth(15);
         let y = 3;
         data.map((it: any) => {
             const {
@@ -472,9 +483,10 @@ export class ContractController {
                 contract_amount,
                 contract_quota,
                 initial_amount,
-                payment
+                payment,
+                date_quota
             } = it;
-
+            const moridad = moment().diff(moment(date_quota), 'days');
             ws.cell(y, 1)
                 .string(`${history}`); // Nro de historia
             ws.cell(y, 2)
@@ -500,7 +512,17 @@ export class ContractController {
             ws.cell(y, 12)
                 .string(`-`);
             ws.cell(y, 13)
-                .string(`-`);
+                .string(this.getTipoCartera(moridad)); // Tipo de cartera
+            ws.cell(y, 15)
+                .string(''); // Segmentación
+            ws.cell(y, 16)
+                .string(''); // N° de cuota
+            ws.cell(y, 17)
+                .date(new Date(date_quota)).style({ numberFormat: 'dd/mm/yyyy' }); // Fecha Venc. Cuota
+            ws.cell(y, 18)
+                .string(''); // N° de Cuota
+            ws.cell(y, 19)
+                .number(Number(moridad)); // Días de Moridad
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
@@ -512,6 +534,23 @@ export class ContractController {
 
             response.end(buffer);
         });
+    }
+
+    getTipoCartera = (moridad: number): string => {
+        if (moridad <= 0) {
+            return 'POR VENCER';
+        }
+        if (moridad >= 1 && moridad <= 30) {
+            return 'VENCIDO';
+        }
+        if (moridad >= 31) {
+            return 'MOROSA';
+        }
+        return ''
+    }
+
+    getSegmentacion(): string {
+        return '';
     }
 }
 
