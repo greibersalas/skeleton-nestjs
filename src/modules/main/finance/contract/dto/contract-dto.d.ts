@@ -9,8 +9,9 @@ export interface ContractDto {
     exchange_house: string;
     exchange_house_url: string;
     amount_controls: number;
-    num: number;
+    num: string;
     state: number;
+    executive?: string;
     detail?: any[];
     patient?: string;
     patient_doc?: string;

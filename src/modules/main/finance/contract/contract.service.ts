@@ -15,6 +15,7 @@ import { Contract } from './entity/contract.entity';
 import { ContractDetail } from './entity/contract-detail.entity';
 import { ContractQuotaPayment } from './entity/contract-quota-payment.entity';
 import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_detail.entity';
+import { ClinicHistory } from 'src/modules/clinic-history/clinic-history.entity';
 
 @Injectable()
 export class ContractService {
@@ -27,7 +28,9 @@ export class ContractService {
         @InjectRepository(ContractQuotaPayment)
         private readonly repositoryPayment: Repository<ContractQuotaPayment>,
         @InjectRepository(ContractQuotaPaymentDetail)
-        private readonly repositoryPaymentDetail: Repository<ContractQuotaPaymentDetail>
+        private readonly repositoryPaymentDetail: Repository<ContractQuotaPaymentDetail>,
+        @InjectRepository(ClinicHistory)
+        private readonly repositoryClinicHistory: Repository<ClinicHistory>
     ) { }
 
     async getOne(id: number): Promise<ContractDto> {
@@ -89,7 +92,7 @@ export class ContractService {
             dt.date::DATE, dt.amount, dt.state`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state <> 0')
-            .orderBy('dt.id', 'ASC')
+            .orderBy('dt.date', 'ASC')
             .getRawMany();
     }
 
@@ -261,6 +264,107 @@ export class ContractService {
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
             // .getQuery();
             .getRawMany();
+    }
+
+    async regularNumDoc(data: any[], user: number): Promise<any> {
+        let count: number = 0;
+        await Promise.all(
+            data.map(async (it) => {
+                const exist = await this.repositoryClinicHistory.findOne({
+                    where: { history: it[0] }
+                });
+                if (exist) {
+                    try {
+                        const cuotas = it[10];
+                        const cuotas_pendientes = it[12];
+                        const fecha_vence = it[13];
+                        const number = Number(cuotas - cuotas_pendientes);
+                        let dia_ini: any = it[14];
+                        const fecha_ini = moment(fecha_vence).subtract(number, 'months').format('YYYY-MM');
+                        // Datos del contrato
+                        const contract: Contract = new Contract();
+                        contract.type = 'C';
+                        contract.clinichistory = exist.id;
+                        const monthContract = it[11] < 10 ? `0${it[11]}` : it[11];
+                        contract.date = it[2] !== null ? moment(it[2]).format('YYYY-MM-DD') : moment(`${it[4]}-${monthContract}-01`).format('YYYY-MM-DD');
+                        // console.log({ historia: contract.date, num: it[15] });
+
+                        contract.duration = cuotas;
+                        contract.amount = it[5];
+                        contract.quota = cuotas;
+                        contract.exchange_house = 'KAMBISTA SAC - RUC 20601708141';
+                        contract.exchange_house_url = 'https://kambista.com/';
+                        contract.amount_controls = 100;
+                        contract.num = `C${this.lpad(it[15], 4)}`;
+                        contract.user = user;
+                        contract.executive = it[1];
+                        const insertContract = await this.repository.save(contract);
+                        if (dia_ini < 10) {
+                            dia_ini = `0${dia_ini}`;
+
+                        }
+
+                        let monthQuota = moment(`${fecha_ini}-01`);
+                        if (dia_ini > 27 && Number(moment(monthQuota).format('M')) === 2) {
+                            const february = moment(monthQuota).format('YYYY-MM');
+                            monthQuota = moment(`${february}-27`);
+                        } else {
+                            monthQuota = moment(`${fecha_ini}-${dia_ini === 31 ? 30 : dia_ini}`);
+                        }
+                        // const details: ContractDetail[] = [];
+                        const det: ContractDetail = new ContractDetail();
+                        det.contract = insertContract.id;
+                        det.description = 'Inicial';
+                        det.observation = '';
+
+                        det.date = moment(monthQuota).format('YYYY-MM-DD');
+                        det.amount = it[6];
+                        det.balance = 0;
+                        det.state = 2;
+                        det.quota = 0;
+                        det.user = user;
+                        await det.save();
+                        // details.push(det);
+
+                        for (let i = 0; i < cuotas; i++) {
+                            if (dia_ini > 27 && Number(moment(monthQuota).format('M')) === 2) {
+                                const february = moment(monthQuota).format('YYYY-MM');
+                                monthQuota = moment(`${february}-27`);
+                                // console.log({ monthQuota });
+                            }
+                            const det: ContractDetail = new ContractDetail();
+                            det.contract = insertContract.id;
+                            det.description = `Cuota ${Number(i + 1)}`;
+                            det.quota = Number(i + 1);
+                            det.observation = '';
+                            det.date = moment(monthQuota).format('YYYY-MM-DD');
+                            // console.log({ fecha_det: moment(monthQuota).format('YYYY-MM-DD') });
+
+                            det.amount = it[9];
+                            det.balance = i < number ? 0 : it[9]; // it[9];
+                            det.state = i < number ? 2 : 1;
+                            det.user = user;
+                            await det.save();
+                            // details.push(det);
+                            monthQuota = moment(monthQuota).add(1, 'M');
+                        }
+                    } catch (error) {
+                        console.log({ error });
+
+                    }
+
+                    //console.log({ fecha_ini, cuotas, contract, details });
+                    count++;
+                }
+                count++;
+            })
+        );
+        return count;
+    }
+
+    lpad(value: number, padding: number) {
+        var zeroes = new Array(padding + 1).join("0");
+        return (zeroes + value).slice(-padding);
     }
 
 }

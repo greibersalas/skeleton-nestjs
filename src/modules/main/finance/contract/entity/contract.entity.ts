@@ -43,11 +43,14 @@ export class Contract extends BaseEntity {
     @Column({ type: 'varchar', length: 40, nullable: false })
     exchange_house_url: string;
 
+    @Column({ type: 'varchar', length: 40, nullable: true })
+    executive: string;
+
     @Column({ type: 'int2', nullable: false })
     amount_controls: number;
 
-    @Column({ type: 'int2', nullable: false })
-    num: number;
+    @Column({ type: 'varchar', nullable: false })
+    num: string;
 
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;

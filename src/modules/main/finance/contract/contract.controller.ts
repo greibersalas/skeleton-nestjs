@@ -4,6 +4,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 const moment = require('moment-timezone');
+const readXlsxFile = require('read-excel-file/node');
 //Excel4Node
 import * as xl from 'excel4node';
 
@@ -551,6 +552,21 @@ export class ContractController {
 
     getSegmentacion(): string {
         return '';
+    }
+
+    @Get('get/xlsx/')
+    async getXlsx(
+        @Res() response,
+        @Request() req: any
+    ): Promise<any> {
+        await readXlsxFile(`${__dirname}/../../../../../uploads/contratos.xlsx`).then(async (rows: any) => {
+            // `rows` is an array of rows
+            // each row being an array of cells.
+            rows.shift();
+            const resp = await this.service.regularNumDoc(rows, Number(req.user.id));
+            return response.status(HttpStatus.OK).json(resp);
+
+        });
     }
 }
 

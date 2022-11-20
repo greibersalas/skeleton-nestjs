@@ -40,6 +40,9 @@ export class ContractDetail extends BaseEntity {
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;
 
+    @Column({ type: 'integer', default: 0, nullable: false })
+    quota: number;
+
     @ManyToOne(type => User, us => us.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iduser' })
     user: User | number;
