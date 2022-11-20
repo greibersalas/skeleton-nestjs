@@ -19,7 +19,7 @@ import { Hours } from './interface.hours';
 import { Audit } from '../security/audit/audit.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { Reservation } from './reservation.entity';
-import { ClinicHistoryService  } from '../clinic-history/clinic-history.service'
+import { ClinicHistoryService } from '../clinic-history/clinic-history.service'
 import { DoctorService } from '../doctor/doctor.service';
 import { EnvironmentDoctorService } from '../environment-doctor/environment-doctor.service'
 import { ReservationService } from './reservation.service';
@@ -36,53 +36,53 @@ import * as xl from 'excel4node';
 export class ReservationController {
     constructor(
         private readonly _reservationService: ReservationService,
-        private _serviceEnviroment:EnvironmentDoctorService,
-        private _serviceDoctor:DoctorService,
-        private _servicePatient:ClinicHistoryService
-        ){}
+        private _serviceEnviroment: EnvironmentDoctorService,
+        private _serviceDoctor: DoctorService,
+        private _servicePatient: ClinicHistoryService
+    ) { }
 
     @Get(':id')
-    async getReservation(@Param('id',ParseIntPipe) id: number): Promise<Reservation>{
+    async getReservation(@Param('id', ParseIntPipe) id: number): Promise<Reservation> {
         return await this._reservationService.get(id);
     }
 
     @Get('/enviroments/resumen/day/:id')
-    async getResumenDayByChar(@Param('id',ParseIntPipe) id: number): Promise<any>{
+    async getResumenDayByChar(@Param('id', ParseIntPipe) id: number): Promise<any> {
         return await this._reservationService.getResumenDayByChar(id);
     }
 
     @Get('/environments/available/:day/:month/:year')
-    async getEnvironmentAvailable(@Param('day',ParseIntPipe) day: number,
-                                  @Param('month',ParseIntPipe) month: number,
-                                  @Param('year',ParseIntPipe) year: number): Promise<EnvironmentDoctor[]>{
-        let envCheck:EnvironmentDoctor[]=[]
+    async getEnvironmentAvailable(@Param('day', ParseIntPipe) day: number,
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number): Promise<EnvironmentDoctor[]> {
+        let envCheck: EnvironmentDoctor[] = []
         let date = new Date()
         let dateDr = new Date()
-        date.setFullYear(year,month,day)
-        dateDr.setFullYear(year,month,day-1)
+        date.setFullYear(year, month, day)
+        dateDr.setFullYear(year, month, day - 1)
         //var dayweek = dateDr.toUTCString().split(',')[0].toLowerCase()
         const envs = await this._serviceEnviroment.getAll();
         const reservations = await this._reservationService.getByDate(date)
-        if (reservations.length==0){
+        if (reservations.length == 0) {
             return envs
         }
-        else{
+        else {
             //verificar que ambiente tiene por lo menos una sola programación
-            let environmentBusy:EnvironmentDoctor[] = []
-            envs.forEach((env:EnvironmentDoctor)=>{
-                reservations.forEach((reservation:Reservation)=>{
-                    if (reservation.environment.id == env.id){
+            let environmentBusy: EnvironmentDoctor[] = []
+            envs.forEach((env: EnvironmentDoctor) => {
+                reservations.forEach((reservation: Reservation) => {
+                    if (reservation.environment.id == env.id) {
                         var exit = false
-                        environmentBusy.forEach(ev=>{
+                        environmentBusy.forEach(ev => {
                             if (ev.id == env.id)
                                 exit = true
                         })
                         if (!exit)
                             environmentBusy.push(env)
                     }
-                    else{
+                    else {
                         var exit = false
-                        envCheck.forEach(re=>{
+                        envCheck.forEach(re => {
                             if (re.id == env.id)
                                 exit = true
                         })
@@ -92,43 +92,43 @@ export class ReservationController {
                 })
             })
             var process = 0
-            environmentBusy.forEach(env=>{
+            environmentBusy.forEach(env => {
                 var beging = '08';
                 const dateActu = `${year}-${month}-${day}`;
-                if(moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')){
+                if (moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')) {
                     beging = moment().tz("America/Lima").format('HH');
                     //console.log("beging ",beging);
                 }
                 const end = 18
-                const interval =  env.interval
-                let Hours:Hours[]=[];
-                var monthstr=''
-                var daystr=''
+                const interval = env.interval
+                let Hours: Hours[] = [];
+                var monthstr = ''
+                var daystr = ''
                 if (month < 10)
-                    monthstr = '0'+String(month)
+                    monthstr = '0' + String(month)
                 else
                     monthstr = String(month)
-                if (day<10)
-                    daystr = '0'+String(day)
+                if (day < 10)
+                    daystr = '0' + String(day)
                 else
                     daystr = String(day)
-                let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
+                let time = new Date(String(year) + "-" + monthstr + "-" + daystr + "T" + String(beging) + ":00:00Z")
 
                 var conth = Number(beging);
-                var step = interval/60
+                var step = interval / 60
                 var hbusy = 0
-                while(conth <= end){
+                while (conth <= end) {
                     let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
-                    time.setMinutes(time.getMinutes() + interval) 
+                    time.setMinutes(time.getMinutes() + interval)
                     let hourend = (time.toISOString().split('T')[1]).split('.')[0]
-                    Hours.push({beging:hourBegin,end:hourend})
-                    reservations.forEach(resv=>{
-                        if (resv.appointment == String(hourBegin+'-'+hourend))
+                    Hours.push({ beging: hourBegin, end: hourend })
+                    reservations.forEach(resv => {
+                        if (resv.appointment == String(hourBegin + '-' + hourend))
                             hbusy++
                     })
-                    conth=conth+step
-                } 
-                if (Hours.length!=hbusy)
+                    conth = conth + step
+                }
+                if (Hours.length != hbusy)
                     envCheck.push(env)
                 process++
             })
@@ -137,130 +137,130 @@ export class ReservationController {
     }
 
     @Get('/hours/available/:doctor_id/:environment_id/:day/:month/:year')
-    async getHoursAvialiable(@Param('doctor_id',ParseIntPipe) doctor_id: number,
-                        @Param('environment_id', ParseIntPipe) environment_id:number,
-                        @Param('day',ParseIntPipe) day: number,
-                        @Param('month',ParseIntPipe) month: number,
-                        @Param('year',ParseIntPipe) year: number): Promise<Hours[]>{
+    async getHoursAvialiable(@Param('doctor_id', ParseIntPipe) doctor_id: number,
+        @Param('environment_id', ParseIntPipe) environment_id: number,
+        @Param('day', ParseIntPipe) day: number,
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number): Promise<Hours[]> {
         let date = new Date()
-        date.setFullYear(year,month,day)
-        let hours:Hours[]=[] ;
-        let datestring = String(year)+'-'+String(month)+'-'+String(day);
+        date.setFullYear(year, month, day)
+        let hours: Hours[] = [];
+        let datestring = String(year) + '-' + String(month) + '-' + String(day);
         var beging = '08';
         const dateActu = Date.parse(`${year}-${month}-${day}`);
-        if(moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')){
+        if (moment().tz("America/Lima").format('YYYY-MM-DD') === moment(dateActu).format('YYYY-MM-DD')) {
             beging = moment().tz("America/Lima").format('HH');
             //console.log("beging ",beging);
         }
         const end = 18
         const environment = await this._serviceEnviroment.get(environment_id)
-        const interval =  environment.interval;
-        const time_cleaning =  environment.time_cleaning;
+        const interval = environment.interval;
+        const time_cleaning = environment.time_cleaning;
         const doctor = await this._serviceDoctor.get(doctor_id)
-        const reservations = await this._reservationService.getByDoctorEnivronment(datestring,doctor,environment)
+        const reservations = await this._reservationService.getByDoctorEnivronment(datestring, doctor, environment)
         let m_schedule = doctor.morning_schedule
         let a_schedule = doctor.afternoon_schedule
-        if (reservations.length == 0){
-            var monthstr=''
-            var daystr=''
+        if (reservations.length == 0) {
+            var monthstr = ''
+            var daystr = ''
             if (month < 10)
-                monthstr = '0'+String(month-1)
+                monthstr = '0' + String(month - 1)
             else
-                monthstr = String(month-1)
-            if (day<10)
-                daystr = '0'+String(day)
+                monthstr = String(month - 1)
+            if (day < 10)
+                daystr = '0' + String(day)
             else
                 daystr = String(day)
-            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
+            let time = new Date(String(year) + "-" + monthstr + "-" + daystr + "T" + String(beging) + ":00:00Z")
             var conth = Number(beging);
-            var step = interval/60;
-            while(conth != end){
+            var step = interval / 60;
+            while (conth != end) {
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0]
-                time.setMinutes(time.getMinutes() + (interval-time_cleaning)) 
+                time.setMinutes(time.getMinutes() + (interval - time_cleaning))
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0]
-                if (m_schedule != null){
+                if (m_schedule != null) {
                     let hi = m_schedule.split('-')[0].split(':')
-                    let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                    let doctorhi = (parseInt(hi[0]) * 3600) + (parseInt(hi[1]) * 60)
                     let he = m_schedule.split('-')[1].split(':')
-                    let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                    let doctorhe = (parseInt(he[0]) * 3600) + (parseInt(he[1]) * 60)
                     let hip = hourBegin.split(':')
-                    let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                    let hiprogr = (parseInt(hip[0]) * 3600) + (parseInt(hip[1]) * 60)
                     let hep = hourend.split(':')
-                    let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                    let heprogr = (parseInt(hep[0]) * 3600) + (parseInt(hep[1]) * 60)
 
-                    if (hiprogr>=doctorhi && heprogr<=doctorhe){
-                        hours.push({beging:hourBegin,end:hourend})
+                    if (hiprogr >= doctorhi && heprogr <= doctorhe) {
+                        hours.push({ beging: hourBegin, end: hourend })
                     }
                 }
-                if (a_schedule !== null && typeof a_schedule !== 'undefined' && a_schedule !== 'undefined' && a_schedule !== ''){
+                if (a_schedule !== null && typeof a_schedule !== 'undefined' && a_schedule !== 'undefined' && a_schedule !== '') {
                     let hi = a_schedule.split('-')[0].split(':')
-                    let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                    let doctorhi = (parseInt(hi[0]) * 3600) + (parseInt(hi[1]) * 60)
                     let he = a_schedule.split('-')[1].split(':')
-                    let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                    let doctorhe = (parseInt(he[0]) * 3600) + (parseInt(he[1]) * 60)
                     let hip = hourBegin.split(':')
-                    let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                    let hiprogr = (parseInt(hip[0]) * 3600) + (parseInt(hip[1]) * 60)
                     let hep = hourend.split(':')
-                    let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                    let heprogr = (parseInt(hep[0]) * 3600) + (parseInt(hep[1]) * 60)
 
-                    if (hiprogr >= doctorhi && heprogr <= doctorhe){
-                        hours.push({beging:hourBegin,end:hourend})
+                    if (hiprogr >= doctorhi && heprogr <= doctorhe) {
+                        hours.push({ beging: hourBegin, end: hourend })
                     }
                 }
                 //hours.push({beging:hourBegin,end:hourend})
-                conth= conth + step;
+                conth = conth + step;
                 time.setMinutes(time.getMinutes() + time_cleaning);
-            } 
-        }else{
+            }
+        } else {
             //verificar los rangos que estan ocupados.
             var timebusy = [];
-            reservations.forEach(res=>{
+            reservations.forEach(res => {
                 timebusy.push(res.appointment)
             })
-            var monthstr=''
-            var daystr=''
+            var monthstr = ''
+            var daystr = ''
             if (month < 10)
-                monthstr = '0'+String(month-1)
+                monthstr = '0' + String(month - 1)
             else
-                monthstr = String(month-1)
-            if (day<10)
-                daystr = '0'+String(day)
+                monthstr = String(month - 1)
+            if (day < 10)
+                daystr = '0' + String(day)
             else
                 daystr = String(day)
-            let time = new Date(String(year)+"-"+monthstr+"-"+daystr+"T" + String(beging)+":00:00Z")
+            let time = new Date(String(year) + "-" + monthstr + "-" + daystr + "T" + String(beging) + ":00:00Z")
             var conth = Number(beging);
 
-            while(conth != end){
+            while (conth != end) {
                 let hourBegin = (time.toISOString().split('T')[1]).split('.')[0];
-                time.setMinutes(time.getMinutes() + (interval-time_cleaning));
+                time.setMinutes(time.getMinutes() + (interval - time_cleaning));
                 let hourend = (time.toISOString().split('T')[1]).split('.')[0];
 
-                if (!timebusy.includes(hourBegin+'-'+hourend)){
-                    if (m_schedule != null){
+                if (!timebusy.includes(hourBegin + '-' + hourend)) {
+                    if (m_schedule != null) {
                         let hi = m_schedule.split('-')[0].split(':')
-                        let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                        let doctorhi = (parseInt(hi[0]) * 3600) + (parseInt(hi[1]) * 60)
                         let he = m_schedule.split('-')[1].split(':')
-                        let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                        let doctorhe = (parseInt(he[0]) * 3600) + (parseInt(he[1]) * 60)
                         let hip = hourBegin.split(':')
-                        let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                        let hiprogr = (parseInt(hip[0]) * 3600) + (parseInt(hip[1]) * 60)
                         let hep = hourend.split(':')
-                        let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                        let heprogr = (parseInt(hep[0]) * 3600) + (parseInt(hep[1]) * 60)
 
-                        if (hiprogr>=doctorhi && heprogr<=doctorhe){
-                            hours.push({beging:hourBegin,end:hourend})
+                        if (hiprogr >= doctorhi && heprogr <= doctorhe) {
+                            hours.push({ beging: hourBegin, end: hourend })
                         }
                     }
-                    if (a_schedule != null){
+                    if (a_schedule != null) {
                         let hi = a_schedule.split('-')[0].split(':')
-                        let doctorhi = (parseInt(hi[0])*3600)+(parseInt(hi[1])*60)
+                        let doctorhi = (parseInt(hi[0]) * 3600) + (parseInt(hi[1]) * 60)
                         let he = a_schedule.split('-')[1].split(':')
-                        let doctorhe = (parseInt(he[0])*3600)+(parseInt(he[1])*60)
+                        let doctorhe = (parseInt(he[0]) * 3600) + (parseInt(he[1]) * 60)
                         let hip = hourBegin.split(':')
-                        let hiprogr = (parseInt(hip[0])*3600)+(parseInt(hip[1])*60)
+                        let hiprogr = (parseInt(hip[0]) * 3600) + (parseInt(hip[1]) * 60)
                         let hep = hourend.split(':')
-                        let heprogr = (parseInt(hep[0])*3600)+(parseInt(hep[1])*60)
+                        let heprogr = (parseInt(hep[0]) * 3600) + (parseInt(hep[1]) * 60)
 
-                        if (hiprogr >= doctorhi && heprogr <= doctorhe){
-                            hours.push({beging:hourBegin,end:hourend})
+                        if (hiprogr >= doctorhi && heprogr <= doctorhe) {
+                            hours.push({ beging: hourBegin, end: hourend })
                         }
                     }
                 }
@@ -272,7 +272,7 @@ export class ReservationController {
     }
 
     @Get()
-    async getReservations(): Promise<Reservation[]>{
+    async getReservations(): Promise<Reservation[]> {
         const Reservation = await this._reservationService.getAll();
         return Reservation;
     }
@@ -281,10 +281,10 @@ export class ReservationController {
     async createReservation(
         @Body() reservation: Reservation,
         @Request() req: any
-    ): Promise<Reservation>{
+    ): Promise<Reservation> {
         //Validamos que no este pcupado el cupo
         const validate = await this._reservationService.validateCupo(reservation);
-        if(typeof validate !== 'undefined'){
+        if (typeof validate !== 'undefined') {
             throw new BadRequestException('El cupo ya no esta disponible.');
         }
         const create = await this._reservationService.create(reservation);
@@ -303,60 +303,60 @@ export class ReservationController {
     }
 
     @Post('/filter/')
-    async filterReservation(@Body() formfilter: FormFilter): Promise<Reservation[]>{
-        let reservations:Reservation[]=[]
-        let reservationFilterSpecialty :Reservation[]=[]
-        let reservationFilterbl:Reservation []=[]
-        let reservationRegister:Reservation []=[]
-        let reservationPatient:Reservation []=[]
-        if (formfilter.bl.id == 0 && formfilter.environment.id == 0 && formfilter.specialty.id == 0 && formfilter.doctor.id == 0 ){
+    async filterReservation(@Body() formfilter: FormFilter): Promise<Reservation[]> {
+        let reservations: Reservation[] = []
+        let reservationFilterSpecialty: Reservation[] = []
+        let reservationFilterbl: Reservation[] = []
+        let reservationRegister: Reservation[] = []
+        let reservationPatient: Reservation[] = []
+        if (formfilter.bl.id == 0 && formfilter.environment.id == 0 && formfilter.specialty.id == 0 && formfilter.doctor.id == 0) {
             reservations = await this._reservationService.getAll();
         }
-        else{
+        else {
             reservations = await this._reservationService.filterReservation(formfilter);
         }
-        if (formfilter.specialty.id!=0){
+        if (formfilter.specialty.id != 0) {
             reservations.forEach(element => {
                 if (element.tariff.specialty.id == formfilter.specialty.id)
                     reservationFilterSpecialty.push(element)
             });
             reservations = reservationFilterSpecialty
         }
-        if (formfilter.bl.id!=0){
-            reservations.forEach(element=>{
+        if (formfilter.bl.id != 0) {
+            reservations.forEach(element => {
                 if (element.tariff.specialty.businessLines.id == formfilter.bl.id)
                     reservationFilterbl.push(element)
             })
             reservations = reservationFilterbl
         }
-       
-        if (formfilter.register != true){
-            reservations.forEach(element=>{
+
+        if (formfilter.register != true) {
+            reservations.forEach(element => {
                 if (element.state != 1)
                     reservationRegister.push(element)
             })
             reservations = reservationRegister
-        } 
+        }
 
-        if (formfilter.confirm != true){
-            reservations.forEach(element=>{
+        if (formfilter.confirm != true) {
+            reservations.forEach(element => {
                 if (element.state != 2)
                     reservationRegister.push(element)
             })
             reservations = reservationRegister
-        } 
-        
-        if (formfilter.attended != true){
-            reservations.forEach(element=>{
+        }
+
+        if (formfilter.attended != true) {
+            reservations.forEach(element => {
                 if (element.state != 3)
                     reservationRegister.push(element)
             })
             reservations = reservationRegister
-        } 
+        }
 
-        if (formfilter.patient.id != 0){
+        if (formfilter.patient.id != 0) {
             const pa = await this._servicePatient.get(formfilter.patient.id)
-            reservations.forEach(element=>{
+            reservations.forEach(element => {
                 if (element.patient.id == pa.id)
                     reservationPatient.push(element)
             })
@@ -369,11 +369,11 @@ export class ReservationController {
 
     @Put(':id')
     async updateReservation(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() Reservation: Reservation,
         @Request() req: any
-    ){
-        const update = await this._reservationService.update(id,Reservation);
+    ) {
+        const update = await this._reservationService.update(id, Reservation);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -390,9 +390,9 @@ export class ReservationController {
 
     @Delete(':id')
     async deleteReservation(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._reservationService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -409,17 +409,17 @@ export class ReservationController {
     }
 
     @Post('get-date-doctor/')
-    async getFirst(@Body() filters: any): Promise<any[]>{
+    async getFirst(@Body() filters: any): Promise<any[]> {
         return await this._reservationService.getByDateDoctor(filters);
     }
 
     @Get('get-by-clinic-history/:id')
-    async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
+    async getByClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
         return await this._reservationService.getByClinicHistory(id);
     }
 
     @Get('get-by-id/:id')
-    async getById(@Param('id', ParseIntPipe) id: number): Promise<any[]>{
+    async getById(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
         return await this._reservationService.getById(id);
     }
 
@@ -428,7 +428,7 @@ export class ReservationController {
         @Param('id', ParseIntPipe) id: number,
         @Param('state', ParseIntPipe) state: number,
         @Request() req: any
-    ): Promise<any>{
+    ): Promise<any> {
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -440,21 +440,21 @@ export class ReservationController {
         audit.state = 1;
         //Guardamos la auditoria
         await audit.save();
-        return await this._reservationService.confirm(id,state);
+        return await this._reservationService.confirm(id, state);
     }
 
     @Get('validate-doctor/:iddoctor/:date/:appointment/:idcampus')
     async validateDoctor(@Param('iddoctor', ParseIntPipe) iddoctor: number,
-    @Param('date') date: string,@Param('appointment') appointment: string,
-    @Param('idcampus', ParseIntPipe) idcampus: number): Promise<number>{
-        return await this._reservationService.validateReservation(iddoctor,date,appointment,idcampus);
+        @Param('date') date: string, @Param('appointment') appointment: string,
+        @Param('idcampus', ParseIntPipe) idcampus: number): Promise<number> {
+        return await this._reservationService.validateReservation(iddoctor, date, appointment, idcampus);
     }
 
     @Get('cancel/:id')
     async cancel(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ): Promise<boolean>{
+    ): Promise<boolean> {
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -476,14 +476,14 @@ export class ReservationController {
         @Param('state', ParseIntPipe) state: number,
         @Param('since') since: string,
         @Param('until') until: string
-    ): Promise<Reservation[]>{
-        return await this._reservationService.getListFilter(patient,doctor,state,since,until);
+    ): Promise<Reservation[]> {
+        return await this._reservationService.getListFilter(patient, doctor, state, since, until);
     }
 
     @Get('/send-mail/:id')
     async sendMail(
         @Param('id', ParseIntPipe) id: number
-    ): Promise<boolean>{
+    ): Promise<boolean> {
         await this._reservationService.sendMailTest(id);
         return true;
     }
@@ -492,8 +492,8 @@ export class ReservationController {
     async getReservationCant(
         @Param('month', ParseIntPipe) month: number,
         @Param('year', ParseIntPipe) year: number
-    ): Promise<any>{
-        return this._reservationService.cantReservation(month,year);
+    ): Promise<any> {
+        return this._reservationService.cantReservation(month, year);
     }
 
     /**
@@ -510,49 +510,49 @@ export class ReservationController {
     async getPatientFrequentCant(
         @Param('since') since: string,
         @Param('until') until: string
-    ): Promise<any>{
-        return this._reservationService.patientFrequentCant(since,until);
+    ): Promise<any> {
+        return this._reservationService.patientFrequentCant(since, until);
     }
 
     @Get('controls-cant/:month/:year')
     async getCantControls(
-    @Param('month', ParseIntPipe) month: number,
-    @Param('year', ParseIntPipe) year: number
-    ): Promise<any>{
-        return this._reservationService.cantControls(month,year);
+        @Param('month', ParseIntPipe) month: number,
+        @Param('year', ParseIntPipe) year: number
+    ): Promise<any> {
+        return this._reservationService.cantControls(month, year);
     }
 
     @Get('pdf-report-frequent-patients/:since/:until')
     async getPdfFrequentPatients(
         @Param('since') since: string,
         @Param('until') until: string
-    ): Promise<any>{
-        const data = await this._reservationService.patientFrequentDetail(since,until);
+    ): Promise<any> {
+        const data = await this._reservationService.patientFrequentDetail(since, until);
         const pdf = new Pdf_frequent_patients();
         return pdf.print(data);
     }
     @Post('/get-cant-reservation')
-    async getCantReservation(@Body() filters: any): Promise<any>{
+    async getCantReservation(@Body() filters: any): Promise<any> {
         return await this._reservationService.getCant(filters);
     }
 
     @Post('/get-cant-cancelada-reprogramada')
-    async getCantCanceRepro(@Body() filters: any): Promise<any>{
+    async getCantCanceRepro(@Body() filters: any): Promise<any> {
         return await this._reservationService.getCantCanceRepro(filters);
     }
 
     @Post('/get-report-pdf-dates-patient')
-    async getReportPdfPayPatient(@Body() filters: any): Promise<any>{
+    async getReportPdfPayPatient(@Body() filters: any): Promise<any> {
         const pdf = new PdfDatesPatient();
         const data = await this._reservationService.getDatesPatient(filters);
-        return pdf.print(data,filters);
+        return pdf.print(data, filters);
     }
 
     @Post('/get-report-xlsx-dates-patient')
     async getReportXlsxModelState(
         @Res() response,
         @Body() filters: any
-    ): Promise<any>{
+    ): Promise<any> {
         const data = await this._reservationService.getDatesPatient(filters);
         const wb = new xl.Workbook();
         const ws = wb.addWorksheet('Lista de citas'); // Citas por paciente asistido
@@ -566,16 +566,16 @@ export class ReservationController {
                 bold: true
             }
         });
-        ws.cell(1,1,1,9,true)
-        .string(`Reporte Citas`) //  por paciente asistido
-        .style(styleTitle);
+        ws.cell(1, 1, 1, 9, true)
+            .string(`Reporte Citas`) //  por paciente asistido
+            .style(styleTitle);
 
-        ws.cell(2,1,2,9,true)
-        .string(``);
-        ws.cell(3,1,3,9,true)
-        .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
-        ws.cell(4,1,4,8,true)
-        .string(``);
+        ws.cell(2, 1, 2, 9, true)
+            .string(``);
+        ws.cell(3, 1, 3, 9, true)
+            .string(`Filtros: Desde ${moment(filters.since).format('DD-MM-YYYY')} | Hasta ${moment(filters.until).format('DD-MM-YYYY')}`);
+        ws.cell(4, 1, 4, 8, true)
+            .string(``);
 
         const style = wb.createStyle({
             alignment: {
@@ -594,33 +594,39 @@ export class ReservationController {
             }
         });
         ws.row(5).filter();
-        ws.cell(5,1)
-        .string("Nro. Historia")
-        .style(style);
-        ws.cell(5,2)
-        .string("Paciente")
-        .style(style);
-        ws.cell(5,3)
-        .string("Fecha")
-        .style(style);
-        ws.cell(5,4)
-        .string("Horario")
-        .style(style);
-        ws.cell(5,5)
-        .string("Consultario")
-        .style(style);
-        ws.cell(5,6)
-        .string("Doctor(a)")
-        .style(style);
-        ws.cell(5,7)
-        .string("Motivo")
-        .style(style);
-        ws.cell(5,8)
-        .string("Estado")
-        .style(style);
-        ws.cell(5,9)
-        .string("Auditoria")
-        .style(style);
+        ws.cell(5, 1)
+            .string("Nro. Historia")
+            .style(style);
+        ws.cell(5, 2)
+            .string("Paciente")
+            .style(style);
+        ws.cell(5, 3)
+            .string("Fecha")
+            .style(style);
+        ws.cell(5, 4)
+            .string("Horario")
+            .style(style);
+        ws.cell(5, 5)
+            .string("Consultario")
+            .style(style);
+        ws.cell(5, 6)
+            .string("Doctor(a)")
+            .style(style);
+        ws.cell(5, 7)
+            .string("Especialidad")
+            .style(style);
+        ws.cell(5, 8)
+            .string("Tratamiento")
+            .style(style);
+        ws.cell(5, 9)
+            .string("Motivo")
+            .style(style);
+        ws.cell(5, 10)
+            .string("Estado")
+            .style(style);
+        ws.cell(5, 11)
+            .string("Auditoria")
+            .style(style);
         // size columns
         ws.column(1).setWidth(15);
         ws.column(2).setWidth(35);
@@ -629,8 +635,10 @@ export class ReservationController {
         ws.column(5).setWidth(15);
         ws.column(6).setWidth(25);
         ws.column(7).setWidth(25);
-        ws.column(8).setWidth(15);
-        ws.column(9).setWidth(30);
+        ws.column(8).setWidth(25);
+        ws.column(9).setWidth(35);
+        ws.column(10).setWidth(15);
+        ws.column(11).setWidth(30);
         let y = 6;
         data.map((it: any) => {
             const {
@@ -642,7 +650,9 @@ export class ReservationController {
                 doctor,
                 reason,
                 state,
-                auditoria
+                auditoria,
+                treatment,
+                specialty
             } = it;
             // String state
             let lblSatte: string;
@@ -663,24 +673,28 @@ export class ReservationController {
                     lblSatte = '';
                     break;
             }
-            ws.cell(y,1)
-            .string(`${history}`);
-            ws.cell(y,2)
-            .string(`${paciente}`);
-            ws.cell(y,3)
-            .string(`${moment(date).format('DD-MM-YYYY')}`);
-            ws.cell(y,4)
-            .string(`${horario}`);
-            ws.cell(y,5)
-            .string(`${environment}`);
-            ws.cell(y,6)
-            .string(`${doctor}`);
-            ws.cell(y,7)
-            .string(`${reason}`);
-            ws.cell(y,8)
-            .string(`${lblSatte}`);
-            ws.cell(y,9)
-            .string(`${auditoria}`);
+            ws.cell(y, 1)
+                .string(`${history}`);
+            ws.cell(y, 2)
+                .string(`${paciente}`);
+            ws.cell(y, 3)
+                .string(`${moment(date).format('DD-MM-YYYY')}`);
+            ws.cell(y, 4)
+                .string(`${horario}`);
+            ws.cell(y, 5)
+                .string(`${environment}`);
+            ws.cell(y, 6)
+                .string(`${doctor}`);
+            ws.cell(y, 7)
+                .string(`${specialty}`);
+            ws.cell(y, 8)
+                .string(`${treatment}`);
+            ws.cell(y, 9)
+                .string(`${reason ? reason : ''}`);
+            ws.cell(y, 10)
+                .string(`${lblSatte}`);
+            ws.cell(y, 11)
+                .string(`${auditoria}`);
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
