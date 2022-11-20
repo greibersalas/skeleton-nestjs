@@ -449,26 +449,25 @@ export class ReservationService {
     }
 
     async getDatesPatient(filters: any): Promise<any> {
+        let where = '';
+        if (Number(filters.tariff) > 0) {
+            where = ` AND tr.id = ${Number(filters.tariff)}`;
+        } else if (Number(filters.specialty)) {
+            where = ` AND tr.specialty = ${Number(filters.specialty)}`;
+        }
         return await this._reservationRepository.createQueryBuilder('re')
-            .select(`ch.history,
-        concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
-        re.date,
-        re.appointment AS horario,
-        re.reason,
-        ed.name AS environment,
-        "do"."nameQuote" AS doctor,
-        re.state,
-        --au.username,
-        --au.datetime AS date_au,
-        --re.updated_at,
-        --re.id AS idreservation,
-        (SELECT
+            .select(`ch.history, concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
+            re.date,re.appointment AS horario,re.reason,ed.name AS environment,"do"."nameQuote" AS doctor,
+            re.state, (SELECT
             CONCAT_WS(' ','Usuario:',us.username,'Fecha:',to_char(au.datetime,'DD/MM/YYYY HH:MM'))
             FROM audit au
             JOIN users us On us.id = au.iduser
             WHERE au.title = 'Reservation' AND au.state = 1 AND au.idregister = re.id
-            ORDER BY au.idaudit DESC LIMIT 1) AS auditoria`)
+            ORDER BY au.idaudit DESC LIMIT 1) AS auditoria,
+            tr.name AS treatment, sp.name AS specialty`)
             .leftJoin('clinic_history', 'ch', `ch.id = re.patient_id`)
+            .innerJoin(`tariff`, `tr`, `tr.id = re.tariff_id ${where}`)
+            .innerJoin(`specialty`, `sp`, `sp.id = tr.specialty`)
             .innerJoin('environment_doctor', 'ed', `ed.id = re.environment_id`)
             .innerJoin('doctor', 'do', `do.id = re.doctor_id`)
             .where(`re.date BETWEEN :since AND :until`, { since: filters.since, until: filters.until })
