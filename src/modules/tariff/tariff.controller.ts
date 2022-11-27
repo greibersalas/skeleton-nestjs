@@ -11,25 +11,28 @@ import { TariffService } from './tariff.service';
 @Controller('tariff')
 export class TariffController {
 
-    constructor(private readonly _tariffService: TariffService){}
+    constructor(private readonly _tariffService: TariffService) { }
 
     @Get(':id')
-    async getTariff(@Param('id',ParseIntPipe) id: number): Promise<Tariff>{
-        const tariff = await this._tariffService.get(id);
-        return tariff;
+    async getTariff(@Param('id', ParseIntPipe) id: number): Promise<Tariff> {
+        return await this._tariffService.get(id);
     }
 
     @Get()
-    async getTariffs(): Promise<Tariff[]>{
-        const tariff = await this._tariffService.getAll();
-        return tariff;
+    async getTariffs(): Promise<Tariff[]> {
+        return await this._tariffService.getAll();
+    }
+
+    @Get('/get-data/to-contract')
+    async getDataToContract(): Promise<Tariff[]> {
+        return await this._tariffService.getDataToContract();
     }
 
     @Post()
     async createTariff(
         @Body() tariff: Tariff,
         @Request() req: any
-    ): Promise<Tariff>{
+    ): Promise<Tariff> {
         const create = await this._tariffService.create(tariff);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -48,10 +51,10 @@ export class TariffController {
 
     @Put(':id')
     async updateTariff(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() tariff: Tariff,
         @Request() req: any
-    ){
+    ) {
         const actualTariff = await this._tariffService.get(id);
         //INSERT HISTORY OF PRICE
         const history = new TariffHistory()
@@ -62,7 +65,7 @@ export class TariffController {
         history.tariff = actualTariff;
         await this._tariffService.addHistory(history);
         //tariff.tariffHistory = [history];
-        const update = await this._tariffService.update(id,tariff);
+        const update = await this._tariffService.update(id, tariff);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -80,9 +83,9 @@ export class TariffController {
 
     @Delete(':id')
     async deleteTariff(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._tariffService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -100,29 +103,34 @@ export class TariffController {
     }
 
     @Get('get-by-specialty/:idspecialty')
-    async getPatient(@Param('idspecialty') idspecialty): Promise<Tariff[]>{
+    async getPatient(@Param('idspecialty') idspecialty): Promise<Tariff[]> {
         const tariff = await this._tariffService.getBySpecialty(idspecialty);
         return tariff;
     }
 
     @Get('get-by-dental-status/:id')
-    async getTariffDental(@Param('id') id): Promise<Tariff[]>{
+    async getTariffDental(@Param('id') id): Promise<Tariff[]> {
         return await this._tariffService.getByDentalStatus(id);
     }
 
     @Get('get-labs/all')
-    async getLabs(): Promise<Tariff[]>{
+    async getLabs(): Promise<Tariff[]> {
         return await this._tariffService.getLabs();
     }
 
     @Post('/get-by-bl')
-    async getByBl(@Body() data: any): Promise<Tariff[]>{
+    async getByBl(@Body() data: any): Promise<Tariff[]> {
         const tariff = await this._tariffService.getByBl(data);
         return tariff;
     }
 
+    @Get('/get/diary')
+    async getDiary(@Body() data: any): Promise<Tariff[]> {
+        return await this._tariffService.getToDiary();
+    }
+
     @Get('/get-quotation/terms-values')
-    async getTariffQuotationTerms(): Promise<Tariff[]>{
+    async getTariffQuotationTerms(): Promise<Tariff[]> {
         const tariff = await this._tariffService.getQuotationTerms();
         return tariff;
     }
