@@ -686,9 +686,9 @@ export class ReservationController {
             ws.cell(y, 6)
                 .string(`${doctor}`);
             ws.cell(y, 7)
-                .string(`${specialty}`);
+                .string(`${specialty ? specialty : ''}`);
             ws.cell(y, 8)
-                .string(`${treatment}`);
+                .string(`${treatment ? treatment : ''}`);
             ws.cell(y, 9)
                 .string(`${reason ? reason : ''}`);
             ws.cell(y, 10)
