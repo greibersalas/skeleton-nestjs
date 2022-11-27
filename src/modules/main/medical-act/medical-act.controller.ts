@@ -16,16 +16,16 @@ import { MedicalActFiles } from './medical-act-files.entity';
 @Controller('medical-act')
 export class MedicalActController {
 
-    constructor(private readonly _medicalActService: MedicalActService){}
+    constructor(private readonly _medicalActService: MedicalActService) { }
 
     @Get(':id')
-    async getMedicalAct(@Param('id',ParseIntPipe) id: number): Promise<MedicalAct>{
+    async getMedicalAct(@Param('id', ParseIntPipe) id: number): Promise<MedicalAct> {
         const medicalAct = await this._medicalActService.get(id);
         return medicalAct;
     }
 
     @Get()
-    async getMedicalActs(): Promise<MedicalAct[]>{
+    async getMedicalActs(): Promise<MedicalAct[]> {
         const medicalAct = await this._medicalActService.getAll();
         return medicalAct;
     }
@@ -34,7 +34,7 @@ export class MedicalActController {
     async createMedicalAct(
         @Body() medicalAct: MedicalAct,
         @Request() req: any
-    ): Promise<MedicalAct>{
+    ): Promise<MedicalAct> {
         const create = await this._medicalActService.create(medicalAct);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -53,11 +53,11 @@ export class MedicalActController {
 
     @Put(':id')
     async updateMedicalAct(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() medicalAct: MedicalAct,
         @Request() req: any
-    ){
-        const update = await this._medicalActService.update(id,medicalAct);
+    ) {
+        const update = await this._medicalActService.update(id, medicalAct);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -75,9 +75,9 @@ export class MedicalActController {
 
     @Delete(':id')
     async deleteMedicalAct(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._medicalActService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -94,15 +94,18 @@ export class MedicalActController {
         return true;
     }
 
-    @Get('get-by-reservation/:id')
-    async getFirst(@Param('id', ParseIntPipe) id: number): Promise<MedicalAct>{
-        return await this._medicalActService.getByReservation(id);
+    @Get('get-by-reservation/:id/:opc')
+    async getFirst(
+        @Param('id', ParseIntPipe) id: number,
+        @Param('opc') opc: string,
+    ): Promise<MedicalAct> {
+        return await this._medicalActService.getByReservation(id, opc);
     }
 
     @Post("upload/:group/:id")
     //@UseInterceptors(FileInterceptor("file",{dest:"./uploads"}))
     @UseInterceptors(
-        FileInterceptor('file',{
+        FileInterceptor('file', {
             storage: diskStorage({
                 destination: './uploads',
                 filename: editFileName
@@ -112,11 +115,11 @@ export class MedicalActController {
     )
     async uploadFile(
         @UploadedFile() file: any,
-        @Param('group',ParseIntPipe) group: number,
-        @Param('id',ParseIntPipe) id: number,
+        @Param('group', ParseIntPipe) group: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() des: any,
         @Request() req: any
-    ){
+    ) {
         const response = {
             originalname: file.originalname,
             filename: file.filename,
@@ -126,7 +129,7 @@ export class MedicalActController {
         const data = {
             fila_name: file.filename,
             file_ext: extname(file.originalname),
-            clinichistory : null,
+            clinichistory: null,
             medicalact: id,
             filegroup: group,
             desciption: des.description
@@ -154,7 +157,7 @@ export class MedicalActController {
     @Post("upload/hc/:group/:id")
     //@UseInterceptors(FileInterceptor("file",{dest:"./uploads"}))
     @UseInterceptors(
-        FileInterceptor('file',{
+        FileInterceptor('file', {
             storage: diskStorage({
                 destination: './uploads',
                 filename: editFileName
@@ -164,11 +167,11 @@ export class MedicalActController {
     )
     async uploadFileFromHC(
         @UploadedFile() file: any,
-        @Param('group',ParseIntPipe) group: number,
-        @Param('id',ParseIntPipe) id: number,
+        @Param('group', ParseIntPipe) group: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() des: any,
         @Request() req: any
-    ){
+    ) {
         const response = {
             originalname: file.originalname,
             filename: file.filename,
@@ -178,8 +181,8 @@ export class MedicalActController {
         const data = {
             fila_name: file.filename,
             file_ext: extname(file.originalname),
-            clinichistory : id,
-            medicalact:null,
+            clinichistory: id,
+            medicalact: null,
             filegroup: group,
             desciption: des.description
         };
@@ -204,8 +207,8 @@ export class MedicalActController {
     }
 
     @Get('get-file/:file')
-    getFile(@Param('file') file: any, @Res() res: any){
-        const response = res.sendFile(file,{root: './uploads'});
+    getFile(@Param('file') file: any, @Res() res: any) {
+        const response = res.sendFile(file, { root: './uploads' });
         return {
             status: HttpStatus.OK,
             data: response
@@ -214,7 +217,7 @@ export class MedicalActController {
 
     /**GROUP FILES */
     @Get('groups/all')
-    async getMedicalActFileGroups(): Promise<MedicalActFileGroup[]>{
+    async getMedicalActFileGroups(): Promise<MedicalActFileGroup[]> {
         const data = await this._medicalActService.getAllGroup();
         return data;
     }
@@ -223,7 +226,7 @@ export class MedicalActController {
     async createGroup(
         @Body() medicalActFileGroup: MedicalActFileGroup,
         @Request() req: any
-    ): Promise<MedicalActFileGroup>{
+    ): Promise<MedicalActFileGroup> {
         const create = await this._medicalActService.createGroup(medicalActFileGroup);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -242,11 +245,11 @@ export class MedicalActController {
 
     @Put('group/:id')
     async updateGroup(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() data: MedicalActFileGroup,
         @Request() req: any
-    ){
-        const update = await this._medicalActService.updateGroup(id,data);
+    ) {
+        const update = await this._medicalActService.updateGroup(id, data);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -266,25 +269,25 @@ export class MedicalActController {
     async getFilesClinicHistory(
         @Param('id', ParseIntPipe) id: number,
         @Param('idgroup', ParseIntPipe) idgroup: number
-    ): Promise<MedicalActFiles[]>{
-        return await this._medicalActService.getFilesByClinicHistory(id,idgroup);
+    ): Promise<MedicalActFiles[]> {
+        return await this._medicalActService.getFilesByClinicHistory(id, idgroup);
     }
 
     @Get('get-files-medical-act/:id')
-    async getFilesMedicalAct(@Param('id') id): Promise<MedicalActFiles[]>{
+    async getFilesMedicalAct(@Param('id') id): Promise<MedicalActFiles[]> {
         return await this._medicalActService.getFilesByMedicalAct(id);
     }
 
     @Get('get-by-clinic-history/:id')
-    async getMedicalActClinicHistory(@Param('id',ParseIntPipe) id: number): Promise<any[]>{
+    async getMedicalActClinicHistory(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
         return await this._medicalActService.getByClinicHistory(id);
     }
 
     @Delete('delete-file/:id')
     async deleteFile(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ): Promise<boolean>{
+    ): Promise<boolean> {
         //Busco los datos del archivo
         const deleteFile = await this._medicalActService.deleteFile(id);
         //Creamos los datos de la auditoria
@@ -303,8 +306,8 @@ export class MedicalActController {
 
     @Get('get-files-quantity/:id')
     async getFilesQuantity(
-        @Param('id',ParseIntPipe) id: number
-    ): Promise<any[]>{
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<any[]> {
         return await this._medicalActService.getQuntityFiles(id);
     }
 }
