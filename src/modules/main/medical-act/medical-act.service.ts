@@ -83,8 +83,6 @@ export class MedicalActService {
         );
         if (!ma) {
             if (opc === 'add') {
-                console.log({ opc });
-
                 // Busco el id del paciente
                 const reservation = await this._ReservationRepository.findOne(id);
                 const clinichistory = reservation.patient;
@@ -107,7 +105,21 @@ export class MedicalActService {
                 medicalAct.radiographic_report = medical_act.radiographic_report;
                 medicalAct.reservation = reservation;
                 medicalAct.save();
-                return medicalAct;
+                //CAMBIAMOS EL ESTADO DE LA RESERVA
+                const reser = await this._ReservationRepository.createQueryBuilder()
+                    .update(Reservation)
+                    .set({ state: 3 })
+                    .where({ id }).execute();
+                // console.log({ reser, id });
+
+                return await this._medicalActRepository.findOne(
+                    {
+                        where: {
+                            state: 1,
+                            reservation: id
+                        }
+                    }
+                );
             } else {
                 throw new NotFoundException;
             }
