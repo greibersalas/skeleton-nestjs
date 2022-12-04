@@ -110,6 +110,15 @@ export class ContractService {
         return await this.repository.save(data);
     }
 
+    async signature(id: number, signature: string): Promise<Contract> {
+        const exists = await this.repository.findOne(id);
+        if (!exists) {
+            throw new NotFoundException();
+        }
+        await this.repository.update(id, { signature });
+        return await this.repository.findOne(id);
+    }
+
     async insertDetail(data: ContractDetail): Promise<any> {
         return this.repositoryDetail.save(data);
     }
@@ -230,7 +239,7 @@ export class ContractService {
             det.description, det.date, det.amount, det.observation,
             concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
             ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
-            ch.email AS patient_email`)
+            ch.email AS patient_email, (now()::DATE - det.date::DATE) as dayDelinquency`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
@@ -268,6 +277,8 @@ export class ContractService {
 
     async regularNumDoc(data: any[], user: number): Promise<any> {
         let count: number = 0;
+        await this.repositoryDetail.delete({});
+        await this.repository.delete({});
         await Promise.all(
             data.map(async (it) => {
                 const exist = await this.repositoryClinicHistory.findOne({

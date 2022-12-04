@@ -52,6 +52,9 @@ export class Contract extends BaseEntity {
     @Column({ type: 'varchar', nullable: false })
     num: string;
 
+    @Column({ type: 'text', nullable: true })
+    signature: string;
+
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;
 

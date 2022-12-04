@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete, UseInterceptors, UploadedFile, HttpStatus, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete, UseInterceptors, UploadedFile, HttpStatus, Res, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -27,6 +27,9 @@ import { editFileName, imageFileFilter } from 'src/utils/file-upload.utils';
 import { KpiQuotaDto } from './dto/kpi-quota-detail-dto';
 import { getMonthName } from 'src/utils/date.utils';
 import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_detail.entity';
+
+//PDF's
+import { PdfContractChildren } from './pdf/pdf-contract-children';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -126,6 +129,28 @@ export class ContractController {
         return create;
     }
 
+    @Post('/signature')
+    async signature(
+        @Body() data: any,
+        @Request() req: any
+    ): Promise<Contract> {
+        const { signature, idcontract } = data;
+        const saveSignature = await this.service.signature(Number(idcontract), signature);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = saveSignature.id;
+        audit.title = this.module;
+        audit.description = 'Registro de firma';
+        audit.data = JSON.stringify(saveSignature);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return saveSignature;
+    }
+
     @Put(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
@@ -167,6 +192,19 @@ export class ContractController {
         await audit.save();
         //Respondemos al usuario
         return true;
+    }
+
+    @Get('/pdf/:idcontract')
+    async getPdf(
+        @Param('idcontract', ParseIntPipe) idcontract: number
+    ): Promise<any> {
+        const data = {};//await this.service.onGetDataPdf(id, iduser);
+        if (data) {
+            const pdf = new PdfContractChildren();
+            return pdf.print(data);
+        } else {
+            throw new BadRequestException();
+        }
     }
 
     // Payment

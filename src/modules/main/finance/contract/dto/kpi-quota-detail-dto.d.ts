@@ -11,6 +11,7 @@ export class KpiQuotaDetailDto {
     patient_document: string;
     patient_phone: string;
     patient_email: string;
+    dayDelinquency?: number;
 }
 
 export class KpiQuotaDto {
