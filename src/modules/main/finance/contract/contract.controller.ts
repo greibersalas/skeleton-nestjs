@@ -198,7 +198,7 @@ export class ContractController {
     async getPdf(
         @Param('idcontract', ParseIntPipe) idcontract: number
     ): Promise<any> {
-        const data = {};//await this.service.onGetDataPdf(id, iduser);
+        const data = await this.service.getOne(idcontract);
         if (data) {
             const pdf = new PdfContractChildren();
             return pdf.print(data);
