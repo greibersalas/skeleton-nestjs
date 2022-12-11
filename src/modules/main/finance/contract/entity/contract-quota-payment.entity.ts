@@ -11,6 +11,8 @@ import {
 import { User } from "src/modules/user/user.entity";
 import { Coin } from "src/modules/coin/coin.entity";
 import { Contract } from "./contract.entity";
+import { Bank } from "src/modules/mat/bank/entity/bank.entity";
+import { ExchangeRate } from "src/modules/exchange-rate/exchange-rate.entity";
 
 @Entity('contract_quota_payment')
 export class ContractQuotaPayment extends BaseEntity {
@@ -35,8 +37,13 @@ export class ContractQuotaPayment extends BaseEntity {
     @Column({ type: 'varchar', length: 200, nullable: true })
     observation: string;
 
-    @Column({ type: 'varchar', length: 20, nullable: true })
-    bank: string;
+    @ManyToOne(type => Bank, ba => ba.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idbank' })
+    bank: Contract | number;
+
+    @ManyToOne(type => ExchangeRate, er => er.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idexchangerate' })
+    exchangerate: ExchangeRate | number;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
     file_name: string;

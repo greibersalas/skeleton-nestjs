@@ -166,15 +166,16 @@ export class ContractService {
         return await this.repositoryPayment.createQueryBuilder('qp')
             .select(`qp.id, qp.payment_date AS date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
             co.code AS coin, ct.id AS idcontract, count(cd) AS cuotas, ct.idclinichistory, ct.num AS num_contract,
-            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history`)
+            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history, qp.idbank, ba.name AS bank`)
             .innerJoin('coin', 'co', 'co.id = qp.idcoin')
             .innerJoin('contract_quota_payment_detail', 'cd', 'cd.idcontractquotapayment = qp.id')
             .innerJoin('contract', 'ct', 'ct.id = qp.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .innerJoin('qp.bank', 'ba', 'ba.id = qp.idbank')
             .where(`${where}`)
             .andWhere(`qp.payment_date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .groupBy(`qp.id, qp.payment_date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
-            co.code, ct.id, ct.idclinichistory, ct.num,"ch"."lastNameFather","ch"."lastNameMother",ch.name,ch.history`)
+            co.code, ct.id, ct.idclinichistory, ct.num,"ch"."lastNameFather","ch"."lastNameMother",ch.name,ch.history,ba.name, qp.idbank`)
             .getRawMany();
     }
 
@@ -258,12 +259,12 @@ export class ContractService {
             ch.email AS patient_email, ch.attorney, ct.date AS contract_date,
             ct.amount AS contract_amount, ct.quota AS contract_quota,
             ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment,
-            ctd.date AS date_quota`)
+            ctd.date AS date_quota, ct.executive, ctd.amount AS amountQuota`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .innerJoin('contract_detail', 'ctd', `ctd.idcontract = det.idcontract AND ctd.description like '%nicial%'`)
-            .innerJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
-            .innerJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
+            .leftJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
+            .leftJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
             "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,

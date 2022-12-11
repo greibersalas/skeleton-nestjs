@@ -239,6 +239,7 @@ export class ContractController {
         data.amount = body.amount;
         data.observation = body.observation;
         data.bank = body.bank;
+        data.exchangerate = body.exchangerate;
         data.contract = body.contract_detail[0].idcontract;
         data.file_name = file ? file.filename : null;
         data.file_ext = file ? extname(file.originalname) : null;
@@ -505,13 +506,20 @@ export class ContractController {
         ws.column(5).setWidth(15);
         ws.column(6).setWidth(10);
         ws.column(7).setWidth(15);
-        ws.column(8).setWidth(30);
+        ws.column(8).setWidth(15);
         ws.column(9).setWidth(20);
         ws.column(10).setWidth(20);
         ws.column(11).setWidth(20);
-        ws.column(12).setWidth(15);
+        ws.column(12).setWidth(25);
         ws.column(13).setWidth(20);
-        ws.column(14).setWidth(15);
+        ws.column(14).setWidth(20);
+        ws.column(15).setWidth(20);
+        ws.column(16).setWidth(20);
+        ws.column(17).setWidth(20);
+        ws.column(18).setWidth(20);
+        ws.column(19).setWidth(20);
+        ws.column(20).setWidth(20);
+        ws.column(21).setWidth(20);
         let y = 3;
         data.map((it: any) => {
             const {
@@ -523,7 +531,9 @@ export class ContractController {
                 contract_quota,
                 initial_amount,
                 payment,
-                date_quota
+                date_quota,
+                executive,
+                amountQuota
             } = it;
             const moridad = moment().diff(moment(date_quota), 'days');
             ws.cell(y, 1)
@@ -533,7 +543,7 @@ export class ContractController {
             ws.cell(y, 3)
                 .string(`${patient}`); // Paciente
             ws.cell(y, 4)
-                .string(``); // Ejecutivo
+                .string(`${executive}`); // Ejecutivo
             ws.cell(y, 5)
                 .string(`${getMonthName(Number(moment(contract_date).format('M')))}`); // Mes de contrato
             ws.cell(y, 6)
@@ -544,12 +554,13 @@ export class ContractController {
                 .number(Number(initial_amount.toFixed(2))); // Cuota Inicial
             ws.cell(y, 9)
                 .number(Number(contract_quota.toFixed(2))); // N° Cuotas Contrato
+            const abonos = payment ? Number(payment.toFixed(2)) : 0;
             ws.cell(y, 10)
-                .number(Number(payment.toFixed(2))); // Abonos Acumulados
+                .number(abonos); // Abonos Acumulados
             ws.cell(y, 11)
                 .formula(`G${y}-J${y}`); // Saldo por Cobrar
             ws.cell(y, 12)
-                .string(`-`);
+                .string(Number(amountQuota)); // Importe quota
             ws.cell(y, 13)
                 .string(this.getTipoCartera(moridad)); // Tipo de cartera
             ws.cell(y, 15)

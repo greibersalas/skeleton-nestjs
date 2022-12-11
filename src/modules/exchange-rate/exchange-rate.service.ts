@@ -9,48 +9,64 @@ export class ExchangeRateService {
     constructor(
         @InjectRepository(ExchangeRateRepository)
         private readonly _ExchangeRateRepository: ExchangeRateRepository
-    ){}
+    ) { }
 
-    async get(id: number): Promise<ExchangeRate>{
-        if(!id){
+    async get(id: number): Promise<ExchangeRate> {
+        if (!id) {
             throw new BadRequestException('id must be send.');
         }
 
-        const ExchangeRate = await this._ExchangeRateRepository.findOne(id,{where:{state:1}});
+        const ExchangeRate = await this._ExchangeRateRepository.findOne(id, { where: { state: 1 } });
 
-        if(!ExchangeRate){
+        if (!ExchangeRate) {
             throw new NotFoundException();
         }
 
         return ExchangeRate;
     }
 
-    async getAll(): Promise<ExchangeRate[]>{
-        const ExchangeRate: ExchangeRate[] = await this._ExchangeRateRepository.find({where:{state:1}});
+    async getLast(): Promise<ExchangeRate> {
+        const ExchangeRate = await this._ExchangeRateRepository.findOne({
+            where: { state: 1 },
+            order: { id: 'DESC' }
+        });
+
+        if (!ExchangeRate) {
+            throw new NotFoundException();
+        }
+
         return ExchangeRate;
     }
 
-    async create(bl: ExchangeRate): Promise<ExchangeRate>{
+    async getAll(): Promise<ExchangeRate[]> {
+        const ExchangeRate: ExchangeRate[] = await this._ExchangeRateRepository.find({
+            where: { state: 1 },
+            order: { id: 'DESC' }
+        });
+        return ExchangeRate;
+    }
+
+    async create(bl: ExchangeRate): Promise<ExchangeRate> {
         const saveExchangeRate: ExchangeRate = await this._ExchangeRateRepository.save(bl);
         return saveExchangeRate;
     }
 
-    async update(id: number, ExchangeRate:ExchangeRate): Promise<ExchangeRate>{
+    async update(id: number, ExchangeRate: ExchangeRate): Promise<ExchangeRate> {
         const ExchangeRateExists = await this._ExchangeRateRepository.findOne(id);
-        if(!ExchangeRateExists){
+        if (!ExchangeRateExists) {
             throw new NotFoundException();
         }
-        await this._ExchangeRateRepository.update(id,ExchangeRate);
-        const updateExchangeRate : ExchangeRate = await this._ExchangeRateRepository.findOne(id);
+        await this._ExchangeRateRepository.update(id, ExchangeRate);
+        const updateExchangeRate: ExchangeRate = await this._ExchangeRateRepository.findOne(id);
         return updateExchangeRate;
     }
 
-    async delete(id: number): Promise<void>{
+    async delete(id: number): Promise<void> {
         const ExchangeRateExists = await this._ExchangeRateRepository.findOne(id);
-        if(!ExchangeRateExists){
+        if (!ExchangeRateExists) {
             throw new NotFoundException();
         }
 
-        await this._ExchangeRateRepository.update(id,{state:0});
+        await this._ExchangeRateRepository.update(id, { state: 0 });
     }
 }

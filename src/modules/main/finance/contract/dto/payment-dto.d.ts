@@ -16,7 +16,11 @@ export interface PaymentDto {
     num_contract: string;
     patient: string;
     history: string;
+    idbank: number;
     bank?: string;
+    exchangerate: number;
+    exchangerateDate: string;
+    exchangerateAmout: number;
     patient_doc?: string;
     detail?: PaymentDetailDto[];
 }
