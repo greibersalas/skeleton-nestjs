@@ -1,47 +1,48 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { ModuleDto } from './dto/module.dto';
-import { Module } from './module.entity';
-import { ModuleRepository } from './module.repository';
+import { Modules } from './module.entity';
 
 @Injectable()
 export class ModuleService {
 
-    constructor(@InjectRepository(ModuleRepository) private readonly _moduleRepository:ModuleRepository){}
+    constructor(
+        @InjectRepository(Modules)
+        private readonly repository: Repository<Modules>
+    ) { }
 
-    async get(id: number): Promise<Module>{
-        if(!id){
+    async get(id: number): Promise<Modules> {
+        if (!id) {
             throw new BadRequestException('id must be send');
         }
-        const module = await this._moduleRepository.findOne(id,{where:{state:1}});
-        if(!module){
+        const module = await this.repository.findOne(id, { where: { status: 1 } });
+        if (!module) {
             throw new NotFoundException();
         }
         return module;
     }
 
-    async getAll(): Promise<ModuleDto[]>{
-        const modules: ModuleDto[] = await this._moduleRepository.find({where:{state:1}});
-        return modules;
+    async getAll(): Promise<Modules[]> {
+        return await this.repository.find({ where: { status: 1 } });
     }
 
-    async create(module: ModuleDto): Promise<ModuleDto>{
-        const save: ModuleDto = await this._moduleRepository.save(module);
-        return save;
+    async create(module: Modules): Promise<Modules> {
+        return await this.repository.save(module);
     }
 
-    async update(id: number, module: ModuleDto): Promise<void>{
-        await this._moduleRepository.update(id,module);
+    async update(id: number, module: Modules): Promise<void> {
+        await this.repository.update(id, module);
     }
 
-    async delete(id: number): Promise<void>{
-        const moduleExists = await this._moduleRepository.findOne(id,{where:{state:1}});
+    async delete(id: number): Promise<void> {
+        const moduleExists = await this.repository.findOne(id, { where: { status: 1 } });
 
-        if(!moduleExists){
+        if (!moduleExists) {
             throw new NotFoundException();
         }
-
-        await this._moduleRepository.update(id,{state:0});
+        moduleExists.status = 0;
+        moduleExists.save();
     }
 }
