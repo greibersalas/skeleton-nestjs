@@ -16,7 +16,7 @@ export class Modules extends BaseEntity {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({ type: 'varchar', length: 12, nullable: false, unique: true })
+    @Column({ type: 'varchar', length: 30, nullable: false, unique: true })
     name: string;
 
     @Column({ type: 'text', nullable: true })

@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
+import { MasterPermissionsDto } from './dto/master-permissions-dto';
 import { MasterPermissions } from './master-permissions.entity';
 import { MasterPermissionsService } from './master-permissions.service';
 
@@ -14,8 +15,19 @@ export class MasterPermissionsController {
     }
 
     @Get()
-    async getMasterPermissionsAll(): Promise<MasterPermissions[]> {
-        return await this._masterpermissionsService.getAll();
+    async getMasterPermissionsAll(): Promise<MasterPermissionsDto[]> {
+        const data = await this._masterpermissionsService.getAll();
+        return data.map(el => {
+            let item: MasterPermissionsDto = {
+                id: el.id,
+                page: el.page,
+                description: el.description,
+                estado: el.estado,
+                idmodule: el.module.id,
+                module: el.module.name
+            }
+            return item;
+        });
     }
 
     @Get('/get/not-user/:iduser')
