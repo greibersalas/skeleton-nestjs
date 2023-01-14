@@ -107,6 +107,11 @@ export class ModulesUserController {
         return await this.service.getModulesUser(Number(req.user.id));
     }
 
+    @Get('get-modules/user/:iduser')
+    async getModulesUserById(@Param('iduser', ParseIntPipe) iduser: number): Promise<ModulesUserDto[]> {
+        return await this.service.getModulesUser(iduser);
+    }
+
     @Get('get-submodules/user/:idmodule')
     async getSubModulesUser(
         @Param('idmodule', ParseIntPipe) idmodule: number,

@@ -33,6 +33,19 @@ export class SubModuleService {
         return await this.repository.find({ where: { status: 1, module: idmodule, idfather: null } });
     }
 
+    async getSubModulesFather(idfather: number): Promise<SubModules[]> {
+        return await this.repository.find({ where: { status: 1, idfather } });
+    }
+
+    async getSubModulesUser(iduser: number, idfather: number): Promise<SubModules[]> {
+        return await this.repository.createQueryBuilder('sm')
+            .select('sm.*')
+            .innerJoin('modules_permissions', 'mp', `mp.idsubmodule = sm.id and mp.iduser = ${iduser}`)
+            .where(`sm.status = 1`)
+            .andWhere(`sm.idfather = ${idfather}`)
+            .getRawMany();
+    }
+
     async create(submodule: SubModules): Promise<SubModules> {
         return await this.repository.save(submodule);
     }
