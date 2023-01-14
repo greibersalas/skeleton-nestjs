@@ -8,7 +8,7 @@ export interface ContractQuotaPaymentDto {
     observation: string;
     file_name: string;
     file_ext: string;
-    bank: string;
+    bankaccount: string;
     state: number;
     iduser: number;
     contract_detail?: ContractDetailDto[];

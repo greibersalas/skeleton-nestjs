@@ -96,6 +96,10 @@ export class ContractService {
             .getRawMany();
     }
 
+    async getDataDetailById(idcontractdetail: number): Promise<ContractDetail> {
+        return await this.repositoryDetail.findOne({ where: { id: idcontractdetail } });
+    }
+
     async getDataDetailForPayment(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
@@ -145,12 +149,18 @@ export class ContractService {
         return this.repositoryPayment.save(data);
     }
 
-    async updateDetailPayment(id: number, balance: number): Promise<ContractDetail> {
+    async updateDetailPayment(id: number, item: ContractDetail): Promise<ContractDetail> {
         const exists = await this.repositoryDetail.findOne(id);
         if (!exists) {
             throw new NotFoundException();
         }
-        exists.balance = exists.balance - balance;
+        if (item.discount > 0) {
+            exists.discount = item.discount;
+            const discountAmount = ((exists.balance * exists.discount) / 100);
+            exists.balance = exists.balance - (item.balance + discountAmount);
+            exists.observation = item.observation;
+            console.log({ balance: exists.balance, discountAmount });
+        }
         if (exists.balance === 0) {
             exists.state = 2;
         }

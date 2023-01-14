@@ -29,6 +29,10 @@ export class SubModuleService {
         return await this.repository.find({ where: { status: 1 } });
     }
 
+    async getSubModules(idmodule: number): Promise<SubModules[]> {
+        return await this.repository.find({ where: { status: 1, module: idmodule, idfather: null } });
+    }
+
     async create(submodule: SubModules): Promise<SubModules> {
         return await this.repository.save(submodule);
     }

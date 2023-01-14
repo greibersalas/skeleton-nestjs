@@ -37,6 +37,9 @@ export class ContractDetail extends BaseEntity {
     @Column({ type: 'float', nullable: false })
     balance: number;
 
+    @Column({ type: 'int2', nullable: true, default: 0 })
+    discount: number;
+
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;
 

@@ -53,6 +53,30 @@ export class SubModuleController {
         });
     }
 
+    @Get('sub-modules/:idmodule')
+    async getSubModules(
+        @Param('idmodule', ParseIntPipe) idmodule: number
+    ): Promise<SubModuleDto[]> {
+        const modules = await this.service.getSubModules(idmodule);
+        return modules.map(el => {
+            let mod: SubModuleDto;
+            mod = {
+                id: el.id,
+                title: el.title,
+                description: el.description,
+                status: el.status,
+                module: el.module.id,
+                module_name: el.module.name,
+                code: el.code,
+                icon: el.icon,
+                type: el.type,
+                target: el.target,
+                breadcrumbs: el.breadcrumbs
+            }
+            return mod;
+        });
+    }
+
     @Post()
     async createModule(
         @Body() module: SubModules,

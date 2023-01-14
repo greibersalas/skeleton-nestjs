@@ -6,6 +6,7 @@ export interface ContractDetailDto {
     date: string;
     amount: number;
     balance: number;
+    discount: number;
     state: number;
     check?: boolean;
 }

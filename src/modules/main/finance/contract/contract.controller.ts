@@ -108,7 +108,8 @@ export class ContractController {
                 det.observation = item.observation;
                 det.date = item.date;
                 det.amount = item.amount;
-                det.balance = item.amount;
+                det.balance = item.balance;
+                det.discount = item.discount;
                 det.created_at = moment().format('YYYY-MM-DD HH:mm:ss');
                 det.user = Number(req.user.id);
                 await this.service.insertDetail(det);
@@ -238,7 +239,7 @@ export class ContractController {
         data.coin = body.coin;
         data.amount = body.amount;
         data.observation = body.observation;
-        data.bank = body.bank;
+        data.bankaccount = body.bankaccount;
         data.exchangerate = body.exchangerate;
         data.contract = body.contract_detail[0].idcontract;
         data.file_name = file ? file.filename : null;
@@ -253,7 +254,7 @@ export class ContractController {
                     paymenteDetail.contractquotapayment = insert.id;
                     paymenteDetail.amount = iterator.balance;
                     paymenteDetail.save();
-                    await this.service.updateDetailPayment(iterator.id, iterator.balance);
+                    await this.service.updateDetailPayment(iterator.id, iterator);
                 }
             }
         }
