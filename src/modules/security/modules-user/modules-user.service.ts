@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InsertResult, Repository } from 'typeorm';
 import { SubModules } from '../sub-module/entity/sub-module.entity';
+import { ModulesPermissionsDto } from './dto/module-permissions-dto';
 import { NavigationItemDto } from './dto/modules-navigation-dto';
 import { ModulesUserDto } from './dto/modules-user-dto';
+import { PermissionsMultiModules } from './dto/permissions-multimodules-dto';
 import { ModulesPermissions } from './entity/module-user.entity';
 
 @Injectable()
@@ -33,6 +35,40 @@ export class ModulesUserService {
 
     async create(submodule: ModulesPermissions): Promise<ModulesPermissions> {
         return await this.repository.save(submodule);
+    }
+
+    async insertMultiPermissions(data: PermissionsMultiModules, iduser: number): Promise<boolean> {
+        /* const deleteData = await this.repository.createQueryBuilder('mp')
+            .delete().where(`mp.iduser = ${iduser}`).execute();
+        if (!deleteData) {
+            throw new BadRequestException();
+        } */
+        const values: ModulesPermissions[] = [];
+        data.idsubmodule.forEach(el => {
+            const item: ModulesPermissions = new ModulesPermissions();
+            item.user = data.iduser;
+            item.submodule = el;
+            item.active = true;
+            item.can_insert = data.can_insert;
+            item.can_update = data.can_update;
+            item.can_delete = data.can_delete;
+            item.status = 1;
+            item.user_created = iduser;
+            values.push(item);
+        });
+        // console.log({ values });
+        try {
+            const insert = await this.repository.createQueryBuilder('mp')
+                .insert()
+                .values(values)
+                .execute();
+            if (insert) {
+                return true;
+            }
+        } catch (error) {
+            console.log({ error });
+            throw new BadRequestException();
+        }
     }
 
     async update(id: number, module: ModulesPermissions): Promise<void> {

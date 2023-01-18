@@ -22,7 +22,7 @@ export class ModulesPermissions extends BaseEntity {
     user: User | number;
 
     @ManyToOne(type => SubModules, sm => sm.id, { cascade: true, nullable: false, eager: false })
-    @JoinColumn({ name: 'iduser' })
+    @JoinColumn({ name: 'idsubmodule' })
     submodule: SubModules | number;
 
     @Column({ type: 'boolean', nullable: false, default: false })

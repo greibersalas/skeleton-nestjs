@@ -12,6 +12,7 @@ export interface SubModuleDto {
     target?: boolean;
     breadcrumbs?: boolean;
     children?: Navigation[];
+    new?: boolean;
 }
 
 export interface Navigation extends SubModuleDto {

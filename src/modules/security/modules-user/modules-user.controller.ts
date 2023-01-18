@@ -1,9 +1,11 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
+import { InsertResult } from 'typeorm';
 
 import { ModulesPermissionsDto } from './dto/module-permissions-dto';
 import { NavigationItemDto } from './dto/modules-navigation-dto';
 import { ModulesUserDto } from './dto/modules-user-dto';
+import { PermissionsMultiModules } from './dto/permissions-multimodules-dto';
 import { ModulesPermissions } from './entity/module-user.entity';
 import { ModulesUserService } from './modules-user.service';
 
@@ -13,71 +15,14 @@ export class ModulesUserController {
 
     constructor(private readonly service: ModulesUserService) { }
 
-    /* @Get(':id')
-    async getModule(
-        @Param('id', ParseIntPipe) id: number
-    ): Promise<ModulesPermissionsDto> {
-        const module: ModulesPermissions = await this.service.get(id);
-        return {
-            id: module.id,
-            title: module.title,
-            description: module.description,
-            status: module.status,
-            module: module.module.id,
-            module_name: module.module.name,
-            code: module.code,
-            icon: module.icon,
-            type: module.type,
-            target: module.target,
-            breadcrumbs: module.breadcrumbs
-        };
-    } */
-
-    /* @Get()
-    async getModules(): Promise<ModulesPermissionsDto[]> {
-        const modules = await this.service.getAll();
-        return modules.map(el => {
-            let mod: ModulesPermissionsDto;
-            mod = {
-                id: el.id,
-                title: el.title,
-                description: el.description,
-                status: el.status,
-                module: el.module.id,
-                module_name: el.module.name,
-                code: el.code,
-                icon: el.icon,
-                type: el.type,
-                target: el.target,
-                breadcrumbs: el.breadcrumbs
-            }
-            return mod;
-        });
-    } */
-
-    /* @Get('sub-modules/:idmodule')
-    async getModulesPermissions(
-        @Param('idmodule', ParseIntPipe) idmodule: number
-    ): Promise<ModulesPermissionsDto[]> {
-        const modules = await this.service.getModulesPermissions(idmodule);
-        return modules.map(el => {
-            let mod: ModulesPermissionsDto;
-            mod = {
-                id: el.id,
-                title: el.title,
-                description: el.description,
-                status: el.status,
-                module: el.module.id,
-                module_name: el.module.name,
-                code: el.code,
-                icon: el.icon,
-                type: el.type,
-                target: el.target,
-                breadcrumbs: el.breadcrumbs
-            }
-            return mod;
-        });
-    } */
+    @Post('/multi-permissions')
+    async insertMultiPermissions(
+        @Body() module: PermissionsMultiModules,
+        @Request() req: any
+    ): Promise<boolean> {
+        const user = req.user.id;
+        return await this.service.insertMultiPermissions(module, Number(user));
+    }
 
     @Post()
     async createModule(

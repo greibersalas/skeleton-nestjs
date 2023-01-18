@@ -95,7 +95,8 @@ export class SubModuleController {
                 icon: el.icon,
                 type: el.type,
                 target: el.target,
-                breadcrumbs: el.breadcrumbs
+                breadcrumbs: el.breadcrumbs,
+                new: true
             }
             return mod;
         });

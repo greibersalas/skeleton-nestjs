@@ -10,6 +10,6 @@ export interface ModulesPermissionsDto {
     submodule?: string;
     idmodule?: number;
     module?: string;
-    idfather: number;
-    father_name: string;
+    idfather?: number;
+    father_name?: string;
 }
