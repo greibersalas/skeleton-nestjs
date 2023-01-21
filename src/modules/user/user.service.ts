@@ -31,6 +31,7 @@ export class UserService {
         const users: User[] = await this._userRepository.createQueryBuilder('us')
             .innerJoinAndSelect('us.roles', 'ro')
             .where('us.estado <> 0')
+            .orderBy('us.username')
             .getMany();
 
         return users;

@@ -321,6 +321,7 @@ export class ContractService {
                         contract.num = `C${this.lpad(it[15], 4)}`;
                         contract.user = user;
                         contract.executive = it[1];
+                        contract.accumulated_credits = it[17];
                         const insertContract = await this.repository.save(contract);
                         if (dia_ini < 10) {
                             dia_ini = `0${dia_ini}`;
@@ -388,6 +389,17 @@ export class ContractService {
     lpad(value: number, padding: number) {
         var zeroes = new Array(padding + 1).join("0");
         return (zeroes + value).slice(-padding);
+    }
+
+    async getQuotaPendingClient(idclinichistory: number): Promise<any> {
+        return await this.repository.createQueryBuilder('ct')
+            .select('extract(days from(now() - cd.date)) days')
+            .innerJoin('contract_detail', 'cd', `cd.idcontract = ct.id and cd.balance > 0`)
+            .where(`idclinichistory = ${idclinichistory}`)
+            .groupBy(`cd.date`)
+            .having(`extract(days from(now() - cd.date)) > 0`)
+            .getRawOne();
+
     }
 
 }

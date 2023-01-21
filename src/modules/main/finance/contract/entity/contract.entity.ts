@@ -58,6 +58,9 @@ export class Contract extends BaseEntity {
     @Column({ type: 'int2', default: 1, nullable: false })
     state: number;
 
+    @Column({ type: 'double precision', default: null, nullable: true })
+    accumulated_credits: number;
+
     @ManyToOne(type => User, us => us.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iduser' })
     user: User | number;

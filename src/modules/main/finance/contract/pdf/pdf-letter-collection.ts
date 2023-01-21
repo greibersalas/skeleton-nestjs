@@ -16,10 +16,15 @@ export class PdfLetterCollection {
         // Tenemos 5 tipos de carta
         // LP => Carta preventiva
         // LCP => Compromiso de pago
+        // LDV => Dís vencimiento
         // LMT => Carta mora temprana
+        // LMTA => Carta mora tardia
         //console.log({ data });
         const date = moment().format('YYYY-MM-DD');
         const fechaLarga = getDateFormatLong(date);
+
+        // Detalle de la cobranza
+        const { detail } = data;
 
         const pdf = new FPDF('P', 'mm', 'A4');
         let y: number = 30;
@@ -69,6 +74,8 @@ export class PdfLetterCollection {
             asunto = 'Cobranza Administrativa. Cuota Vencida';
         } else if (type === 'LDV') {
             asunto = 'Carta de Cobranza';
+        } else if (type === 'LMTA') {
+            asunto = 'Cobranza de Cuota Vencida';
         }
         pdf.SetFont('Arial', 'B', 11);
         pdf.SetY(y + 40);
@@ -79,143 +86,207 @@ export class PdfLetterCollection {
         pdf.SetX(x + 16);
         pdf.Cell(175, 5, `${asunto}`);
 
-        pdf.SetY(y + 50);
-        pdf.SetX(x);
-        pdf.Cell(175, 5, `Cordial saludo`);
+        if (type !== 'LMTA') {
+            pdf.SetY(y + 50);
+            pdf.SetX(x);
+            pdf.Cell(175, 5, `Cordial saludo`);
 
-        let yLP = y + 60;
-        pdf.SetY(y + 60);
-        pdf.SetX(x);
-        if (type === 'LP') {
-            pdf.Cell(175, 5, `La presente es para recordarle que en   `);
-            pdf.SetX(x + 85);
-            pdf.Cell(175, 5, `vence el pago de su cuota.`);
-        } else if (type === 'LCP') {
-            pdf.Cell(175, 5, `La presente es para recordarle que mantiene usted un compromiso de pago.`);
-        } else if (type === 'LDV') {
-            pdf.Cell(175, 5, `La presente es para recordarle que`);
-            pdf.SetX(x + 73);
-            pdf.Cell(175, 5, `vence el pago de su cuota.`);
-            pdf.SetFont('Arial', 'B', 11);
-            pdf.SetX(x + 63);
-            pdf.Cell(175, 5, `HOY`);
-        }
+            let yLP = y + 60;
+            pdf.SetY(y + 60);
+            pdf.SetX(x);
+            if (type === 'LP') {
+                pdf.Cell(175, 5, `La presente es para recordarle que en   `);
+                pdf.SetX(x + 85);
+                pdf.Cell(175, 5, `vence el pago de su cuota.`);
+            } else if (type === 'LCP') {
+                pdf.Cell(175, 5, `La presente es para recordarle que mantiene usted un compromiso de pago.`);
+            } else if (type === 'LDV') {
+                pdf.Cell(175, 5, `La presente es para recordarle que`);
+                pdf.SetX(x + 73);
+                pdf.Cell(175, 5, `vence el pago de su cuota.`);
+                pdf.SetFont('Arial', 'B', 11);
+                pdf.SetX(x + 63);
+                pdf.Cell(175, 5, `HOY`);
+            }
+            pdf.SetFont('Arial', 'I', 11);
+            pdf.SetY(y + 75);
+            pdf.SetX(x);
+            pdf.Cell(35, 5, `N°`, 0, 0, 'C');
+            pdf.Cell(30, 5, `FECHA`, 0, 0, 'C');
+            pdf.Cell(30, 5, `ACUENTA`, 0, 0, 'C');
+            pdf.Cell(30, 5, `SALDO`, 0, 0, 'C');
+            pdf.Cell(45, 5, `PRESUPUESTO TOTAL`, 0, 0, 'C');
+            pdf.SetFont('Arial', '', 11);
+            pdf.SetY(y + 80);
+            pdf.SetX(x);
+            pdf.Cell(35, 5, ``, 0, 0, 'C');
+            pdf.Cell(30, 5, ``, 0, 0, 'C', true);
+            pdf.Cell(30, 5, ``, 0, 0, 'C', true);
+            pdf.Cell(30, 5, ``, 0, 0, 'C', true);
+            pdf.Cell(45, 5, `$ ${numberFormat(data.amount)}`, 0, 0, 'R', true);
+            pdf.Line(x, y + 80, 190, y + 80);
+            y = y + 85;
+            const yLineStart = y - 5;
+            let bg = false;
 
-        pdf.SetFont('Arial', 'I', 11);
-        pdf.SetY(y + 75);
-        pdf.SetX(x);
-        pdf.Cell(35, 5, `N°`, 0, 0, 'C');
-        pdf.Cell(30, 5, `FECHA`, 0, 0, 'C');
-        pdf.Cell(30, 5, `ACUENTA`, 0, 0, 'C');
-        pdf.Cell(30, 5, `SALDO`, 0, 0, 'C');
-        pdf.Cell(45, 5, `PRESUPUESTO TOTAL`, 0, 0, 'C');
+            let balance = data.amount;
+            let textColor = 'BLACK';
+            let printDays = 0;
+            let printDate = '';
+            let printQuotas = 0;
 
-        pdf.SetFont('Arial', '', 11);
-        pdf.SetY(y + 80);
-        pdf.SetX(x);
-        pdf.Cell(35, 5, ``, 0, 0, 'C');
-        pdf.Cell(30, 5, ``, 0, 0, 'C', true);
-        pdf.Cell(30, 5, ``, 0, 0, 'C', true);
-        pdf.Cell(30, 5, ``, 0, 0, 'C', true);
-        pdf.Cell(45, 5, `$ ${numberFormat(data.amount)}`, 0, 0, 'R', true);
-        pdf.Line(x, y + 80, 190, y + 80);
-        y = y + 85;
-        const yLineStart = y - 5;
-        let bg = false;
-        // Detalle de la cobranza
-        const { detail } = data;
-        let balance = data.amount;
-        let textColor = 'BLACK';
-        let printDays = 0;
-        let printDate = '';
-        let printQuotas = 0;
-        detail.forEach((el: ContractDetailDto) => {
-            let balanceDet = '';
-            if (el.balance === 0) {
-                balance -= el.amount;
-                balanceDet = `$ ${numberFormat(balance)}`;
-                textColor = 'BLACK';
-            } else {
-                if (moment(el.date) < moment()) {
-                    balanceDet = 'PENDIENTE';
-                    if (type === 'LCP' && printDate === '') {
-                        printDate = moment(el.date).format('DD/MM/YYYY');
-                    }
-                    if (type === 'LMT') {
-                        printQuotas++;
-                        printDate = moment(el.date).format('DD/MM/YYYY');
-                    }
+            detail.forEach((el: ContractDetailDto) => {
+                let balanceDet = '';
+                if (el.balance === 0) {
+                    balance -= el.amount;
+                    balanceDet = `$ ${numberFormat(balance)}`;
+                    textColor = 'BLACK';
                 } else {
-                    balanceDet = 'POR VENCER';
-                    if (type === 'LP' && printDays === 0) {
+                    if (moment(el.date) < moment()) {
+                        balanceDet = 'PENDIENTE';
+                        if (type === 'LCP' && printDate === '') {
+                            printDate = moment(el.date).format('DD/MM/YYYY');
+                        }
+                        if (type === 'LMT') {
+                            printQuotas++;
+                            printDate = moment(el.date).format('DD/MM/YYYY');
+                        }
+                    } else {
+                        balanceDet = 'POR VENCER';
+                        if (type === 'LP' && printDays === 0) {
+                            const now = moment();
+                            const dateQuota = moment(el.date);
+                            printDays = dateQuota.diff(now, 'days');
+                        }
+                    }
+                    textColor = 'RED';
+                }
+                pdf.SetY(y);
+                pdf.SetX(x);
+                pdf.Cell(35, 5, `${el.description}`, 0, 0, 'C');
+                pdf.Cell(30, 5, `${moment(el.date).format('DD/MM/YYYY')}`, 0, 0, 'C', bg);
+                pdf.Cell(30, 5, `$ ${numberFormat(el.amount)}`, 0, 0, 'C', bg);
+
+                if (textColor === 'RED') {
+                    pdf.SetTextColor(194, 8, 8);
+                    pdf.SetFont('Arial', 'B', 11);
+                } else {
+                    pdf.SetFont('Arial', '', 11);
+                    pdf.SetTextColor(0, 0, 0);
+                }
+                pdf.Cell(30, 5, `${balanceDet}`, 0, 0, 'C', bg);
+                pdf.SetTextColor(0, 0, 0);
+                pdf.Cell(45, 5, ``, 0, 0, 'C', bg);
+                pdf.SetFont('Arial', '', 11);
+                y += 5;
+                bg = !bg;
+            });
+
+            const yLineEnd = pdf.GetY() + 5;
+            pdf.Line(x + 35, yLineStart, x + 35, yLineEnd);
+
+            pdf.SetFont('Arial', '', 11);
+            y = pdf.GetY();
+            pdf.SetY(y + 15);
+            pdf.SetX(x);
+            if (type === 'LP') {
+                pdf.Cell(175, 5, `Agradeceremos su pago en la fecha acordada.`);
+            } else if (type === 'LCP') {
+                pdf.MultiCell(175, 5, `Finalmente, en caso de que a la fecha de recepción de este documento usted ya hubiese cancelado, le ofrecemos nuestras disculpas y pedimos que omita la presente información.`);
+            } else if (type === 'LDV') {
+                pdf.MultiCell(175, 5, `Esperamos su pago el día de hoy.`);
+            } else if (type === 'LMT') {
+                pdf.MultiCell(175, 5, `Finalmente, en caso de que a la fecha de recepción de este documento usted ya hubiese cancelado, le ofrecemos nuestras disculpas y pedimos que omita la presente información.`);
+                pdf.SetY(y + 10);
+                pdf.SetX(x);
+                pdf.Cell(175, 5, `La cuota adeudada debió pagase el día `);
+                pdf.SetFont('Arial', 'B', 11);
+                pdf.SetX(x + 70);
+                pdf.Cell(175, 5, `${printDate}`);
+                pdf.SetFont('Arial', '', 11);
+            }
+
+            // Para el formato carta preventiva
+            if (printDays > 0) {
+                pdf.SetFont('Arial', 'B', 11);
+                pdf.SetY(yLP);
+                pdf.SetX(x + 68);
+                pdf.Cell(175, 5, `${printDays} días`);
+            }
+            if (printDate !== '' && type === 'LCP') {
+                pdf.SetY(yLP + 5);
+                pdf.SetX(x);
+                pdf.Cell(175, 5, `para el día ${printDate} ante su cuota(s) vencida(s).`);
+            }
+            if (printQuotas > 0) {
+                pdf.SetY(yLP + 5);
+                pdf.SetX(x);
+                pdf.Cell(175, 5, `La presente es para recordarle que usted mantiene ${printQuotas} cuota(s) vencida(s):`);
+            }
+        } else {
+            // Carta Mora tardía
+            pdf.SetY(y + 50);
+            pdf.SetX(x);
+            pdf.Cell(175, 5, `Estimado/a`);
+
+            pdf.SetY(y + 60);
+            pdf.SetX(x);
+            pdf.Cell(175, 5, `Mediante la presente les saludamos cordialmente y a su vez le informamos que, a esta fecha `);
+
+            let balanceDet = '';
+            let dateDet = '';
+            detail.forEach((el: ContractDetailDto) => {
+                if (el.balance !== 0) {
+                    if (moment(el.date) < moment() && balanceDet === '') {
+                        balanceDet = 'PENDIENTE';
+
                         const now = moment();
                         const dateQuota = moment(el.date);
-                        printDays = dateQuota.diff(now, 'days');
+                        balanceDet = now.diff(dateQuota, 'days');
+                        dateDet = moment(el.date).format('DD/MM/YYYY');
                     }
                 }
-                textColor = 'RED';
-            }
-            pdf.SetY(y);
-            pdf.SetX(x);
-            pdf.Cell(35, 5, `${el.description}`, 0, 0, 'C');
-            pdf.Cell(30, 5, `${moment(el.date).format('DD/MM/YYYY')}`, 0, 0, 'C', bg);
-            pdf.Cell(30, 5, `$ ${numberFormat(el.amount)}`, 0, 0, 'C', bg);
 
-            if (textColor === 'RED') {
-                pdf.SetTextColor(194, 8, 8);
-                pdf.SetFont('Arial', 'B', 11);
-            } else {
-                pdf.SetFont('Arial', '', 11);
-                pdf.SetTextColor(0, 0, 0);
-            }
-            pdf.Cell(30, 5, `${balanceDet}`, 0, 0, 'C', bg);
-            pdf.SetTextColor(0, 0, 0);
-            pdf.Cell(45, 5, ``, 0, 0, 'C', bg);
-            pdf.SetFont('Arial', '', 11);
-            y += 5;
-            bg = !bg;
-        });
-        const yLineEnd = pdf.GetY() + 5;
-        pdf.Line(x + 35, yLineStart, x + 35, yLineEnd);
-
-        pdf.SetFont('Arial', '', 11);
-        y = pdf.GetY();
-        pdf.SetY(y + 15);
-        pdf.SetX(x);
-        if (type === 'LP') {
-            pdf.Cell(175, 5, `Agradeceremos su pago en la fecha acordada.`);
-        } else if (type === 'LCP') {
-            pdf.MultiCell(175, 5, `Finalmente, en caso de que a la fecha de recepción de este documento usted ya hubiese cancelado, le ofrecemos nuestras disculpas y pedimos que omita la presente información.`);
-        } else if (type === 'LDV') {
-            pdf.MultiCell(175, 5, `Esperamos su pago el día de hoy.`);
-        } else if (type === 'LMT') {
-            pdf.MultiCell(175, 5, `Finalmente, en caso de que a la fecha de recepción de este documento usted ya hubiese cancelado, le ofrecemos nuestras disculpas y pedimos que omita la presente información.`);
-            pdf.SetY(y + 10);
+            });
+            pdf.SetY(y + 65);
             pdf.SetX(x);
-            pdf.Cell(175, 5, `La cuota adeudada debió pagase el día `);
+            pdf.Cell(103, 5, `usted mantiene una`);
+            pdf.Cell(25, 5, `por el valor de`);
             pdf.SetFont('Arial', 'B', 11);
-            pdf.SetX(x + 70);
-            pdf.Cell(175, 5, `${printDate}`);
+            pdf.SetX(x);
+            pdf.Cell(35, 5, ``);
+            pdf.Cell(25, 5, `cuota vencida con ${balanceDet} días de retraso`);
             pdf.SetFont('Arial', '', 11);
+
+            pdf.SetY(y + 75);
+            pdf.SetX(x);
+            pdf.Cell(55, 5, `La cuota vencida debió pagarse el día ${dateDet}.`);
+
+            pdf.SetY(y + 85);
+            pdf.SetX(x);
+            pdf.MultiCell(175, 5, `Le recordamos que, de no regularizarse el pago de esta deuda, Usted se expone a las siguientes consecuencias, debidamente mencionadas en el contrato firmado:`);
+
+            pdf.SetY(y + 100);
+            pdf.SetX(x + 10);
+            pdf.Cell(175, 5, `${String.fromCharCode(149)}   Ser reportado como moroso en las Centrales de Riesgo.`);
+            pdf.SetY(y + 105);
+            pdf.SetX(x + 10);
+            pdf.Cell(175, 5, `${String.fromCharCode(149)}   Cobro de Intereses según disposiciones legales.`);
+            pdf.SetY(y + 110);
+            pdf.SetX(x + 10);
+            pdf.Cell(175, 5, `${String.fromCharCode(149)}   Cobranza Judicial.`);
+
+            pdf.SetY(y + 125);
+            pdf.SetX(x);
+            pdf.MultiCell(175, 5, `De existir alguna diferencia o duda respecto al monto a pagar, favor comunicarse con nosotros inmediatamente.`);
+            pdf.SetY(y + 140);
+            pdf.SetX(x);
+            pdf.MultiCell(175, 5, `Se le pide regularizar la situación a la brevedad por los medios de pago informados.`);
+            pdf.SetY(y + 150);
+            pdf.SetX(x);
+            pdf.MultiCell(175, 5, `Finalmente, en caso de que a la fecha de recepción de este documento usted ya hubiese cancelado, le ofrecemos nuestras disculpas y pedimos que omita la presente información.`);
         }
 
-        // Para el formato carta preventiva
-        if (printDays > 0) {
-            pdf.SetFont('Arial', 'B', 11);
-            pdf.SetY(yLP);
-            pdf.SetX(x + 68);
-            pdf.Cell(175, 5, `${printDays} días`);
-        }
-        if (printDate !== '' && type === 'LCP') {
-            pdf.SetY(yLP + 5);
-            pdf.SetX(x);
-            pdf.Cell(175, 5, `para el día ${printDate} ante su cuota(s) vencida(s).`);
-        }
-        if (printQuotas > 0) {
-            pdf.SetY(yLP + 5);
-            pdf.SetX(x);
-            pdf.Cell(175, 5, `La presente es para recordarle que usted mantiene ${printQuotas} cuota(s) vencida(s):`);
-        }
 
         if (type !== 'LP') {
             pdf.Image('assets/img/firma_jhon_castillo.jpg', x - 5, 205, 40, 30, 'jpg');
@@ -235,19 +306,22 @@ export class PdfLetterCollection {
             pdf.Image('assets/img/sello_legal.jpg', 100, 200, 30, 30, 'jpg');
         }
 
-        pdf.SetFont('Arial', 'B', 8);
-        pdf.SetY(245);
-        pdf.SetX(x);
-        pdf.SetTextColor(194, 8, 8);
-        pdf.Cell(175, 5, `Importante:`);
-        pdf.SetFont('Arial', '', 8);
-        pdf.SetY(250);
-        pdf.SetX(x + 10);
-        pdf.SetTextColor(0, 0, 0);
-        pdf.MultiCell(165, 5, `* Estimado cliente se le recuerda que si no está al día en sus pagos se procederá con el cobro de intereses moratorios y/o con reportarlo en las centrales de riesgo.`);
-        pdf.SetY(260);
-        pdf.SetX(x + 10);
-        pdf.MultiCell(165, 5, `* Si cuenta con cuotas pendientes de pago, no podrá ser atendido en sus futuros controles.`);
+        if (type !== 'LMTA') {
+            pdf.SetFont('Arial', 'B', 8);
+            pdf.SetY(245);
+            pdf.SetX(x);
+            pdf.SetTextColor(194, 8, 8);
+            pdf.Cell(175, 5, `Importante:`);
+            pdf.SetFont('Arial', '', 8);
+            pdf.SetY(250);
+            pdf.SetX(x + 10);
+            pdf.SetTextColor(0, 0, 0);
+            pdf.MultiCell(165, 5, `${String.fromCharCode(149)} Estimado cliente se le recuerda que si no está al día en sus pagos se procederá con el cobro de intereses moratorios y/o con reportarlo en las centrales de riesgo.`);
+            pdf.SetY(260);
+            pdf.SetX(x + 10);
+            pdf.MultiCell(165, 5, `${String.fromCharCode(149)} Si cuenta con cuotas pendientes de pago, no podrá ser atendido en sus futuros controles.`);
+
+        }
 
         const nameFile: string = `letter-${type}-${moment().tz('America/Lima').format('YYYYMMDDHHmmss')}.pdf`;
         pdf.Output('F', `uploads/contract/pdf/${nameFile}`);

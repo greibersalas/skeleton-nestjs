@@ -76,7 +76,7 @@ export const getDayString = (day: number): string => {
         case 5:
             dayStg = 'viernes';
             break;
-        case 0:
+        case 6:
             dayStg = 'sábado';
             break;
 
