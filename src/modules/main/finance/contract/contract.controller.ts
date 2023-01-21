@@ -30,7 +30,7 @@ import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_deta
 
 //PDF's
 import { PdfContractChildren } from './pdf/pdf-contract-children';
-import { PdfLetterPreventiva } from './pdf/pdf-letter-preventiva';
+import { PdfLetterCollection } from './pdf/pdf-letter-collection';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -211,14 +211,15 @@ export class ContractController {
 
     @Get('/pdf/letters/:type/:idcontract')
     async getPdfLetters(
+        @Param('type') type: string,
         @Param('idcontract', ParseIntPipe) idcontract: number
     ): Promise<any> {
-        console.log('reporte');
-
         const data = await this.service.getOne(idcontract);
+        const detail = await this.service.getDataDetail(idcontract);
         if (data) {
-            const pdf = new PdfLetterPreventiva();
-            return pdf.print(data);
+            const pdf = new PdfLetterCollection();
+            data.detail = detail;
+            return pdf.print(data, type);
         } else {
             throw new BadRequestException();
         }

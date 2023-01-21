@@ -42,7 +42,8 @@ export class ContractService {
             .select(`so.id, so.type, so.idclinichistory, so.state, so.date,
             so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
             so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient`)
+            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
+            ch.attorney`)
             .innerJoin('so.clinichistory', 'ch')
             .where({ id })
             .getRawOne();
@@ -89,7 +90,7 @@ export class ContractService {
     async getDataDetail(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
-            dt.date::DATE, dt.amount, dt.state`)
+            dt.date::DATE, dt.amount, dt.state, dt.balance`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state <> 0')
             .orderBy('dt.date', 'ASC')
