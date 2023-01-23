@@ -1,38 +1,37 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
+import { User } from "src/modules/user/user.entity";
 
 @Entity('modules')
-export class Module extends BaseEntity{
+export class Modules extends BaseEntity {
 
     @PrimaryGeneratedColumn('increment')
-    idmodule: number;
+    id: number;
 
-    @Column({type:'varchar', length:30, nullable:false, unique: true})
-    id: string;
+    @Column({ type: 'varchar', length: 30, nullable: false, unique: true })
+    name: string;
 
-    @Column({type:'varchar', length:40, nullable:false, unique: true})
-    title: string;
-
-    @Column({type:'varchar', length:30, nullable:false, default: 'item'})
-    type: string;
-
-    @Column({type:'varchar', length:30, nullable:false, unique: true})
-    url: string;
-
-    @Column({type: 'boolean', default: false})
-    breadcrumbs: boolean;
-
-    @Column({type: 'varchar', length: 3, nullable: false})
-    group: string;
-
-    @Column({type:'text', nullable:false})
+    @Column({ type: 'text', nullable: true })
     description: string;
 
-    @Column({type:'int2', nullable:false, default:1})
-    state: number;
+    @Column({ type: 'int2', nullable: false, default: 1 })
+    status: number;
 
-    @CreateDateColumn({type:'timestamp',name:'created_at'})
+    @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn({type:'timestamp',name:'updated_at'})
+    @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
     updatedAt: Date;
+
+    @ManyToOne(type => User, us => us.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'iduser' })
+    user: User | number;
 }

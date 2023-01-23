@@ -59,6 +59,9 @@ import { ServiceOrderModule } from './modules/main/finance/service-order/service
 import { ContractModule } from './modules/main/finance/contract/contract.module';
 import { BankModule } from './modules/mat/bank/bank.module';
 import { ContractNotesModule } from './modules/main/finance/contract-notes/contract-notes.module';
+import { SubModuleModule } from './modules/security/sub-module/sub-module.module';
+import { FinanceMatModule } from './modules/mat/finance/finance-mat.module';
+import { ModulesUserModule } from './modules/security/modules-user/modules-user.module';
 
 
 @Module({
@@ -118,7 +121,10 @@ import { ContractNotesModule } from './modules/main/finance/contract-notes/contr
     ServiceOrderModule,
     ContractModule,
     BankModule,
-    ContractNotesModule
+    ContractNotesModule,
+    SubModuleModule,
+    FinanceMatModule,
+    ModulesUserModule
   ],
   controllers: [AppController],
   providers: [AppService],

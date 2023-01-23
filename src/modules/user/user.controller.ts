@@ -24,7 +24,7 @@ export class UserController {
     @Get()
     async getUsers(): Promise<User[]> {
         const users = await this._userService.getAll();
-        return users;
+        return users.map(el => { el.password = '****'; return el });
     }
 
     @Post()

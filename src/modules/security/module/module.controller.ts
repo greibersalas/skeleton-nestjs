@@ -1,38 +1,63 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
 
 import { ModuleDto } from './dto/module.dto';
-import { Module } from './module.entity';
+import { Modules } from './module.entity';
 import { ModuleService } from './module.service';
 
-@Controller('module')
+@UseGuards(JwtAuthGuard)
+@Controller('modules')
 export class ModuleController {
 
-    constructor(private readonly _moduleService: ModuleService){}
+    constructor(private readonly _moduleService: ModuleService) { }
 
     @Get(':id')
-    async getModule(@Param('id',ParseIntPipe) id: number): Promise<Module>{
-        const module = await this._moduleService.get(id);
-        return module;
+    async getModule(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<ModuleDto> {
+        const module: Modules = await this._moduleService.get(id);
+        return {
+            id: module.id,
+            name: module.name,
+            description: module.description,
+            status: module.status
+        };
     }
 
     @Get()
-    async getModules(): Promise<ModuleDto[]>{
+    async getModules(): Promise<ModuleDto[]> {
         const modules = await this._moduleService.getAll();
-        return modules;
+        return modules.map(el => {
+            let mod: ModuleDto;
+            mod = {
+                id: el.id,
+                name: el.name,
+                description: el.description,
+                status: el.status
+            }
+            return mod;
+        });
     }
 
     @Post()
-    async createModule(@Body() module: ModuleDto): Promise<ModuleDto>{
+    async createModule(
+        @Body() module: Modules,
+        @Request() req: any
+    ): Promise<Modules> {
+        module.user = req.user.id;
         return await this._moduleService.create(module);;
     }
 
     @Put(':id')
-    async updateModule(@Param('id',ParseIntPipe) id: number,@Body() module: ModuleDto){
-        return await this._moduleService.update(id,module);
+    async updateModule(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() module: Modules
+    ) {
+        return await this._moduleService.update(id, module);
     }
 
     @Delete(':id')
-    async deleteModule(@Param('id',ParseIntPipe) id: number){
+    async deleteModule(@Param('id', ParseIntPipe) id: number) {
         await this._moduleService.delete(id);
         return true;
     }

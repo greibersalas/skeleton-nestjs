@@ -30,6 +30,7 @@ import { ContractQuotaPaymentDetail } from './entity/contract_quota_payment_deta
 
 //PDF's
 import { PdfContractChildren } from './pdf/pdf-contract-children';
+import { PdfLetterCollection } from './pdf/pdf-letter-collection';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contract')
@@ -108,7 +109,8 @@ export class ContractController {
                 det.observation = item.observation;
                 det.date = item.date;
                 det.amount = item.amount;
-                det.balance = item.amount;
+                det.balance = item.balance;
+                det.discount = item.discount;
                 det.created_at = moment().format('YYYY-MM-DD HH:mm:ss');
                 det.user = Number(req.user.id);
                 await this.service.insertDetail(det);
@@ -207,6 +209,22 @@ export class ContractController {
         }
     }
 
+    @Get('/pdf/letters/:type/:idcontract')
+    async getPdfLetters(
+        @Param('type') type: string,
+        @Param('idcontract', ParseIntPipe) idcontract: number
+    ): Promise<any> {
+        const data = await this.service.getOne(idcontract);
+        const detail = await this.service.getDataDetail(idcontract);
+        if (data) {
+            const pdf = new PdfLetterCollection();
+            data.detail = detail;
+            return pdf.print(data, type);
+        } else {
+            throw new BadRequestException();
+        }
+    }
+
     // Payment
     @Post("/payment-quota/:id/:group")
     @UseInterceptors(
@@ -238,7 +256,7 @@ export class ContractController {
         data.coin = body.coin;
         data.amount = body.amount;
         data.observation = body.observation;
-        data.bank = body.bank;
+        data.bankaccount = body.bankaccount;
         data.exchangerate = body.exchangerate;
         data.contract = body.contract_detail[0].idcontract;
         data.file_name = file ? file.filename : null;
@@ -253,7 +271,7 @@ export class ContractController {
                     paymenteDetail.contractquotapayment = insert.id;
                     paymenteDetail.amount = iterator.balance;
                     paymenteDetail.save();
-                    await this.service.updateDetailPayment(iterator.id, iterator.balance);
+                    await this.service.updateDetailPayment(iterator.id, iterator);
                 }
             }
         }

@@ -42,7 +42,8 @@ export class ContractService {
             .select(`so.id, so.type, so.idclinichistory, so.state, so.date,
             so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
             so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient`)
+            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
+            ch.attorney`)
             .innerJoin('so.clinichistory', 'ch')
             .where({ id })
             .getRawOne();
@@ -89,11 +90,15 @@ export class ContractService {
     async getDataDetail(idcontract: number): Promise<ContractDetailDto[]> {
         return await this.repositoryDetail.createQueryBuilder('dt')
             .select(`dt.id, dt.idcontract, dt.description, dt.observation,
-            dt.date::DATE, dt.amount, dt.state`)
+            dt.date::DATE, dt.amount, dt.state, dt.balance`)
             .where(`dt.idcontract = ${idcontract}`)
             .andWhere('dt.state <> 0')
             .orderBy('dt.date', 'ASC')
             .getRawMany();
+    }
+
+    async getDataDetailById(idcontractdetail: number): Promise<ContractDetail> {
+        return await this.repositoryDetail.findOne({ where: { id: idcontractdetail } });
     }
 
     async getDataDetailForPayment(idcontract: number): Promise<ContractDetailDto[]> {
@@ -145,12 +150,18 @@ export class ContractService {
         return this.repositoryPayment.save(data);
     }
 
-    async updateDetailPayment(id: number, balance: number): Promise<ContractDetail> {
+    async updateDetailPayment(id: number, item: ContractDetail): Promise<ContractDetail> {
         const exists = await this.repositoryDetail.findOne(id);
         if (!exists) {
             throw new NotFoundException();
         }
-        exists.balance = exists.balance - balance;
+        if (item.discount > 0) {
+            exists.discount = item.discount;
+            const discountAmount = ((exists.balance * exists.discount) / 100);
+            exists.balance = exists.balance - (item.balance + discountAmount);
+            exists.observation = item.observation;
+            console.log({ balance: exists.balance, discountAmount });
+        }
         if (exists.balance === 0) {
             exists.state = 2;
         }
@@ -310,6 +321,7 @@ export class ContractService {
                         contract.num = `C${this.lpad(it[15], 4)}`;
                         contract.user = user;
                         contract.executive = it[1];
+                        contract.accumulated_credits = it[17];
                         const insertContract = await this.repository.save(contract);
                         if (dia_ini < 10) {
                             dia_ini = `0${dia_ini}`;
@@ -377,6 +389,17 @@ export class ContractService {
     lpad(value: number, padding: number) {
         var zeroes = new Array(padding + 1).join("0");
         return (zeroes + value).slice(-padding);
+    }
+
+    async getQuotaPendingClient(idclinichistory: number): Promise<any> {
+        return await this.repository.createQueryBuilder('ct')
+            .select('extract(days from(now() - cd.date)) days')
+            .innerJoin('contract_detail', 'cd', `cd.idcontract = ct.id and cd.balance > 0`)
+            .where(`idclinichistory = ${idclinichistory}`)
+            .groupBy(`cd.date`)
+            .having(`extract(days from(now() - cd.date)) > 0`)
+            .getRawOne();
+
     }
 
 }

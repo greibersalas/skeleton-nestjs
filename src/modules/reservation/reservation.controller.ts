@@ -30,6 +30,7 @@ import { Pdf_frequent_patients } from './pdf/pdf-frequent-patients';
 import { PdfDatesPatient } from './pdf/pdf-dates-patient';
 //Excel4Node
 import * as xl from 'excel4node';
+import { ContractService } from '../main/finance/contract/contract.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('reservation')
@@ -38,7 +39,8 @@ export class ReservationController {
         private readonly _reservationService: ReservationService,
         private _serviceEnviroment: EnvironmentDoctorService,
         private _serviceDoctor: DoctorService,
-        private _servicePatient: ClinicHistoryService
+        private _servicePatient: ClinicHistoryService,
+        private contractService: ContractService
     ) { }
 
     @Get(':id')
@@ -419,8 +421,14 @@ export class ReservationController {
     }
 
     @Get('get-by-id/:id')
-    async getById(@Param('id', ParseIntPipe) id: number): Promise<any[]> {
-        return await this._reservationService.getById(id);
+    async getById(@Param('id', ParseIntPipe) id: number): Promise<any> {
+        const data = await this._reservationService.getById(id);
+        const quotaPending = await this.contractService.getQuotaPendingClient(data.patient.id);
+        data.patient.quotasPending = 0;
+        if (quotaPending) {
+            data.patient.quotasPending = quotaPending.days;
+        }
+        return data;
     }
 
     @Get('confirm/:id/:state')

@@ -184,7 +184,7 @@ export class ReservationService {
         return data;
     }
 
-    async getById(id: number): Promise<any[]> {
+    async getById(id: number): Promise<any> {
         const data: any = await this._reservationRepository
             .createQueryBuilder("re")
             .innerJoinAndSelect("re.doctor", "doc")
@@ -456,7 +456,7 @@ export class ReservationService {
         if (Number(filters.specialty)) {
             where = ` AND tr.specialty = ${Number(filters.specialty)}`;
             return await this._reservationRepository.createQueryBuilder('re')
-            .select(`ch.history, concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
+                .select(`ch.history, concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
             re.date,re.appointment AS horario,re.reason,ed.name AS environment,"do"."nameQuote" AS doctor,
             re.state, (SELECT
             CONCAT_WS(' ','Usuario:',us.username,'Fecha:',to_char(au.datetime,'DD/MM/YYYY HH:MM'))
@@ -465,14 +465,14 @@ export class ReservationService {
             WHERE au.title = 'Reservation' AND au.state = 1 AND au.idregister = re.id
             ORDER BY au.idaudit DESC LIMIT 1) AS auditoria,
             tr.name AS treatment, sp.name AS specialty`)
-            .leftJoin('clinic_history', 'ch', `ch.id = re.patient_id`)
-            .innerJoin(`tariff`, `tr`, `tr.id = re.tariff_id ${where}`)
-            .innerJoin(`specialty`, `sp`, `sp.id = tr.specialty`)
-            .innerJoin('environment_doctor', 'ed', `ed.id = re.environment_id`)
-            .innerJoin('doctor', 'do', `do.id = re.doctor_id`)
-            .where(`re.date BETWEEN :since AND :until`, { since: filters.since, until: filters.until })
-            .orderBy(`re.date,ch.name,re.appointment`)
-            .getRawMany();
+                .leftJoin('clinic_history', 'ch', `ch.id = re.patient_id`)
+                .innerJoin(`tariff`, `tr`, `tr.id = re.tariff_id ${where}`)
+                .innerJoin(`specialty`, `sp`, `sp.id = tr.specialty`)
+                .innerJoin('environment_doctor', 'ed', `ed.id = re.environment_id`)
+                .innerJoin('doctor', 'do', `do.id = re.doctor_id`)
+                .where(`re.date BETWEEN :since AND :until`, { since: filters.since, until: filters.until })
+                .orderBy(`re.date,ch.name,re.appointment`)
+                .getRawMany();
         } else {
             return await this._reservationRepository.createQueryBuilder('re')
                 .select(`ch.history, concat_ws( ' ',ch.name,"ch"."lastNameFather","ch"."lastNameMother" ) AS paciente,
