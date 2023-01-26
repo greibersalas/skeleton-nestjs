@@ -635,5 +635,16 @@ export class ContractController {
 
         });
     }
+    
+    @Get('get/state_contract')
+    async _getDataStateContract(@Res() response,@Request() req: any): Promise<any> {
+        const resp = await this.service.getDataStateContract();
+        return response.status(HttpStatus.OK).json(resp);
+    }
+
+    @Put('get/update_state_contract')
+    async updateStateContract(@Body() data: {idcontract:number, id_state_contract:number}){
+        return await this.service.updateStateContract(data)
+    }
 }
 

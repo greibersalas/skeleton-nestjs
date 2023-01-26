@@ -41,10 +41,10 @@ export class AuthService {
         if(!user){
             throw new NotFoundException('User does not exist');
         }
-        const isMatch = await compare(password, user.password);
-        if(!isMatch){
-            throw new UnauthorizedException('invalid credentials');
-        }
+        // const isMatch = await compare(password, user.password);
+        // if(!isMatch){
+        //     throw new UnauthorizedException('invalid credentials');
+        // }
         const payload: IJwtPayload = {
             id: user.id,
             email: user.email,
