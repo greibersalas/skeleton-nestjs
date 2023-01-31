@@ -581,8 +581,23 @@ export class ContractController {
                 .string(Number(amountQuota)); // Importe quota
             ws.cell(y, 13)
                 .string(this.getTipoCartera(moridad)); // Tipo de cartera
+            //formula excel para segmentacion
+            const S3 = Number(moridad);
+            const M3 = this.getTipoCartera(moridad);
+            let resultado = '';
+            if(S3 >= 31 && S3 <= 60 && M3 == "MOROSA"){
+                resultado = "+30 DÍAS";
+            }else if(S3>=61 && S3<=90 && M3 =="MOROSA"){
+                resultado = "+60 DÍAS";
+            }else if(S3>=91 && M3=="MOROSA"){
+                resultado = "+90 DÍAS";
+            }else if(S3>=1&&S3<=30&&M3=="VENCIDO"){
+                resultado = "+1 DÍAS";
+            }else{
+                resultado = "ANTES DEL VENCIMIENTO";
+            }
             ws.cell(y, 15)
-                .string(''); // Segmentación
+                .string(resultado); // Segmentación|
             ws.cell(y, 16)
                 .string(''); // N° de cuota
             ws.cell(y, 17)

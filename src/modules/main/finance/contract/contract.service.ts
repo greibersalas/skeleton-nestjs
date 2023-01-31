@@ -461,4 +461,15 @@ export class ContractService {
           console.log('🚀 ~ updateStateContract ~ error', error);
         }
     }
+
+    async getQuotaPendingClient(idclinichistory: number): Promise<any> {
+        return await this.repository.createQueryBuilder('ct')
+            .select('extract(days from(now() - cd.date)) days')
+            .innerJoin('contract_detail', 'cd', `cd.idcontract = ct.id and cd.balance > 0`)
+            .where(`idclinichistory = ${idclinichistory}`)
+            .groupBy(`cd.date`)
+            .having(`extract(days from(now() - cd.date)) > 0`)
+            .getRawOne();
+
+    }
 }
