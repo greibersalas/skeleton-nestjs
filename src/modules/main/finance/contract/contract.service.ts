@@ -302,11 +302,14 @@ export class ContractService {
             det.description, det.date, det.amount, det.observation,
             concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
             ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
-            ch.email AS patient_email, (now()::DATE - det.date::DATE) as dayDelinquency`)
+            ch.email AS patient_email, (now()::DATE - det.date::DATE) as dayDelinquency,
+            t1.description AS state_contract`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .andWhere(`det.state = 1`)
+            .andWhere(`t1.description= 'MOLDES'`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
             .getRawMany();
