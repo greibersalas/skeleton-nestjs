@@ -256,6 +256,11 @@ export class MedicalActAttentionService {
 
     async getDoctorProduction(params: any): Promise<any> {
         const { since, until, iddoctor } = params;
+        let where = `maa.date::DATE BETWEEN '${since}' AND '${until}'
+        AND maa.state = 1`;
+        if (iddoctor > 0) {
+            where += `AND "maa"."doctorId" = ${iddoctor}`;
+        }
         return await this._medicalActAttentionRepository.createQueryBuilder('maa')
             .select(`maa.quantity,maa.id AS idattention,
         maa.value,
@@ -292,8 +297,7 @@ export class MedicalActAttentionService {
             .innerJoin('maa.businessline', 'bl')
             .innerJoin('maa.specialty', 'sp')
             .innerJoin('payment_method', 'pm', 'pm.id = maa.idpaymentmethod')
-            .where(`maa.date::DATE BETWEEN :since AND :until
-        AND maa.state = 1 AND "maa"."doctorId" = :iddoctor`, { since, until, iddoctor })
+            .where(where)
             .orderBy(`maa.date`)
             .getRawMany();
     }
