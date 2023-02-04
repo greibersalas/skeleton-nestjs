@@ -40,7 +40,7 @@ export class SubModuleService {
     async getSubModulesUser(iduser: number, idfather: number): Promise<SubModules[]> {
         return await this.repository.createQueryBuilder('sm')
             .select('sm.*')
-            .innerJoin('modules_permissions', 'mp', `mp.idsubmodule = sm.id and mp.iduser = ${iduser}`)
+            .innerJoin('modules_permissions', 'mp', `mp.idsubmodule = sm.id and mp.iduser = ${iduser} and mp.status = 1`)
             .where(`sm.status = 1`)
             .andWhere(`sm.idfather = ${idfather}`)
             .getRawMany();

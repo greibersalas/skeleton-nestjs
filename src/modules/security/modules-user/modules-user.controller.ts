@@ -115,4 +115,12 @@ export class ModulesUserController {
         });
         return listfathers;
     }
+
+    @Get('get-permission-module/:code')
+    async getPermissionModule(
+        @Param('code') code: string,
+        @Request() req: any
+    ): Promise<ModulesPermissions> {
+        return await this.service.getPerssionModule(code, Number(req.user.id));
+    }
 }

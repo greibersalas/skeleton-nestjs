@@ -38,36 +38,66 @@ export class ModulesUserService {
     }
 
     async insertMultiPermissions(data: PermissionsMultiModules, iduser: number): Promise<boolean> {
-        /* const deleteData = await this.repository.createQueryBuilder('mp')
-            .delete().where(`mp.iduser = ${iduser}`).execute();
-        if (!deleteData) {
-            throw new BadRequestException();
-        } */
-        const values: ModulesPermissions[] = [];
-        data.idsubmodule.forEach(el => {
-            const item: ModulesPermissions = new ModulesPermissions();
-            item.user = data.iduser;
-            item.submodule = el;
-            item.active = true;
-            item.can_insert = data.can_insert;
-            item.can_update = data.can_update;
-            item.can_delete = data.can_delete;
-            item.status = 1;
-            item.user_created = iduser;
-            values.push(item);
-        });
-        // console.log({ values });
-        try {
-            const insert = await this.repository.createQueryBuilder('mp')
-                .insert()
-                .values(values)
-                .execute();
-            if (insert) {
-                return true;
+        // Busco si hay items a eliminar
+        // Busco los items a eliminar
+        data.list.forEach(async el => {
+            if (!data.idsubmodule.find(ele => ele === el.id)) {
+                await this.repository.createQueryBuilder('mp')
+                    .update(ModulesPermissions)
+                    .set({ status: 0, user_created: iduser })
+                    .where({ user: data.iduser })
+                    .andWhere(`idsubmodule = ${el.id}`)
+                    .execute();
+            } else {
+                if (!el.new) {
+                    const item = await this.repository.findOne({
+                        where: {
+                            user: data.iduser,
+                            submodule: el.id
+                        },
+                        order: {
+                            id: 'DESC'
+                        }
+                    });
+                    item.can_insert = data.can_insert;
+                    item.can_update = data.can_update;
+                    item.can_delete = data.can_delete;
+                    item.status = 1;
+                    item.save();
+                }
             }
-        } catch (error) {
-            console.log({ error });
-            throw new BadRequestException();
+        });
+        // Busco si hay nuevos modulos para agregar
+        const newItems = data.list.filter(el => el.new);
+        if (newItems.length > 0 && data.idsubmodule.length > 0) {
+            const values: ModulesPermissions[] = [];
+            data.idsubmodule.forEach(el => {
+                // Verifico que se agrego
+                if (newItems.find(ele => ele.id === el)) {
+                    const item: ModulesPermissions = new ModulesPermissions();
+                    item.user = data.iduser;
+                    item.submodule = el;
+                    item.active = true;
+                    item.can_insert = data.can_insert;
+                    item.can_update = data.can_update;
+                    item.can_delete = data.can_delete;
+                    item.status = 1;
+                    item.user_created = iduser;
+                    values.push(item);
+                }
+            });
+            try {
+                const insert = await this.repository.createQueryBuilder('mp')
+                    .insert()
+                    .values(values)
+                    .execute();
+                if (insert) {
+                    return true;
+                }
+            } catch (error) {
+                console.log({ error });
+                throw new BadRequestException();
+            }
         }
     }
 
@@ -110,5 +140,13 @@ export class ModulesUserService {
             .orderBy('mosf.title')
             .addOrderBy('ms.title')
             .getRawMany();
+    }
+
+    async getPerssionModule(code: string, iduser: number): Promise<ModulesPermissions> {
+        return await this.repository.createQueryBuilder('mp')
+            .select('mp.id, mp.can_insert, mp.can_update, mp.can_delete')
+            .innerJoin('modules_sub', 'ms', `ms.id = mp.idsubmodule AND ms.code = '${code}'`)
+            .where(`mp.iduser = ${iduser}`)
+            .getRawOne();
     }
 }

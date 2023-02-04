@@ -5,4 +5,5 @@ export interface PermissionsMultiModules {
     can_insert: boolean;
     can_update: boolean;
     can_delete: boolean;
+    list?: any[]
 }
