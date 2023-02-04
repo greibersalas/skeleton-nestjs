@@ -309,7 +309,7 @@ export class ContractService {
             .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .andWhere(`det.state = 1`)
-            .andWhere(`t1.description= 'MOLDES'`)
+            .andWhere(`t1.description = '${filters.state_contract}'`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
             .getRawMany();
@@ -324,16 +324,19 @@ export class ContractService {
             ch.email AS patient_email, ch.attorney, ct.date AS contract_date,
             ct.amount AS contract_amount, ct.quota AS contract_quota,
             ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment,
-            ctd.date AS date_quota, ct.executive, ctd.amount AS amountQuota`)
+            ctd.date AS date_quota, ct.executive, ctd.amount AS amountQuota,
+            t1.description AS etapas`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .innerJoin('contract_detail', 'ctd', `ctd.idcontract = det.idcontract AND ctd.description like '%nicial%'`)
+            .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .leftJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
             .leftJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
+            .andWhere(`t1.description = '${filters.state_contract}'`)
             .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
             "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,
-            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date`)
+            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date,t1.description`)
             .andWhere(`det.state = 1`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')

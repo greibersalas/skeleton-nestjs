@@ -404,7 +404,7 @@ export class ContractController {
         ws.cell(1, 1, 1, 9, true)
             .string(`Datos generales`)
             .style(styleTitle);
-        ws.cell(1, 10, 1, 21, true)
+        ws.cell(1, 10, 1, 22, true)
             .string(`Estatus de Cobranza`)
             .style(styleTitleStatus);
 
@@ -516,6 +516,9 @@ export class ContractController {
         ws.cell(2, 21)
             .string("Ejecución")
             .style(styleStatus);
+        ws.cell(2, 22)
+            .string("Etapas")
+            .style(styleStatus);
         // size columns
         ws.column(1).setWidth(15);
         ws.column(2).setWidth(30);
@@ -538,6 +541,7 @@ export class ContractController {
         ws.column(19).setWidth(20);
         ws.column(20).setWidth(20);
         ws.column(21).setWidth(20);
+        ws.column(22).setWidth(20);
         let y = 3;
         data.map((it: any) => {
             const {
@@ -551,7 +555,8 @@ export class ContractController {
                 payment,
                 date_quota,
                 executive,
-                amountQuota
+                amountQuota,
+                etapas
             } = it;
             const moridad = moment().diff(moment(date_quota), 'days');
             ws.cell(y, 1)
@@ -591,6 +596,8 @@ export class ContractController {
                 .string(''); // N° de Cuota
             ws.cell(y, 19)
                 .number(Number(moridad)); // Días de Moridad
+            ws.cell(y, 22)
+                .string(etapas); // Etapas
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
