@@ -212,6 +212,8 @@ export class ContractService {
             exists.balance = exists.balance - (item.balance + discountAmount);
             exists.observation = item.observation;
             console.log({ balance: exists.balance, discountAmount });
+        } else {
+            exists.balance = exists.balance - item.balance;
         }
         if (exists.balance === 0) {
             exists.state = 2;
@@ -228,16 +230,17 @@ export class ContractService {
         return await this.repositoryPayment.createQueryBuilder('qp')
             .select(`qp.id, qp.payment_date AS date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
             co.code AS coin, ct.id AS idcontract, count(cd) AS cuotas, ct.idclinichistory, ct.num AS num_contract,
-            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history, qp.idbank, ba.name AS bank`)
+            concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient, ch.history, ba.id AS idbank, ba.name AS bank`)
             .innerJoin('coin', 'co', 'co.id = qp.idcoin')
             .innerJoin('contract_quota_payment_detail', 'cd', 'cd.idcontractquotapayment = qp.id')
             .innerJoin('contract', 'ct', 'ct.id = qp.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
-            .innerJoin('qp.bank', 'ba', 'ba.id = qp.idbank')
+            .innerJoin('bank_accounts', 'bac', `bac.id = qp.idbankaccount`)
+            .innerJoin('banks', 'ba', 'ba.id = bac.idbank')
             .where(`${where}`)
             .andWhere(`qp.payment_date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .groupBy(`qp.id, qp.payment_date, qp.idcoin, qp.amount, qp.observation, qp.state, qp.file_name, qp.file_ext,
-            co.code, ct.id, ct.idclinichistory, ct.num,"ch"."lastNameFather","ch"."lastNameMother",ch.name,ch.history,ba.name, qp.idbank`)
+            co.code, ct.id, ct.idclinichistory, ct.num,"ch"."lastNameFather","ch"."lastNameMother",ch.name,ch.history,ba.name, ba.id`)
             .getRawMany();
     }
 
@@ -448,23 +451,23 @@ export class ContractService {
         return (zeroes + value).slice(-padding);
     }
 
-    async getDataStateContract(){
+    async getDataStateContract() {
         try {
             return await this.repositoryDetail.query('SELECT description,id,state FROM state_contract;');
         } catch (error) {
             console.log("🚀 ~ getDataStateContract ~ error", error)
         }
     }
-    
-    async updateStateContract(data:{idcontract:number, id_state_contract:number}){
+
+    async updateStateContract(data: { idcontract: number, id_state_contract: number }) {
         try {
-          return await this.repositoryDetail.query(`
+            return await this.repositoryDetail.query(`
                 Update contract 
                 Set id_state_contract = ${data.id_state_contract}
                 where id  = ${data.idcontract};
             `);
         } catch (error) {
-          console.log('🚀 ~ updateStateContract ~ error', error);
+            console.log('🚀 ~ updateStateContract ~ error', error);
         }
     }
 
