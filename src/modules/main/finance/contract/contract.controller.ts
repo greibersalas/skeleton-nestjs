@@ -404,7 +404,7 @@ export class ContractController {
         ws.cell(1, 1, 1, 9, true)
             .string(`Datos generales`)
             .style(styleTitle);
-        ws.cell(1, 10, 1, 21, true)
+        ws.cell(1, 10, 1, 22, true)
             .string(`Estatus de Cobranza`)
             .style(styleTitleStatus);
 
@@ -516,6 +516,9 @@ export class ContractController {
         ws.cell(2, 21)
             .string("Ejecución")
             .style(styleStatus);
+        ws.cell(2, 22)
+            .string("Etapas")
+            .style(styleStatus);
         // size columns
         ws.column(1).setWidth(15);
         ws.column(2).setWidth(30);
@@ -538,6 +541,7 @@ export class ContractController {
         ws.column(19).setWidth(20);
         ws.column(20).setWidth(20);
         ws.column(21).setWidth(20);
+        ws.column(22).setWidth(20);
         let y = 3;
         data.map((it: any) => {
             const {
@@ -551,7 +555,8 @@ export class ContractController {
                 payment,
                 date_quota,
                 executive,
-                amountQuota
+                amountQuota,
+                etapas
             } = it;
             const moridad = moment().diff(moment(date_quota), 'days');
             ws.cell(y, 1)
@@ -582,7 +587,7 @@ export class ContractController {
             ws.cell(y, 13)
                 .string(this.getTipoCartera(moridad)); // Tipo de cartera
             ws.cell(y, 15)
-                .string(''); // Segmentación
+                .string(this.getSegmentacion(moridad)); // Segmentación|
             ws.cell(y, 16)
                 .string(''); // N° de cuota
             ws.cell(y, 17)
@@ -591,6 +596,8 @@ export class ContractController {
                 .string(''); // N° de Cuota
             ws.cell(y, 19)
                 .number(Number(moridad)); // Días de Moridad
+            ws.cell(y, 22)
+                .string(etapas); // Etapas
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {
@@ -617,8 +624,22 @@ export class ContractController {
         return ''
     }
 
-    getSegmentacion(): string {
-        return '';
+    getSegmentacion(moridad:number): string {
+        const S3 = Number(moridad);
+        const M3 = this.getTipoCartera(moridad);
+        let resultado = '';
+        if (S3 >= 31 && S3 <= 60 && M3 == 'MOROSA') {
+          resultado = '+30 DÍAS';
+        } else if (S3 >= 61 && S3 <= 90 && M3 == 'MOROSA') {
+          resultado = '+60 DÍAS';
+        } else if (S3 >= 91 && M3 == 'MOROSA') {
+          resultado = '+90 DÍAS';
+        } else if (S3 >= 1 && S3 <= 30 && M3 == 'VENCIDO') {
+          resultado = '+1 DÍAS';
+        } else {
+          resultado = 'ANTES DEL VENCIMIENTO';
+        }
+        return resultado;
     }
 
     @Get('get/xlsx/')
@@ -634,6 +655,17 @@ export class ContractController {
             return response.status(HttpStatus.OK).json(resp);
 
         });
+    }
+    
+    @Get('get/state_contract')
+    async _getDataStateContract(@Res() response,@Request() req: any): Promise<any> {
+        const resp = await this.service.getDataStateContract();
+        return response.status(HttpStatus.OK).json(resp);
+    }
+
+    @Put('get/update_state_contract')
+    async updateStateContract(@Body() data: {idcontract:number, id_state_contract:number}){
+        return await this.service.updateStateContract(data)
     }
 }
 

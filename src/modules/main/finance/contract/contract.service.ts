@@ -67,24 +67,75 @@ export class ContractService {
     }
 
     async getDataFilters(filters: any, status = 0): Promise<ContractDto[]> {
-        let where = 'so.state <> 0';
+        let where = 't1.state <> 0';
         if (status > 0) {
-            where = `so.state = ${status}`;
+            where = `t1.state = ${status}`;
         }
-        return await this.repository.createQueryBuilder('so')
-            .select(`so.id, so.type, so.idclinichistory, so.state, so.date,
-            so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
-            so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
-            SUM(cd.balance) AS balance`)
-            .innerJoin('so.clinichistory', 'ch')
-            .innerJoin('contract_detail', 'cd', 'cd.idcontract = so.id')
-            .where(where)
-            .andWhere(`so.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`)
-            .groupBy(`so.id, so.type, so.idclinichistory, so.state, so.date,
-            so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
-            so.amount_controls, so.num,ch.history, "ch"."documentNumber","ch"."lastNameFather", "ch"."lastNameMother", ch.name`)
-            .getRawMany();
+        // return await this.repository
+        //   .createQueryBuilder('so')
+        //   .select(
+        //     `so.id, so.type, so.idclinichistory, so.state, so.date,
+        //     so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
+        //     so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
+        //     concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
+        //     SUM(cd.balance) AS balance`,
+        //   )
+        //   .innerJoin('so.clinichistory', 'ch')
+        //   .innerJoin('contract_detail', 'cd', 'cd.idcontract = so.id')
+        //   .where(where)
+        //   .andWhere(
+        //     `so.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`,
+        //   )
+        //   .groupBy(
+        //     `so.id, so.type, so.idclinichistory, so.state, so.date,
+        //     so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
+        //     so.amount_controls, so.num,ch.history, "ch"."documentNumber","ch"."lastNameFather", "ch"."lastNameMother", ch.name`,
+        //   )
+        //   .getRawMany();
+        return await this.repositoryDetail.query(`
+            SELECT 
+                t1.id,
+                t1.type,
+                t1.idclinichistory,
+                t1.state,
+                t1.date,
+                t1.duration,
+                t1.amount,
+                t1.quota,
+                t1.exchange_house,
+                t1.exchange_house_url,
+                t1.amount_controls,
+                t1.num,
+                t2.history,
+                t2."documentNumber" AS patient_doc,
+                concat_ws(' ',t2."lastNameFather", t2."lastNameMother", t2.name) AS patient,
+                SUM(t3.balance) AS balance,
+                t4.description
+            from contract t1
+            join clinic_history t2 ON t1.idclinichistory = t2.id
+            inner Join contract_detail t3 on t3.idcontract = t1.id
+            inner Join state_contract t4 on t1.id_state_contract = t4.id
+            where  t1.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'
+            and ${where}
+            group By
+                t1.id,
+                t1.type,
+                t1.idclinichistory,
+                t1.state,
+                t1.date,
+                t1.duration,
+                t1.amount,
+                t1.quota,
+                t1.exchange_house,
+                t1.exchange_house_url,
+                t1.amount_controls,
+                t1.num,t2.history,
+                t2."documentNumber",
+                t2."lastNameFather",
+                t2."lastNameMother",
+                t2.name,
+                t4.description;
+        `);
     }
 
     async getDataDetail(idcontract: number): Promise<ContractDetailDto[]> {
@@ -251,11 +302,14 @@ export class ContractService {
             det.description, det.date, det.amount, det.observation,
             concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name) AS patient,
             ch.history, "ch"."documentNumber" AS patient_document, ch.cellphone AS patient_phone,
-            ch.email AS patient_email, (now()::DATE - det.date::DATE) as dayDelinquency`)
+            ch.email AS patient_email, (now()::DATE - det.date::DATE) as dayDelinquency,
+            t1.description AS state_contract`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
+            .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .andWhere(`det.state = 1`)
+            .andWhere(`t1.description = '${filters.state_contract}'`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
             .getRawMany();
@@ -270,16 +324,19 @@ export class ContractService {
             ch.email AS patient_email, ch.attorney, ct.date AS contract_date,
             ct.amount AS contract_amount, ct.quota AS contract_quota,
             ctd.amount AS initial_amount, SUM(cqpd.amount) AS payment,
-            ctd.date AS date_quota, ct.executive, ctd.amount AS amountQuota`)
+            ctd.date AS date_quota, ct.executive, ctd.amount AS amountQuota,
+            t1.description AS etapas`)
             .innerJoin('contract', 'ct', 'ct.id = det.idcontract')
             .innerJoin('clinic_history', 'ch', 'ch.id = ct.idclinichistory')
             .innerJoin('contract_detail', 'ctd', `ctd.idcontract = det.idcontract AND ctd.description like '%nicial%'`)
+            .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .leftJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
             .leftJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
+            .andWhere(`t1.description = '${filters.state_contract}'`)
             .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
             "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,
-            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date`)
+            ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date,t1.description`)
             .andWhere(`det.state = 1`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
@@ -391,6 +448,26 @@ export class ContractService {
         return (zeroes + value).slice(-padding);
     }
 
+    async getDataStateContract(){
+        try {
+            return await this.repositoryDetail.query('SELECT description,id,state FROM state_contract;');
+        } catch (error) {
+            console.log("🚀 ~ getDataStateContract ~ error", error)
+        }
+    }
+    
+    async updateStateContract(data:{idcontract:number, id_state_contract:number}){
+        try {
+          return await this.repositoryDetail.query(`
+                Update contract 
+                Set id_state_contract = ${data.id_state_contract}
+                where id  = ${data.idcontract};
+            `);
+        } catch (error) {
+          console.log('🚀 ~ updateStateContract ~ error', error);
+        }
+    }
+
     async getQuotaPendingClient(idclinichistory: number): Promise<any> {
         return await this.repository.createQueryBuilder('ct')
             .select('extract(days from(now() - cd.date)) days')
@@ -401,5 +478,4 @@ export class ContractService {
             .getRawOne();
 
     }
-
 }
