@@ -104,15 +104,15 @@ export class MedicalActService {
                 medicalAct.study_models = medical_act.study_models;
                 medicalAct.radiographic_report = medical_act.radiographic_report;
                 medicalAct.reservation = reservation;
-                medicalAct.save();
-                //CAMBIAMOS EL ESTADO DE LA RESERVA
-                const reser = await this._ReservationRepository.createQueryBuilder()
-                    .update(Reservation)
-                    .set({ state: 3 })
-                    .where({ id }).execute();
-                // console.log({ reser, id });
-
-                return await this._medicalActRepository.findOne(
+                const saveMedicalAct = await this._medicalActRepository.save(medicalAct);
+                if (saveMedicalAct) {
+                    //CAMBIAMOS EL ESTADO DE LA RESERVA
+                    const reser = await this._ReservationRepository.createQueryBuilder()
+                        .update(Reservation)
+                        .set({ state: 3 })
+                        .where({ id }).execute();
+                }
+                const ma = await this._medicalActRepository.findOne(
                     {
                         where: {
                             state: 1,
@@ -120,11 +120,13 @@ export class MedicalActService {
                         }
                     }
                 );
+                return ma;
             } else {
                 throw new NotFoundException;
             }
+        } else {
+            return ma;
         }
-        return ma;
     }
 
     async addFiles(data: any): Promise<any> {
