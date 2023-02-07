@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException, Res } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, MoreThan, Not } from 'typeorm';
+import { Like, MoreThan } from 'typeorm';
 import { Doctor } from '../doctor/doctor.entity';
 import { EnvironmentDoctor } from '../environment-doctor/environment-doctor.entity';
 import { DiaryLockRepository } from '../main/diary-lock/diary-lock.repository';
@@ -33,11 +33,12 @@ export class ReservationService {
             pa.id as idpatient,ta.id as idtariff,
             concat(pa.name,' ',"pa"."lastNameFather") as patient,
             dr2.nameQuote as doctor2, dr2.id as iddoctor2, re.state,
-            ta.description AS product`)
+            ta.description AS product, re.pending_payment, re.amount, re.idcoin, co.code AS coin`)
             .innerJoin("re.environment", "ev")
             .innerJoin("re.doctor", "dr")
             .innerJoin("re.patient", "pa")
             .leftJoin("re.tariff", "ta")
+            .leftJoin("re.coin", "co")
             .leftJoin("doctor", "dr2", "dr2.id = re.doctor_id2")
             .where("re.id = :id AND re.state <> 0", { id }).getRawOne();
 

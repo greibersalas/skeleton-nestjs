@@ -284,7 +284,7 @@ export class ReservationController {
         @Body() reservation: Reservation,
         @Request() req: any
     ): Promise<Reservation> {
-        //Validamos que no este pcupado el cupo
+        //Validamos que no este ocupado el cupo
         const validate = await this._reservationService.validateCupo(reservation);
         if (typeof validate !== 'undefined') {
             throw new BadRequestException('El cupo ya no esta disponible.');
