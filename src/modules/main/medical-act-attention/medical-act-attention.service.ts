@@ -91,6 +91,7 @@ export class MedicalActAttentionService {
             .innerJoinAndSelect("mc.doctor", 'dc')
             .innerJoinAndSelect("mc.co", 'co')
             .innerJoinAndSelect("mc.medicalact", 'ma')
+            .innerJoinAndSelect("mc.patient", 'pa')
             .where(`${where}`)
             .getMany();
 
