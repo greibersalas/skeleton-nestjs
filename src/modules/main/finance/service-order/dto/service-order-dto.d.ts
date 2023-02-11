@@ -1,18 +1,25 @@
-import { ServiceOrderDetailDto } from "./service-order-detail-dto";
 
 export interface ServiceOrderDto {
     id: number;
+    quantity: number;
+    amount: number;
     idclinichistory: number;
-    type: string;
-    state: number;
-    num_doc: string;
-    date_doc: string;
-    idorigin: number;
-    date_order?: string;
-    patient_doc?: string;
-    history?: string;
-    patient?: string;
-    detail?: ServiceOrderDetailDto[];
-    total_sol?: number;
-    total_usd?: number;
+    medicalactId: number;
+    businesslineId: number;
+    specialtyId: number;
+    tariffId: number;
+    doctorId: number;
+    idpaymentmethod: number;
+    patient: string;
+    history: string;
+    patient_doc_num: string;
+    business_line: string;
+    specialty: string;
+    tariff: string;
+    doctor: string;
+    payment_method: string;
+    idcoin: number;
+    coin: string;
+    date: string;
+    status: string;
 }

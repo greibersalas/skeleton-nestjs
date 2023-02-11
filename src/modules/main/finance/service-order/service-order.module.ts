@@ -5,11 +5,10 @@ import { ServiceOrderController } from './service-order.controller';
 import { ServiceOrderService } from './service-order.service';
 
 // Entity
-import { ServiceOrderDetail } from './entity/service-order-detail.entity';
-import { ServiceOrder } from './entity/service-order.entity';
+import { ViewServiceOrder } from './entity/service-order-view.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ServiceOrder, ServiceOrderDetail])],
+  imports: [TypeOrmModule.forFeature([ViewServiceOrder])],
   controllers: [ServiceOrderController],
   providers: [ServiceOrderService]
 })
