@@ -64,4 +64,19 @@ export class ContractQuotaPayment extends BaseEntity {
     @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
     updated_at: Date;
 
+    @Column({ type: 'varchar', length: 40, nullable: true })
+    operation_number: string;
+
+    @Column({ type: 'varchar', length: 12, nullable: true })
+    document_type: string;
+
+    @Column({ type: 'varchar', length: 15, nullable: true })
+    document_number: string;
+
+    @Column({ type: 'date', nullable: true })
+    document_date: string;
+
+    @Column({ type: 'float', default: 1, nullable: false })
+    idpaymentmethod: number;
+
 }

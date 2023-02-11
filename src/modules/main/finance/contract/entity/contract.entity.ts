@@ -11,6 +11,10 @@ import {
 import { ClinicHistory } from "src/modules/clinic-history/clinic-history.entity";
 import { User } from "src/modules/user/user.entity";
 import { ContractDetail } from "./contract-detail.entity";
+import { BusinessLine } from "src/modules/business-line/business-line.entity";
+import { Specialty } from "src/modules/specialty/specialty.entity";
+import { Doctor } from "src/modules/doctor/doctor.entity";
+import { Tariff } from "src/modules/tariff/tariff.entity";
 
 @Entity('contract')
 export class Contract extends BaseEntity {
@@ -67,6 +71,22 @@ export class Contract extends BaseEntity {
     @ManyToOne(type => User, us => us.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iduser' })
     user: User | number;
+
+    @ManyToOne(type => BusinessLine, bl => bl.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idbusinessline' })
+    businessline: BusinessLine | number;
+
+    @ManyToOne(type => Specialty, sp => sp.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idspecialty' })
+    specialty: Specialty | number;
+
+    @ManyToOne(type => Tariff, ta => ta.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idtariff' })
+    tariff: Tariff | number;
+
+    @ManyToOne(type => Doctor, dr => dr.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'iddoctor' })
+    doctor: Doctor | number;
 
     @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
     created_at: Date;

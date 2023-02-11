@@ -27,4 +27,5 @@ export interface ServiceOrderDto {
     document_type: string;
     document_number: string;
     document_date: string;
+    origin: string;
 }

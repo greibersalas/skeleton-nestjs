@@ -32,11 +32,11 @@ export class ServiceOrderController {
         @Body() data: ServiceOrderDto,
         @Request() req: any
     ) {
-        const update = await this.service.setPaymentData(id, data);
+        const update = await this.service.setPaymentData(id, data, Number(req.user.id));
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
-        audit.title = 'medical-act-attention';
+        audit.title = data.origin === 'attention' ? 'medical-act-attention' : 'contract-quota-payment';
         audit.description = 'Data del pago y facturación';
         audit.data = JSON.stringify(data);
         audit.iduser = Number(req.user.id);
@@ -48,12 +48,13 @@ export class ServiceOrderController {
         return update;
     }
 
-    @Put('decline/:id')
+    @Put('decline/:id/:origin')
     async declineServiceOrder(
         @Param('id', ParseIntPipe) id: number,
+        @Param('origin') origin: string,
         @Request() req: any
     ) {
-        const data = await this.service.setDecline(id);
+        const data = await this.service.setDecline(id, origin);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
