@@ -22,4 +22,9 @@ export interface ServiceOrderDto {
     coin: string;
     date: string;
     status: string;
+    idbankaccount: number;
+    operation_number: string;
+    document_type: string;
+    document_number: string;
+    document_date: string;
 }

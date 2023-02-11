@@ -26,4 +26,47 @@ export class ServiceOrderController {
         return await this.service.getDataPending(date);
     }
 
+    @Put(':id')
+    async updateServiceOrder(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() data: ServiceOrderDto,
+        @Request() req: any
+    ) {
+        const update = await this.service.setPaymentData(id, data);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'medical-act-attention';
+        audit.description = 'Data del pago y facturación';
+        audit.data = JSON.stringify(data);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return update;
+    }
+
+    @Put('decline/:id')
+    async declineServiceOrder(
+        @Param('id', ParseIntPipe) id: number,
+        @Request() req: any
+    ) {
+        const data = await this.service.setDecline(id);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'medical-act-attention';
+        audit.description = 'Rechazo de la orden de servicio';
+        audit.data = JSON.stringify(data);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return data;
+    }
+
 }

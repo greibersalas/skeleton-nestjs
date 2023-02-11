@@ -82,7 +82,7 @@ export class MedicalActAttention extends BaseEntity {
     @Column({ type: 'varchar', length: 15, nullable: true })
     document_number: string;
 
-    @Column({ type: 'date', length: 15, nullable: true })
+    @Column({ type: 'date', nullable: true })
     document_date: string;
 
     @CreateDateColumn({ type: 'timestamp', name: 'created_at' })

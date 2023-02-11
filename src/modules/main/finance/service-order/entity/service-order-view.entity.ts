@@ -7,7 +7,7 @@ import { ViewColumn, ViewEntity } from "typeorm";
   maa.idpaymentmethod, concat_ws('',ch.name, ch."lastNameFather", ch."lastNameMother") AS patient,
   ch.history, ch."documentNumber" AS patient_doc_num, bl.name as business_line, sp.name as specialty,
   ta.name as tariff, dc."nameQuote" as doctor, pm.name as payment_method, co.id as idcoin, co.code as coin,
-  maa.date, maa.state as status
+  maa.date, maa.state as status, maa.idbankaccount, maa.operation_number, maa.document_type, maa.document_number, maa.document_date
 from medical_act_attention maa
 inner join clinic_history ch ON ch.id = maa."patientId"
 inner join business_line bl on bl.id = maa."businesslineId"

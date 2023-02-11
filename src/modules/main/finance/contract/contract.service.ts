@@ -162,6 +162,25 @@ export class ContractService {
             .getRawMany();
     }
 
+    async getLastCorrelative(): Promise<number> {
+
+        const data = await this.repository
+            .createQueryBuilder("co")
+            .select("co.correlative")
+            .orderBy({ "co.id": "DESC" })
+            .limit(1)
+            .getOne();
+        if (data) {
+            if (moment(data.created_at).format('YYYY') !== moment().format('YYYY')) {
+                return 0;
+            } else {
+                return data.correlative;
+            }
+        } else {
+            return 0;
+        }
+    }
+
     async create(data: Contract): Promise<Contract> {
         return await this.repository.save(data);
     }
