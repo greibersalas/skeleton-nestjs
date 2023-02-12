@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalActAttention } from '../../medical-act-attention/medical-act-attention.entity';
 import { ContractQuotaPayment } from '../contract/entity/contract-quota-payment.entity';
+import { DailyIncomeDto } from './dto/daily-income-view-dto';
 
 import { ServiceOrderDto } from './dto/service-order-dto';
+import { ViewDailyIncome } from './entity/daily-income-view.entity';
 import { ViewServiceOrder } from './entity/service-order-view.entity';
 
 
@@ -19,6 +21,8 @@ export class ServiceOrderService {
         private readonly repositoryAttention: Repository<MedicalActAttention>,
         @InjectRepository(ContractQuotaPayment)
         private readonly repositoryContractPay: Repository<ContractQuotaPayment>,
+        @InjectRepository(ViewDailyIncome)
+        private readonly repositoryDailyIncome: Repository<ViewDailyIncome>,
     ) { }
 
     async getDataPending(date: string): Promise<ServiceOrderDto[]> {
@@ -103,6 +107,15 @@ export class ServiceOrderService {
         }
 
         return false;
+    }
+
+    async getDailyIncome(date: string): Promise<DailyIncomeDto[]> {
+        return this.repositoryDailyIncome.createQueryBuilder('so')
+            .select('*')
+            .where(`so.date = '${date}'`)
+            .andWhere('so.status in (1,2)')
+            .orderBy('so.id', 'ASC')
+            .getRawMany();
     }
 
 }
