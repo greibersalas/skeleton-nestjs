@@ -5,11 +5,18 @@ import { ServiceOrderController } from './service-order.controller';
 import { ServiceOrderService } from './service-order.service';
 
 // Entity
-import { ServiceOrderDetail } from './entity/service-order-detail.entity';
-import { ServiceOrder } from './entity/service-order.entity';
+import { ViewServiceOrder } from './entity/service-order-view.entity';
+import { MedicalActAttention } from '../../medical-act-attention/medical-act-attention.entity';
+import { ContractQuotaPayment } from '../contract/entity/contract-quota-payment.entity';
+import { ViewDailyIncome } from './entity/daily-income-view.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ServiceOrder, ServiceOrderDetail])],
+  imports: [TypeOrmModule.forFeature([
+    ViewServiceOrder,
+    MedicalActAttention,
+    ContractQuotaPayment,
+    ViewDailyIncome
+  ])],
   controllers: [ServiceOrderController],
   providers: [ServiceOrderService]
 })

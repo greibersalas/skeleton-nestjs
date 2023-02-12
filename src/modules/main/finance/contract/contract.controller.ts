@@ -225,6 +225,15 @@ export class ContractController {
         }
     }
 
+    @Get('get-last/contract/number')
+    async getLastCorrelative(): Promise<any> {
+        let correlative = '';
+        const num = await this.service.getLastCorrelative();
+
+        correlative = `MX${moment().format('YY')}-${String(num + 1).padStart(4, '0')}`;;
+        return { correlative, num };
+    }
+
     // Payment
     @Post("/payment-quota/:id/:group")
     @UseInterceptors(
@@ -624,20 +633,20 @@ export class ContractController {
         return ''
     }
 
-    getSegmentacion(moridad:number): string {
+    getSegmentacion(moridad: number): string {
         const S3 = Number(moridad);
         const M3 = this.getTipoCartera(moridad);
         let resultado = '';
         if (S3 >= 31 && S3 <= 60 && M3 == 'MOROSA') {
-          resultado = '+30 DÍAS';
+            resultado = '+30 DÍAS';
         } else if (S3 >= 61 && S3 <= 90 && M3 == 'MOROSA') {
-          resultado = '+60 DÍAS';
+            resultado = '+60 DÍAS';
         } else if (S3 >= 91 && M3 == 'MOROSA') {
-          resultado = '+90 DÍAS';
+            resultado = '+90 DÍAS';
         } else if (S3 >= 1 && S3 <= 30 && M3 == 'VENCIDO') {
-          resultado = '+1 DÍAS';
+            resultado = '+1 DÍAS';
         } else {
-          resultado = 'ANTES DEL VENCIMIENTO';
+            resultado = 'ANTES DEL VENCIMIENTO';
         }
         return resultado;
     }
@@ -656,15 +665,15 @@ export class ContractController {
 
         });
     }
-    
+
     @Get('get/state_contract')
-    async _getDataStateContract(@Res() response,@Request() req: any): Promise<any> {
+    async _getDataStateContract(@Res() response, @Request() req: any): Promise<any> {
         const resp = await this.service.getDataStateContract();
         return response.status(HttpStatus.OK).json(resp);
     }
 
     @Put('get/update_state_contract')
-    async updateStateContract(@Body() data: {idcontract:number, id_state_contract:number}){
+    async updateStateContract(@Body() data: { idcontract: number, id_state_contract: number }) {
         return await this.service.updateStateContract(data)
     }
 }

@@ -78,11 +78,9 @@ export class MedicalActAttentionService {
         if (!id) {
             throw new BadRequestException('id must be send.');
         }
-        let where: string = '';
-        if (iddoctor === 0) {
-            where = `mc.state = 1 AND "mc"."patientId" = ${id}`;
-        } else {
-            where = `mc.state = 1 AND "mc"."patientId" = ${id} AND dc.id = ${iddoctor}`;
+        let where: string = `mc.state <> 0 AND "mc"."patientId" = ${id}`;
+        if (iddoctor > 0) {
+            where += ` AND dc.id = ${iddoctor}`;
         }
         const medicalActAttention = await this._medicalActAttentionRepository.createQueryBuilder('mc')
             .innerJoinAndSelect("mc.tariff", "tr")

@@ -1,127 +1,121 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-const moment = require('moment-timezone');
+import { MedicalActAttention } from '../../medical-act-attention/medical-act-attention.entity';
+import { ContractQuotaPayment } from '../contract/entity/contract-quota-payment.entity';
+import { DailyIncomeDto } from './dto/daily-income-view-dto';
 
-// Entity
-import { ServiceOrder } from './entity/service-order.entity';
-// Dto
 import { ServiceOrderDto } from './dto/service-order-dto';
-import { ServiceOrderDetail } from './entity/service-order-detail.entity';
-import { ok } from 'assert';
-import { ServiceOrderDetailDto } from './dto/service-order-detail-dto';
+import { ViewDailyIncome } from './entity/daily-income-view.entity';
+import { ViewServiceOrder } from './entity/service-order-view.entity';
+
+
 
 @Injectable()
 export class ServiceOrderService {
 
     constructor(
-        @InjectRepository(ServiceOrder)
-        private readonly repository: Repository<ServiceOrder>,
-        @InjectRepository(ServiceOrderDetail)
-        private readonly repositoryDetail: Repository<ServiceOrderDetail>
+        @InjectRepository(ViewServiceOrder)
+        private readonly repository: Repository<ViewServiceOrder>,
+        @InjectRepository(MedicalActAttention)
+        private readonly repositoryAttention: Repository<MedicalActAttention>,
+        @InjectRepository(ContractQuotaPayment)
+        private readonly repositoryContractPay: Repository<ContractQuotaPayment>,
+        @InjectRepository(ViewDailyIncome)
+        private readonly repositoryDailyIncome: Repository<ViewDailyIncome>,
     ) { }
 
-    async getOne(id: number): Promise<ServiceOrderDto> {
-        if (!id) {
-            throw new BadRequestException('id must be send.');
-        }
-
-        const data = await this.repository.createQueryBuilder('so')
-            .select(`so.id, so.type, so.idclinichistory, so.state, so.num_doc,
-            so.date_doc, ch.history, "ch"."documentNumber" AS patient_doc,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient`)
-            .innerJoin('so.clinichistory', 'ch')
-            .where({ id })
-            .getRawOne();
-
-        if (!data) {
-            throw new NotFoundException();
-        }
-
-        return data;
-    }
-
-    async getAll(): Promise<ServiceOrderDto[]> {
-        return await this.repository.createQueryBuilder('so')
-            .select(`so.id, so.type, so.idclinichistory, so.state, so.num_doc,
-            so.date_doc, ch.history, "ch"."documentNumber" AS patient_doc, so.created_at::DATE AS date_order,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient`)
-            .innerJoin('so.clinichistory', 'ch')
-            .where('so.state <> 0')
+    async getDataPending(date: string): Promise<ServiceOrderDto[]> {
+        return this.repository.createQueryBuilder('so')
+            .select('*')
+            .where(`so.date = '${date}'`)
+            .andWhere('so.status = 1')
+            .orderBy('so.id', 'ASC')
             .getRawMany();
     }
 
-    async getDataFilters(filters: any, status = 0): Promise<ServiceOrderDto[]> {
-        let where = 'so.state <> 0';
-        if (status > 0) {
-            where = `so.state = ${status}`;
+    async setPaymentData(id: number, data: ServiceOrderDto, user: number): Promise<boolean> {
+        if (data.origin === 'attention') {
+            const attention = await this.repositoryAttention.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            attention.idpaymentmethod = data.idpaymentmethod;
+            attention.bankaccount = data.idbankaccount;
+            attention.operation_number = data.operation_number;
+            attention.document_type = data.document_type;
+            attention.document_number = data.document_number;
+            attention.document_date = data.document_date;
+            attention.state = 2;
+            if (attention.save()) {
+                return true;
+            }
         }
-        return await this.repository.createQueryBuilder('so')
-            .select(`so.id, so.type, so.idclinichistory, so.state, so.num_doc,
-            so.date_doc, ch.history, "ch"."documentNumber" AS patient_doc, so.created_at::DATE AS date_order,
-            concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
-            sum(case when det.idcoin = 1 then det.total else 0 end) AS total_sol,
-            sum(case when det.idcoin = 2 then det.total else 0 end) AS total_usd`)
-            .innerJoin('so.clinichistory', 'ch')
-            .innerJoin('service_order_detail', 'det', `det.idserviceorder = so.id`)
-            .where(where)
-            .andWhere(`so.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`)
-            .groupBy(`so.id, so.type, so.idclinichistory, so.state, so.num_doc,
-            so.date_doc, ch.history, "ch"."documentNumber", so.created_at::DATE,
-            "ch"."lastNameFather", "ch"."lastNameMother", ch.name`)
+        if (data.origin === 'contract') {
+            const attention = await this.repositoryContractPay.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            const update = await this.repositoryContractPay.createQueryBuilder('cp')
+                .update(ContractQuotaPayment)
+                .set({
+                    bankaccount: data.idbankaccount,
+                    operation_number: data.operation_number,
+                    document_type: data.document_type,
+                    document_number: data.document_number,
+                    document_date: data.document_date,
+                    idpaymentmethod: data.idpaymentmethod,
+                    state: 2
+                }).where({ id })
+                .execute();
+            /* attention.id = data.idpaymentmethod;
+            attention.bankaccount = data.idbankaccount;
+            attention.operation_number = data.operation_number;
+            attention.document_type = data.document_type;
+            attention.document_number = data.document_number;
+            attention.document_date = data.document_date;
+            attention.coin = data.idcoin;
+            attention.user = user;
+            attention.state = 2; */
+            if (update) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async setDecline(id: number, origin: string): Promise<boolean> {
+        if (origin === 'attention') {
+            const attention = await this.repositoryAttention.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            attention.state = 3;
+            if (attention.save()) {
+                return true;
+            }
+        }
+        if (origin === 'contract') {
+            const attention = await this.repositoryContractPay.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            attention.state = 3;
+            if (attention.save()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    async getDailyIncome(date: string): Promise<DailyIncomeDto[]> {
+        return this.repositoryDailyIncome.createQueryBuilder('so')
+            .select('*')
+            .where(`so.date = '${date}'`)
+            .andWhere('so.status in (1,2)')
+            .orderBy('so.id', 'ASC')
             .getRawMany();
     }
 
-    async getDataDetail(idserviceorder: number): Promise<ServiceOrderDetailDto[]> {
-        return await this.repositoryDetail.createQueryBuilder('dt')
-            .select(`dt.id, dt.idserviceorder,
-            dt.idtariff, dt.idcoin, dt.quantity,
-            dt.price, dt.total, dt.idorigin,
-            dt.state, tr.name AS tariff,
-            co.code AS coin`)
-            .innerJoin('tariff', 'tr', 'tr.id = dt.idtariff')
-            .innerJoin('coin', 'co', 'co.id = dt.idcoin')
-            .where(`dt.idserviceorder = ${idserviceorder}`)
-            .andWhere('dt.state <> 0')
-            .getRawMany();
-    }
-
-    async create(data: ServiceOrder): Promise<ServiceOrder> {
-        return await this.repository.save(data);
-    }
-
-    async insertDetail(data: ServiceOrderDetail): Promise<any> {
-        return this.repositoryDetail.save(data);
-    }
-
-    async update(id: number, data: ServiceOrder): Promise<ServiceOrder> {
-        const exists = await this.repository.findOne(id);
-        if (!exists) {
-            throw new NotFoundException();
-        }
-        await this.repository.update(id, data);
-        return await this.repository.findOne(id);
-    }
-
-    async delete(id: number): Promise<void> {
-        const exists = await this.repository.findOne(id);
-        if (!exists) {
-            throw new NotFoundException();
-        }
-        await this.repository.update(id, { state: 0 });
-    }
-
-    async setDataInvoice(id: number, data: ServiceOrder): Promise<ServiceOrder> {
-        const order = await this.repository.findOne(id);
-        if (!order) {
-            throw new NotFoundException();
-        }
-        order.num_doc = data.num_doc;
-        order.date_doc = data.date_doc;
-        order.updated_at = moment().format('YYYY-MM-DD HH:mm:ss');
-        order.state = 2;
-        order.user = data.user;
-        await order.save();
-        return await this.repository.findOne(id);
-    }
 }
