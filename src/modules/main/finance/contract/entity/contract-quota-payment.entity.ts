@@ -13,6 +13,10 @@ import { Coin } from "src/modules/coin/coin.entity";
 import { Contract } from "./contract.entity";
 import { ExchangeRate } from "src/modules/exchange-rate/exchange-rate.entity";
 import { BankAccounts } from "src/modules/mat/finance/bank-accounts/entity/bank-accounts.entity";
+import { BusinessLine } from "src/modules/business-line/business-line.entity";
+import { Specialty } from "src/modules/specialty/specialty.entity";
+import { Tariff } from "src/modules/tariff/tariff.entity";
+import { Doctor } from "src/modules/doctor/doctor.entity";
 
 @Entity('contract_quota_payment')
 export class ContractQuotaPayment extends BaseEntity {
@@ -78,5 +82,21 @@ export class ContractQuotaPayment extends BaseEntity {
 
     @Column({ type: 'float', default: 1, nullable: false })
     idpaymentmethod: number;
+
+    @ManyToOne(type => BusinessLine, bl => bl.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idbusinessline' })
+    businessline: BusinessLine | number;
+
+    @ManyToOne(type => Specialty, sp => sp.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idspecialty' })
+    specialty: Specialty | number;
+
+    @ManyToOne(type => Tariff, ta => ta.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idtariff' })
+    tariff: Tariff | number;
+
+    @ManyToOne(type => Doctor, dr => dr.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'iddoctor' })
+    doctor: Doctor | number;
 
 }
