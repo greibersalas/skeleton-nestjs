@@ -25,11 +25,12 @@ export class ServiceOrderController {
         private service: ServiceOrderService
     ) { }
 
-    @Get('/pending/:date')
+    @Get('/pending/:date/:status')
     async getDataPending(
-        @Param('date') date: string
+        @Param('date') date: string,
+        @Param('status', ParseIntPipe) status: number
     ): Promise<ServiceOrderDto[]> {
-        return await this.service.getDataPending(date);
+        return await this.service.getDataPending(date, status);
     }
 
     @Put(':id')
@@ -76,12 +77,13 @@ export class ServiceOrderController {
         return data;
     }
 
-    @Get('/get-daily-income-xlsx/:date')
+    @Get('/get-daily-income-xlsx/:date/:status')
     async getReportResumeXlsx(
         @Res() response,
         @Param('date') date: string,
+        @Param('status', ParseIntPipe) status: number
     ): Promise<any> {
-        const data = await this.service.getDailyIncome(date);
+        const data = await this.service.getDailyIncome(date, status);
         const wb = new xl.Workbook();
         const ws = wb.addWorksheet(`Ingresos ${date}`);
         const styleTitle = wb.createStyle({

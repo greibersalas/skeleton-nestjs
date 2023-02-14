@@ -33,11 +33,11 @@ export class ServiceOrderService {
         private readonly repositoryReportClinicalAssistance: Repository<ViewReportClinicalAssistance>,
     ) { }
 
-    async getDataPending(date: string): Promise<ServiceOrderDto[]> {
+    async getDataPending(date: string, status: number): Promise<ServiceOrderDto[]> {
         return this.repository.createQueryBuilder('so')
             .select('*')
             .where(`so.date = '${date}'`)
-            .andWhere('so.status = 1')
+            .andWhere(`so.status = ${status}`)
             .orderBy('so.id', 'ASC')
             .getRawMany();
     }
@@ -117,11 +117,11 @@ export class ServiceOrderService {
         return false;
     }
 
-    async getDailyIncome(date: string): Promise<DailyIncomeDto[]> {
+    async getDailyIncome(date: string, status: number): Promise<DailyIncomeDto[]> {
         return this.repositoryDailyIncome.createQueryBuilder('so')
             .select('*')
             .where(`so.date = '${date}'`)
-            .andWhere('so.status in (1,2)')
+            .andWhere(`so.status = ${status}`)
             .orderBy('so.id', 'ASC')
             .getRawMany();
     }
