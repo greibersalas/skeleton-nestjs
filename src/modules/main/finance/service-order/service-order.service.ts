@@ -1,12 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicalActAttention } from '../../medical-act-attention/medical-act-attention.entity';
 import { ContractQuotaPayment } from '../contract/entity/contract-quota-payment.entity';
 import { DailyIncomeDto } from './dto/daily-income-view-dto';
+import { ReportClinicalAssistanceDto } from './dto/report-clinical-assistance-dto';
+import { ReportDailyPaymentsDto } from './dto/report-daily-payments-dto';
 
 import { ServiceOrderDto } from './dto/service-order-dto';
 import { ViewDailyIncome } from './entity/daily-income-view.entity';
+import { ViewReportClinicalAssistance } from './entity/report-clinical-Assitance.entity';
+import { ViewReportDailyPayments } from './entity/report-daily-payments.entity';
 import { ViewServiceOrder } from './entity/service-order-view.entity';
 
 
@@ -23,6 +27,10 @@ export class ServiceOrderService {
         private readonly repositoryContractPay: Repository<ContractQuotaPayment>,
         @InjectRepository(ViewDailyIncome)
         private readonly repositoryDailyIncome: Repository<ViewDailyIncome>,
+        @InjectRepository(ViewReportDailyPayments)
+        private readonly repositoryReportDailyPay: Repository<ViewReportDailyPayments>,
+        @InjectRepository(ViewReportClinicalAssistance)
+        private readonly repositoryReportClinicalAssistance: Repository<ViewReportClinicalAssistance>,
     ) { }
 
     async getDataPending(date: string): Promise<ServiceOrderDto[]> {
@@ -115,6 +123,22 @@ export class ServiceOrderService {
             .where(`so.date = '${date}'`)
             .andWhere('so.status in (1,2)')
             .orderBy('so.id', 'ASC')
+            .getRawMany();
+    }
+
+    async getReportDailyPayments(date: string): Promise<ReportDailyPaymentsDto[]> {
+        return this.repositoryReportDailyPay.createQueryBuilder('so')
+            .select('*')
+            .where(`so.date = '${date}'`)
+            .orderBy('so.patient', 'ASC')
+            .getRawMany();
+    }
+
+    async getReportClinicalAssitance(date: string): Promise<ReportClinicalAssistanceDto[]> {
+        return this.repositoryReportClinicalAssistance.createQueryBuilder('so')
+            .select('*')
+            .where(`so.date = '${date}'`)
+            .orderBy('so.patient', 'ASC')
             .getRawMany();
     }
 

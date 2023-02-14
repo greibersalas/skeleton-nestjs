@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Res, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
 const moment = require('moment-timezone');
 //Excel4Node
@@ -12,6 +12,10 @@ import { ServiceOrderDto } from './dto/service-order-dto';
 // Service
 import { ServiceOrderService } from './service-order.service';
 import { DailyIncomeDto } from './dto/daily-income-view-dto';
+
+// xls
+import { ReportDailyPayment } from './xls/report-daily-payments';
+import { ReportClinicalAssistance } from './xls/report-clinical-assistance';
 
 @UseGuards(JwtAuthGuard)
 @Controller('service-order')
@@ -226,6 +230,50 @@ export class ServiceOrderController {
 
             response.end(buffer);
         });
+    }
+
+    @Get('/get-report-daily-payment-xlsx/:date')
+    async getReportDailyPaymentXlsx(
+        @Res() response,
+        @Param('date') date: string,
+    ): Promise<any> {
+        const data = await this.service.getReportDailyPayments(date);
+        if (data) {
+            const xlsx = new ReportDailyPayment();
+            xlsx.onCreate(date, data).then(function (buffer: any) {
+                response.set({
+                    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition': 'attachment; filename=pagos-diarios.xlsx',
+                    'Content-Length': buffer.length
+                })
+
+                response.end(buffer);
+            });
+        } else {
+            throw new BadRequestException();
+        }
+    }
+
+    @Get('/get-report-clinical-assistance-xlsx/:date')
+    async getReportClinicalAssitanceXlsx(
+        @Res() response,
+        @Param('date') date: string,
+    ): Promise<any> {
+        const data = await this.service.getReportClinicalAssitance(date);
+        if (data) {
+            const xlsx = new ReportClinicalAssistance();
+            xlsx.onCreate(date, data).then(function (buffer: any) {
+                response.set({
+                    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition': 'attachment; filename=asistencias-clinicas.xlsx',
+                    'Content-Length': buffer.length
+                })
+
+                response.end(buffer);
+            });
+        } else {
+            throw new BadRequestException();
+        }
     }
 
 }
