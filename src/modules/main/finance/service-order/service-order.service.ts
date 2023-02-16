@@ -126,18 +126,18 @@ export class ServiceOrderService {
             .getRawMany();
     }
 
-    async getReportDailyPayments(date: string): Promise<ReportDailyPaymentsDto[]> {
+    async getReportDailyPayments(since: string, until: string): Promise<ReportDailyPaymentsDto[]> {
         return this.repositoryReportDailyPay.createQueryBuilder('so')
             .select('*')
-            .where(`so.date = '${date}'`)
+            .where(`so.date between '${since}' and '${until}'`)
             .orderBy('so.patient', 'ASC')
             .getRawMany();
     }
 
-    async getReportClinicalAssitance(date: string): Promise<ReportClinicalAssistanceDto[]> {
+    async getReportClinicalAssitance(since: string, until: string): Promise<ReportClinicalAssistanceDto[]> {
         return this.repositoryReportClinicalAssistance.createQueryBuilder('so')
             .select('*')
-            .where(`so.date = '${date}'`)
+            .where(`so.date between '${since}' and '${until}'`)
             .orderBy('so.patient', 'ASC')
             .getRawMany();
     }

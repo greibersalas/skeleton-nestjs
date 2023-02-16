@@ -10,6 +10,7 @@ import { ClinicHistoryService } from './clinic-history.service';
 //pdf
 import { Pdf_ficha } from './pdf/pdf-ficha';
 import { ContractService } from '../main/finance/contract/contract.service';
+import { ClinicHistoryBasicDto } from './dto/clinic-history-basic-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('clinic-history')
@@ -41,6 +42,11 @@ export class ClinicHistoryController {
     async getClinicHistorys(): Promise<ClinicHistory[]> {
         const clinicHistory = await this._clinicHistoryService.getAll();
         return clinicHistory;
+    }
+
+    @Get('/get/list')
+    async getList(): Promise<ClinicHistoryBasicDto[]> {
+        return await this._clinicHistoryService.getList();
     }
 
     @Post()

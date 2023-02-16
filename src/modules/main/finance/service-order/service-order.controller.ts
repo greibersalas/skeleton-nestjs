@@ -234,15 +234,16 @@ export class ServiceOrderController {
         });
     }
 
-    @Get('/get-report-daily-payment-xlsx/:date')
+    @Get('/get-report-daily-payment-xlsx/:since/:until')
     async getReportDailyPaymentXlsx(
         @Res() response,
-        @Param('date') date: string,
+        @Param('since') since: string,
+        @Param('until') until: string,
     ): Promise<any> {
-        const data = await this.service.getReportDailyPayments(date);
+        const data = await this.service.getReportDailyPayments(since, until);
         if (data) {
             const xlsx = new ReportDailyPayment();
-            xlsx.onCreate(date, data).then(function (buffer: any) {
+            xlsx.onCreate(`${since} - ${until}`, data).then(function (buffer: any) {
                 response.set({
                     'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     'Content-Disposition': 'attachment; filename=pagos-diarios.xlsx',
@@ -256,15 +257,16 @@ export class ServiceOrderController {
         }
     }
 
-    @Get('/get-report-clinical-assistance-xlsx/:date')
+    @Get('/get-report-clinical-assistance-xlsx/:since/:until')
     async getReportClinicalAssitanceXlsx(
         @Res() response,
-        @Param('date') date: string,
+        @Param('since') since: string,
+        @Param('until') until: string,
     ): Promise<any> {
-        const data = await this.service.getReportClinicalAssitance(date);
+        const data = await this.service.getReportClinicalAssitance(since, until);
         if (data) {
             const xlsx = new ReportClinicalAssistance();
-            xlsx.onCreate(date, data).then(function (buffer: any) {
+            xlsx.onCreate(`${since} - ${until}`, data).then(function (buffer: any) {
                 response.set({
                     'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     'Content-Disposition': 'attachment; filename=asistencias-clinicas.xlsx',

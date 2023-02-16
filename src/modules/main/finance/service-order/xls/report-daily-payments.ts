@@ -5,7 +5,7 @@ import { ReportDailyPaymentsDto } from '../dto/report-daily-payments-dto';
 export class ReportDailyPayment {
     onCreate(date: string, data: ReportDailyPaymentsDto[]): Promise<any> {
         const wb = new xl.Workbook();
-        const ws = wb.addWorksheet(`Ingresos ${date}`);
+        const ws = wb.addWorksheet(`Ingresos`);
         const styleTitle = wb.createStyle({
             alignment: {
                 horizontal: ['center'],

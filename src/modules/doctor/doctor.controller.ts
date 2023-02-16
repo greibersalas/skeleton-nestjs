@@ -5,30 +5,36 @@ var moment = require('moment-timezone');
 import { Audit } from '../security/audit/audit.entity';
 import { Doctor } from './doctor.entity';
 import { DoctorService } from './doctor.service';
+import { DoctorBasicDto } from './dto/doctor-basic-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('doctor')
 export class DoctorController {
 
-    constructor(private readonly _doctorService: DoctorService){}
+    constructor(private readonly _doctorService: DoctorService) { }
 
     @Get(':id')
-    async getDoctor(@Param('id',ParseIntPipe) id: number): Promise<Doctor>{
+    async getDoctor(@Param('id', ParseIntPipe) id: number): Promise<Doctor> {
         const doctor = await this._doctorService.get(id);
         return doctor;
     }
 
     @Get()
-    async getDoctors(): Promise<Doctor[]>{
+    async getDoctors(): Promise<Doctor[]> {
         const doctors = await this._doctorService.getAll();
         return doctors;
+    }
+
+    @Get('get/list')
+    async getList(): Promise<DoctorBasicDto[]> {
+        return await this._doctorService.getList();
     }
 
     @Post()
     async createDoctor(
         @Body() doctor: Doctor,
         @Request() req: any
-    ): Promise<Doctor>{
+    ): Promise<Doctor> {
         const create = await this._doctorService.create(doctor);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -47,11 +53,11 @@ export class DoctorController {
 
     @Put(':id')
     async updateDoctor(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() doctor: Doctor,
         @Request() req: any
-    ){
-        const update = await this._doctorService.update(id,doctor);
+    ) {
+        const update = await this._doctorService.update(id, doctor);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -69,9 +75,9 @@ export class DoctorController {
 
     @Delete(':id')
     async deleteDoctor(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._doctorService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -89,7 +95,7 @@ export class DoctorController {
     }
 
     @Post('get-in-bl/:day')
-    async getInBl(@Body() id: any, @Param('day',ParseIntPipe) day: number): Promise<Doctor[]>{
-        return await this._doctorService.getInBl(id,day);
+    async getInBl(@Body() id: any, @Param('day', ParseIntPipe) day: number): Promise<Doctor[]> {
+        return await this._doctorService.getInBl(id, day);
     }
 }
