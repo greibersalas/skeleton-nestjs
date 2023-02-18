@@ -64,8 +64,6 @@ export class ServiceOrderController {
         @Request() req: any,
         @Body() body: any
     ) {
-        console.log({ body });
-
         const data = await this.service.setDecline(id, origin, status, body.reason);
         //Creamos los datos de la auditoria
         const audit = new Audit();

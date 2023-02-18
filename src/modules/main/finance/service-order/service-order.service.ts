@@ -100,7 +100,6 @@ export class ServiceOrderService {
                 throw new NotFoundException();
             }
             attention.state = status;
-            console.log({ reason });
 
             if (reason) {
                 attention.reason = reason;
