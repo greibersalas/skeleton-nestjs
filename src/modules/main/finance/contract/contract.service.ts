@@ -43,7 +43,7 @@ export class ContractService {
             so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
             so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
             concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
-            ch.attorney`)
+            ch.attorney, so.executive`)
             .innerJoin('so.clinichistory', 'ch')
             .where({ id })
             .getRawOne();
@@ -331,7 +331,7 @@ export class ContractService {
             .innerJoin('state_contract', 't1', 't1.id = ct.id_state_contract')
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
             .andWhere(`det.state = 1`)
-            .andWhere(`t1.description = '${filters.state_contract}'`)
+            // .andWhere(`t1.description = '${filters.state_contract}'`)
             .orderBy('det.date', 'ASC')
             .addOrderBy(`concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother",ch.name)`, 'ASC')
             .getRawMany();
@@ -355,7 +355,7 @@ export class ContractService {
             .leftJoin(`contract_quota_payment`, `cqp`, `cqp.idcontract = ct.id`)
             .leftJoin(`contract_quota_payment_detail`, `cqpd`, `cqpd.idcontractquotapayment = cqp.id`)
             .where(`det.date BETWEEN '${filters.since}' AND '${filters.until}'`)
-            .andWhere(`t1.description = '${filters.state_contract}'`)
+            // .andWhere(`t1.description = '${filters.state_contract}'`)
             .groupBy(`ct.id, ct.idclinichistory, ct.num, det.description, det.date, det.amount, det.observation,
             "ch"."lastNameFather","ch"."lastNameMother",ch.name, ch.history, "ch"."documentNumber", ch.cellphone,
             ch.email, ch.attorney, ct.date, ct.amount, ct.quota, ctd.amount, ctd.date,t1.description`)

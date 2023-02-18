@@ -9,6 +9,7 @@ import { MedicalAct } from "../medical-act/medical-act.entity";
 import { User } from "../../user/user.entity";
 import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
 import { BankAccounts } from "src/modules/mat/finance/bank-accounts/entity/bank-accounts.entity";
+import { PaymentMethodCard } from "src/modules/mat/finance/payment-method-card/entity/payment-method-card.entity";
 
 @Entity('medical_act_attention')
 export class MedicalActAttention extends BaseEntity {
@@ -90,4 +91,11 @@ export class MedicalActAttention extends BaseEntity {
 
     @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
     updatedAt: Date;
+
+    @ManyToOne(type => PaymentMethodCard, pm => pm.id, { cascade: true, nullable: true, eager: false })
+    @JoinColumn({ name: 'idpaymentmethodcard' })
+    card: PaymentMethodCard | number;
+
+    @Column({ type: 'varchar', length: 200, nullable: true })
+    reason: string;
 }

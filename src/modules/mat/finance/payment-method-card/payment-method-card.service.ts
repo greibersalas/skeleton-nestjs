@@ -1,17 +1,17 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BankAccounts } from './entity/bank-accounts.entity';
+import { PaymentMethodCard } from './entity/payment-method-card.entity';
 
 @Injectable()
-export class BankAccountsService {
+export class PaymentMethodCardService {
 
     constructor(
-        @InjectRepository(BankAccounts)
-        private readonly repository: Repository<BankAccounts>
+        @InjectRepository(PaymentMethodCard)
+        private readonly repository: Repository<PaymentMethodCard>
     ) { }
 
-    async get(id: number): Promise<BankAccounts> {
+    async get(id: number): Promise<PaymentMethodCard> {
         if (!id) {
             throw new BadRequestException('id must be send.');
         }
@@ -22,21 +22,20 @@ export class BankAccountsService {
         return data;
     }
 
-    async getAll(): Promise<BankAccounts[]> {
-        const data: BankAccounts[] = await this.repository.find({
+    async getAll(): Promise<PaymentMethodCard[]> {
+        return await this.repository.find({
             where: { status: 1 },
-            order: { bank: 'ASC' }
+            order: { name: 'ASC' }
         });
-        return data;
     }
 
-    async create(bankAccounts: BankAccounts): Promise<BankAccounts> {
-        return await this.repository.save(bankAccounts);
+    async create(PaymentMethodCard: PaymentMethodCard): Promise<PaymentMethodCard> {
+        return await this.repository.save(PaymentMethodCard);
     }
 
-    async update(id: number, data: BankAccounts): Promise<BankAccounts> {
-        const bank = await this.repository.findOne(id);
-        if (!bank) {
+    async update(id: number, data: PaymentMethodCard): Promise<PaymentMethodCard> {
+        const card = await this.repository.findOne(id);
+        if (!card) {
             throw new NotFoundException();
         }
         await this.repository.update(id, data);

@@ -33,10 +33,10 @@ export class ServiceOrderService {
         private readonly repositoryReportClinicalAssistance: Repository<ViewReportClinicalAssistance>,
     ) { }
 
-    async getDataPending(date: string, status: number): Promise<ServiceOrderDto[]> {
+    async getDataPending(since: string, until: string, status: number): Promise<ServiceOrderDto[]> {
         return this.repository.createQueryBuilder('so')
             .select('*')
-            .where(`so.date = '${date}'`)
+            .where(`so.date between '${since}' and '${until}'`)
             .andWhere(`so.status = ${status}`)
             .orderBy('so.id', 'ASC')
             .getRawMany();
@@ -54,6 +54,7 @@ export class ServiceOrderService {
             attention.document_type = data.document_type;
             attention.document_number = data.document_number;
             attention.document_date = data.document_date;
+            attention.card = data.idpaymentmethodcard;
             attention.state = 2;
             if (attention.save()) {
                 return true;
@@ -92,13 +93,18 @@ export class ServiceOrderService {
         return false;
     }
 
-    async setDecline(id: number, origin: string): Promise<boolean> {
+    async setDecline(id: number, origin: string, status: number, reason: string): Promise<boolean> {
         if (origin === 'attention') {
             const attention = await this.repositoryAttention.findOne({ id });
             if (!attention) {
                 throw new NotFoundException();
             }
-            attention.state = 3;
+            attention.state = status;
+            console.log({ reason });
+
+            if (reason) {
+                attention.reason = reason;
+            }
             if (attention.save()) {
                 return true;
             }
@@ -108,7 +114,7 @@ export class ServiceOrderService {
             if (!attention) {
                 throw new NotFoundException();
             }
-            attention.state = 3;
+            attention.state = status;
             if (attention.save()) {
                 return true;
             }
@@ -117,10 +123,10 @@ export class ServiceOrderService {
         return false;
     }
 
-    async getDailyIncome(date: string, status: number): Promise<DailyIncomeDto[]> {
+    async getDailyIncome(since: string, until: string, status: number): Promise<DailyIncomeDto[]> {
         return this.repositoryDailyIncome.createQueryBuilder('so')
             .select('*')
-            .where(`so.date = '${date}'`)
+            .where(`so.date between '${since}' and '${until}'`)
             .andWhere(`so.status = ${status}`)
             .orderBy('so.id', 'ASC')
             .getRawMany();

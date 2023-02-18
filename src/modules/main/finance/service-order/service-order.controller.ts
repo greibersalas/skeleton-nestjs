@@ -25,12 +25,13 @@ export class ServiceOrderController {
         private service: ServiceOrderService
     ) { }
 
-    @Get('/pending/:date/:status')
+    @Get('/pending/:since/:until/:status')
     async getDataPending(
-        @Param('date') date: string,
+        @Param('since') since: string,
+        @Param('until') until: string,
         @Param('status', ParseIntPipe) status: number
     ): Promise<ServiceOrderDto[]> {
-        return await this.service.getDataPending(date, status);
+        return await this.service.getDataPending(since, until, status);
     }
 
     @Put(':id')
@@ -55,13 +56,17 @@ export class ServiceOrderController {
         return update;
     }
 
-    @Put('decline/:id/:origin')
+    @Put('decline/:id/:origin/:status')
     async declineServiceOrder(
         @Param('id', ParseIntPipe) id: number,
+        @Param('status', ParseIntPipe) status: number,
         @Param('origin') origin: string,
-        @Request() req: any
+        @Request() req: any,
+        @Body() body: any
     ) {
-        const data = await this.service.setDecline(id, origin);
+        console.log({ body });
+
+        const data = await this.service.setDecline(id, origin, status, body.reason);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -77,15 +82,16 @@ export class ServiceOrderController {
         return data;
     }
 
-    @Get('/get-daily-income-xlsx/:date/:status')
+    @Get('/get-daily-income-xlsx/:since/:until/:status')
     async getReportResumeXlsx(
         @Res() response,
-        @Param('date') date: string,
+        @Param('since') since: string,
+        @Param('until') until: string,
         @Param('status', ParseIntPipe) status: number
     ): Promise<any> {
-        const data = await this.service.getDailyIncome(date, status);
+        const data = await this.service.getDailyIncome(since, until, status);
         const wb = new xl.Workbook();
-        const ws = wb.addWorksheet(`Ingresos ${date}`);
+        const ws = wb.addWorksheet(`Datos`);
         const styleTitle = wb.createStyle({
             alignment: {
                 horizontal: ['center'],
@@ -97,7 +103,7 @@ export class ServiceOrderController {
             }
         });
         ws.cell(1, 1, 1, 11, true)
-            .string(`Ingresos de día ${date}`)
+            .string(`Ingresos del ${since} hasta ${until}`)
             .style(styleTitle);
 
         const style = wb.createStyle({
@@ -159,6 +165,26 @@ export class ServiceOrderController {
         ws.cell(5, 14)
             .string("Monto Pagado")
             .style(style);
+        if (status === 2) {
+            ws.cell(5, 15)
+                .string("Metodo de pago")
+                .style(style);
+            ws.cell(5, 16)
+                .string("Cuenta bancaria")
+                .style(style);
+            ws.cell(5, 17)
+                .string("Num. Operación")
+                .style(style);
+            ws.cell(5, 18)
+                .string("Tipo doc.")
+                .style(style);
+            ws.cell(5, 19)
+                .string("Num. doc.")
+                .style(style);
+            ws.cell(5, 20)
+                .string("Fecha doc.")
+                .style(style);
+        }
         // size columns
         ws.column(1).setWidth(25);
         ws.column(2).setWidth(15);
@@ -173,7 +199,15 @@ export class ServiceOrderController {
         ws.column(11).setWidth(20);
         ws.column(12).setWidth(20);
         ws.column(13).setWidth(30);
-        ws.column(14).setWidth(15);
+        ws.column(14).setWidth(20);
+        if (status === 2) {
+            ws.column(15).setWidth(20);
+            ws.column(16).setWidth(30);
+            ws.column(17).setWidth(20);
+            ws.column(18).setWidth(15);
+            ws.column(19).setWidth(15);
+            ws.column(20).setWidth(15);
+        }
         let y = 6;
         data.map((it: DailyIncomeDto) => {
             const {
@@ -191,7 +225,14 @@ export class ServiceOrderController {
                 specialty,
                 tariff,
                 amount,
-                coin
+                coin,
+                payment_method,
+                bank_account,
+                operation_number,
+                document_type,
+                document_number,
+                document_date
+
             } = it;
             ws.cell(y, 1)
                 .string(`${doctor}`);
@@ -221,6 +262,20 @@ export class ServiceOrderController {
                 .string(`${tariff}`);
             ws.cell(y, 14)
                 .string(`${coin} ${amount}`);
+            if (status === 2) {
+                ws.cell(y, 15)
+                    .string(`${payment_method}`);
+                ws.cell(y, 16)
+                    .string(`${bank_account}`);
+                ws.cell(y, 17)
+                    .string(`${operation_number}`);
+                ws.cell(y, 18)
+                    .string(`${document_type === 'invoice' ? 'Factura' : 'Boleta'}`);
+                ws.cell(y, 19)
+                    .string(`${document_number}`);
+                ws.cell(y, 20)
+                    .date(new Date(document_date)).style({ numberFormat: 'dd/mm/yyyy' });
+            }
             y++;
         });
         await wb.writeToBuffer().then(function (buffer: any) {

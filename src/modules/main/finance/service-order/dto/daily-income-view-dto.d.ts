@@ -21,4 +21,10 @@ export interface DailyIncomeDto {
     coin: string;
     date: string;
     status: number;
+    payment_method: string;
+    bank_account: string;
+    operation_number: string;
+    document_type: string;
+    document_number: string;
+    document_date: string;
 }

@@ -84,4 +84,22 @@ export class ViewDailyIncome {
 
     @ViewColumn()
     status: number;
+
+    @ViewColumn()
+    payment_method: string;
+
+    @ViewColumn()
+    bank_account: string;
+
+    @ViewColumn()
+    operation_number: string;
+
+    @ViewColumn()
+    document_type: string;
+
+    @ViewColumn()
+    document_number: string;
+
+    @ViewColumn()
+    document_date: string;
 }

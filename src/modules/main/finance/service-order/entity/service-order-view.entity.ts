@@ -8,15 +8,24 @@ import { ViewColumn, ViewEntity } from "typeorm";
   ch.history, ch."documentNumber" AS patient_doc_num, bl.name as business_line, sp.name as specialty,
   ta.name as tariff, dc."nameQuote" as doctor, pm.name as payment_method, co.id as idcoin, co.code as coin,
   maa.date, maa.state as status, maa.idbankaccount, maa.operation_number, maa.document_type, maa.document_number, maa.document_date,
-  'attention' as origin
+  'attention' as origin,
+  ch.attorney as client,
+  ch.invoise_type_document as client_doc_type,
+  ch.invoise_num_document as client_doc_num,
+  maa.created_at AS invoise_date,
+  case when maa.idbankaccount is not null then
+  concat_ws(' ', bk.name, co.code , ba.account_num)
+  else null end as bank_account
 from medical_act_attention maa
 inner join clinic_history ch ON ch.id = maa."patientId"
 inner join business_line bl on bl.id = maa."businesslineId"
 inner join specialty sp on sp.id = maa."specialtyId"
 inner join tariff ta on ta.id = maa."tariffId"
 inner join doctor dc on dc.id = maa."doctorId"
-inner join payment_method pm on pm.id = maa.idpaymentmethod
-inner join coin co on co.id = maa."coId"`
+left join payment_method pm on pm.id = maa.idpaymentmethod
+inner join coin co on co.id = maa."coId"
+LEFT JOIN bank_accounts ba on ba.id = maa.idbankaccount
+LEFT JOIN banks bk on bk.id = ba.idbank`
 })
 export class ViewServiceOrder {
   @ViewColumn()
@@ -84,4 +93,19 @@ export class ViewServiceOrder {
 
   @ViewColumn()
   status: number;
+
+  @ViewColumn()
+  client: string;
+
+  @ViewColumn()
+  client_doc_type: string;
+
+  @ViewColumn()
+  client_doc_num: string;
+
+  @ViewColumn()
+  invoise_date: string;
+
+  @ViewColumn()
+  bank_account: string;
 }

@@ -28,4 +28,5 @@ export interface ServiceOrderDto {
     document_number: string;
     document_date: string;
     origin: string;
+    idpaymentmethodcard: number;
 }

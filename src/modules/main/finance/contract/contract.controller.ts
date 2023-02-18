@@ -99,6 +99,7 @@ export class ContractController {
         order.num = data.num;
         order.amount_controls = data.amount_controls;
         order.user = Number(req.user.id);
+        order.executive = data.executive;
         const create = await this.service.create(order);
         // Insertamos el detalle
         if (create) {

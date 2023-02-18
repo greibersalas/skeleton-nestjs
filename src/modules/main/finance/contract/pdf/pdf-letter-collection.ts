@@ -298,7 +298,7 @@ export class PdfLetterCollection {
             pdf.Cell(40, 5, `Atte.`, 0, 0, 'C');
             pdf.SetY(225);
             pdf.SetX(x);
-            pdf.Cell(40, 5, `John Castillo`, 0, 0, 'C');
+            pdf.Cell(40, 5, `${data.executive === null ? '' : data.executive}`, 0, 0, 'C');
             pdf.SetY(230);
             pdf.SetX(x);
             pdf.Cell(40, 5, `Área de Cobranzas`, 0, 0, 'C');
