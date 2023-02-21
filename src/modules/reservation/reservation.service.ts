@@ -208,7 +208,7 @@ export class ReservationService {
     async getByDay(date: string, campus: number): Promise<Reservation[]> {
         const reservation = await this._reservationRepository
             .createQueryBuilder('rs')
-            .select('rs.*, pt.*, dc.nameQuote as doctor, rs.id AS idreservation')
+            .select('rs.*, pt.*, dc.nameQuote as doctor, rs.id AS idreservation, rs.state as status')
             .innerJoin('rs.environment', 'ed')
             .innerJoin('rs.doctor', 'dc')
             .innerJoin('rs.patient', 'pt')

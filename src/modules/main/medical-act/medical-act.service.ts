@@ -94,16 +94,31 @@ export class MedicalActService {
                     .limit(1).getOne();
                 // Busco el último acto medico
                 const medical_act: MedicalAct = await this._medicalActRepository.findOne({ reservation: reservationAten });
-                const medicalAct: MedicalAct = new MedicalAct();
-                medicalAct.bone_scan = medical_act.bone_scan;
-                medicalAct.examine_income = medical_act.examine_income;
-                medicalAct.reason = medical_act.reason;
-                medicalAct.periodontogram = medical_act.periodontogram;
-                medicalAct.clinical_photography = medical_act.clinical_photography;
-                medicalAct.laboratory_exams = medical_act.laboratory_exams;
-                medicalAct.study_models = medical_act.study_models;
-                medicalAct.radiographic_report = medical_act.radiographic_report;
-                medicalAct.reservation = reservation;
+                console.log({ medical_act });
+
+                let medicalAct: MedicalAct = new MedicalAct();
+                if (medical_act) {
+                    medicalAct.bone_scan = medical_act.bone_scan;
+                    medicalAct.examine_income = medical_act.examine_income;
+                    medicalAct.reason = medical_act.reason;
+                    medicalAct.periodontogram = medical_act.periodontogram;
+                    medicalAct.clinical_photography = medical_act.clinical_photography;
+                    medicalAct.laboratory_exams = medical_act.laboratory_exams;
+                    medicalAct.study_models = medical_act.study_models;
+                    medicalAct.radiographic_report = medical_act.radiographic_report;
+                    medicalAct.reservation = reservation;
+                } else {
+                    medicalAct.bone_scan = false;
+                    medicalAct.examine_income = ' ';
+                    medicalAct.reason = ' ';
+                    medicalAct.periodontogram = false;
+                    medicalAct.clinical_photography = false;
+                    medicalAct.laboratory_exams = false;
+                    medicalAct.study_models = false;
+                    medicalAct.radiographic_report = ' ';
+                    medicalAct.reservation = reservation;
+
+                }
                 const saveMedicalAct = await this._medicalActRepository.save(medicalAct);
                 if (saveMedicalAct) {
                     //CAMBIAMOS EL ESTADO DE LA RESERVA

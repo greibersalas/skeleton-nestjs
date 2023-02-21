@@ -113,7 +113,7 @@ export class MedicalActAttentionService {
         const quantity = await this._medicalActAttentionRepository.createQueryBuilder('ma')
             .select(`dc.id AS iddoctor, "dc"."nameQuote" AS doctor, count(dc.id) AS quantity`)
             .innerJoin('doctor', 'dc', 'dc.id = "ma"."doctorId"')
-            .where(`"ma"."patientId" = :id AND ma.state = 1`, { id })
+            .where(`"ma"."patientId" = :id AND ma.state <> 0`, { id })
             .groupBy(`dc.id,"dc"."nameQuote"`)
             .orderBy(`"dc"."nameQuote"`)
             .getRawMany();

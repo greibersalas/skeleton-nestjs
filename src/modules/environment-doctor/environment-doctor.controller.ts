@@ -11,22 +11,22 @@ import { ReservationService } from '../reservation/reservation.service';
 @Controller('environment-doctor')
 export class EnvironmentDoctorController {
     constructor(private readonly _edService: EnvironmentDoctorService,
-        private readonly _reservationService: ReservationService){}
+        private readonly _reservationService: ReservationService) { }
 
     @Get(':id')
-    async getEnvironmentDoctor(@Param('id',ParseIntPipe) id: number): Promise<EnvironmentDoctor>{
+    async getEnvironmentDoctor(@Param('id', ParseIntPipe) id: number): Promise<EnvironmentDoctor> {
         const ed = await this._edService.get(id);
         return ed;
     }
 
     @Get()
-    async getEnvironmentDoctors(): Promise<EnvironmentDoctor[]>{
+    async getEnvironmentDoctors(): Promise<EnvironmentDoctor[]> {
         const ed = await this._edService.getAll();
         return ed;
     }
 
     @Get('campus/:idcampus')
-    async getByCampus(@Param('idcampus',ParseIntPipe) idcampus: number): Promise<EnvironmentDoctor[]>{
+    async getByCampus(@Param('idcampus', ParseIntPipe) idcampus: number): Promise<EnvironmentDoctor[]> {
         const ed = await this._edService.getByCampus(idcampus);
         return ed;
     }
@@ -35,7 +35,7 @@ export class EnvironmentDoctorController {
     async createEnvironmentDoctor(
         @Body() ed: EnvironmentDoctor,
         @Request() req: any
-    ): Promise<EnvironmentDoctor>{
+    ): Promise<EnvironmentDoctor> {
         const create = await this._edService.create(ed);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -54,11 +54,11 @@ export class EnvironmentDoctorController {
 
     @Put(':id')
     async updateEnvironmentDoctor(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Body() ed: EnvironmentDoctor,
         @Request() req: any
-    ){
-        const update = await this._edService.update(id,ed);
+    ) {
+        const update = await this._edService.update(id, ed);
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = id;
@@ -76,9 +76,9 @@ export class EnvironmentDoctorController {
 
     @Delete(':id')
     async deleteEnvironmentDoctor(
-        @Param('id',ParseIntPipe) id: number,
+        @Param('id', ParseIntPipe) id: number,
         @Request() req: any
-    ){
+    ) {
         await this._edService.delete(id);
         //Creamos los datos de la auditoria
         const audit = new Audit();
@@ -98,20 +98,20 @@ export class EnvironmentDoctorController {
     @Get('programmin-day/:date/:campus/:doctor/:patient/:state')
     async getProgrammingDay(
         @Param('date') date: string,
-        @Param('campus',ParseIntPipe) campus: number,
-        @Param('doctor',ParseIntPipe) doctor: number,
-        @Param('patient',ParseIntPipe) patient: number,
-        @Param('state',ParseIntPipe) state: number,
+        @Param('campus', ParseIntPipe) campus: number,
+        @Param('doctor', ParseIntPipe) doctor: number,
+        @Param('patient', ParseIntPipe) patient: number,
+        @Param('state', ParseIntPipe) state: number,
         @Request() req: any
-    ): Promise<any>{
+    ): Promise<any> {
         const { user } = req;
         //idroles 4 y 5 Doctor y Especialista OFM
         let rol: boolean = false;
-        if(user.roles.idrole === 4 || user.roles.idrole === 4){
+        if (user.roles.idrole === 4 || user.roles.idrole === 4) {
             rol = true;
         }
-        const reser = await this._reservationService.getByDay(date,campus);
-        const programmming = await this._edService.programmingDay(date,reser,campus, doctor, patient,state, rol);
+        const reser = await this._reservationService.getByDay(date, campus);
+        const programmming = await this._edService.programmingDay(date, reser, campus, doctor, patient, state, rol);
         return programmming;
     }
 }
