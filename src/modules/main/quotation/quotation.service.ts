@@ -78,7 +78,8 @@ export class QuotationService {
         "dc"."nameQuote" AS doctor,
         bl.name AS businessLine,
         sp.name AS specialty,
-        sp.format`)
+        sp.format, ch."documentNumber" AS patient_num_doc,
+        ch.history`)
             .innerJoin('clinic_history', 'ch', 'ch.id = qt.idclinichistory')
             .innerJoin('doctor', 'dc', 'dc.id = qt.iddoctor')
             .innerJoin('business_line', 'bl', 'bl.id = qt.idbusinessline')
