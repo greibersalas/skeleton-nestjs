@@ -94,7 +94,8 @@ export class ReportDailyPayment {
                 amount,
                 coin,
                 paymentmethod,
-                origin,
+                username,
+                diary_date
             } = it;
             ws.cell(y, 1)
                 .date(new Date(date)).style({ numberFormat: 'dd/mm/yyyy' });
@@ -115,9 +116,9 @@ export class ReportDailyPayment {
             ws.cell(y, 9)
                 .string(`${paymentmethod}`);
             ws.cell(y, 10)
-                .string('');
+                .date(new Date(diary_date)).style({ numberFormat: 'dd/mm/yyyy' });
             ws.cell(y, 11)
-                .string(``);
+                .string(`${username}`);
             y++;
         });
         return wb.writeToBuffer();

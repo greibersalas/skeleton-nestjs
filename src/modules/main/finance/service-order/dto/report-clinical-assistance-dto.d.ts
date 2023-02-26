@@ -14,4 +14,6 @@ export interface ReportClinicalAssistanceDto {
     coin: string;
     paymentmethod: string;
     origin: string;
+    iduser: number;
+    username: string;
 }

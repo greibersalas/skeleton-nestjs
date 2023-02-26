@@ -122,7 +122,8 @@ export class ReportClinicalAssistance {
                 tariff,
                 amount,
                 coin,
-                paymentmethod
+                paymentmethod,
+                username
             } = it;
             ws.cell(y, 1)
                 .date(new Date(date)).style({ numberFormat: 'dd/mm/yyyy' });
@@ -153,7 +154,7 @@ export class ReportClinicalAssistance {
             ws.cell(y, 14)
                 .string(`${paymentmethod}`);
             ws.cell(y, 15)
-                .string(``);
+                .string(`${username}`);
             ws.cell(y, 16)
                 .string(``);
             ws.cell(y, 17)

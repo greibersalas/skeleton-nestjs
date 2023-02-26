@@ -133,7 +133,14 @@ export class ServiceOrderService {
 
     async getReportDailyPayments(since: string, until: string): Promise<ReportDailyPaymentsDto[]> {
         return this.repositoryReportDailyPay.createQueryBuilder('so')
-            .select('*')
+            .select(`so.*, (
+                select re.date::DATE
+                   from reservation re
+                   where re.date <= so.date and re.patient_id = so.idclinichistory 
+                   and re.state IN (1,2,3)
+                  order by re.id DESC
+                limit 1
+              ) as diary_date`)
             .where(`so.date between '${since}' and '${until}'`)
             .orderBy('so.patient', 'ASC')
             .getRawMany();

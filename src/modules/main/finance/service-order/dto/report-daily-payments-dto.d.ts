@@ -9,4 +9,8 @@ export interface ReportDailyPaymentsDto {
     coin: string;
     paymentmethod: string;
     origin: string;
+    diary_date: string;
+    idclinichistory: number;
+    iduser: number;
+    username: string;
 }
