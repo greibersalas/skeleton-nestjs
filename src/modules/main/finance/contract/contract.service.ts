@@ -500,4 +500,11 @@ export class ContractService {
             .getRawOne();
 
     }
+
+    async setFilePayment(id: number, idfile: number): Promise<any> {
+        const data = await this.repositoryPayment.findOne(id);
+        data.idfile = idfile;
+        data.save();
+        return data;
+    }
 }

@@ -94,7 +94,6 @@ export class MedicalActService {
                     .limit(1).getOne();
                 // Busco el último acto medico
                 const medical_act: MedicalAct = await this._medicalActRepository.findOne({ reservation: reservationAten });
-                console.log({ medical_act });
 
                 let medicalAct: MedicalAct = new MedicalAct();
                 if (medical_act) {
@@ -122,10 +121,10 @@ export class MedicalActService {
                 const saveMedicalAct = await this._medicalActRepository.save(medicalAct);
                 if (saveMedicalAct) {
                     //CAMBIAMOS EL ESTADO DE LA RESERVA
-                    const reser = await this._ReservationRepository.createQueryBuilder()
+                    /* const reser = await this._ReservationRepository.createQueryBuilder()
                         .update(Reservation)
                         .set({ state: 3 })
-                        .where({ id }).execute();
+                        .where({ id }).execute(); */
                 }
                 const ma = await this._medicalActRepository.findOne(
                     {

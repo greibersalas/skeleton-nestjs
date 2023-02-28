@@ -10,6 +10,7 @@ import { User } from "../../user/user.entity";
 import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
 import { BankAccounts } from "src/modules/mat/finance/bank-accounts/entity/bank-accounts.entity";
 import { PaymentMethodCard } from "src/modules/mat/finance/payment-method-card/entity/payment-method-card.entity";
+import { MedicalActFiles } from "../medical-act/medical-act-files.entity";
 
 @Entity('medical_act_attention')
 export class MedicalActAttention extends BaseEntity {
@@ -98,4 +99,11 @@ export class MedicalActAttention extends BaseEntity {
 
     @Column({ type: 'varchar', length: 200, nullable: true })
     reason: string;
+
+    @ManyToOne(type => MedicalActFiles, fi => fi.id, { cascade: true, nullable: true, eager: false })
+    @JoinColumn({ name: 'idfile' })
+    idfile: MedicalActFiles | number;
+
+    @Column({ type: 'int', default: 1, nullable: false })
+    status_payment: number;
 }

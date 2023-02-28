@@ -80,6 +80,29 @@ export class ServiceOrderController {
         return data;
     }
 
+    @Put('validate-payment/:id/:origin/:status')
+    async validateServiceOrder(
+        @Param('id', ParseIntPipe) id: number,
+        @Param('status', ParseIntPipe) status: number,
+        @Param('origin') origin: string,
+        @Request() req: any
+    ) {
+        const data = await this.service.setValidatePayment(id, origin, status);
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = 'medical-act-attention';
+        audit.description = 'Rechazo de la orden de servicio';
+        audit.data = JSON.stringify(data);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
+        return data;
+    }
+
     @Get('/get-daily-income-xlsx/:since/:until/:status')
     async getReportResumeXlsx(
         @Res() response,

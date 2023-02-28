@@ -17,6 +17,7 @@ import { BusinessLine } from "src/modules/business-line/business-line.entity";
 import { Specialty } from "src/modules/specialty/specialty.entity";
 import { Tariff } from "src/modules/tariff/tariff.entity";
 import { Doctor } from "src/modules/doctor/doctor.entity";
+import { MedicalActFiles } from "src/modules/main/medical-act/medical-act-files.entity";
 
 @Entity('contract_quota_payment')
 export class ContractQuotaPayment extends BaseEntity {
@@ -98,5 +99,12 @@ export class ContractQuotaPayment extends BaseEntity {
     @ManyToOne(type => Doctor, dr => dr.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iddoctor' })
     doctor: Doctor | number;
+
+    @ManyToOne(type => MedicalActFiles, fi => fi.id, { cascade: true, nullable: true, eager: false })
+    @JoinColumn({ name: 'idfile' })
+    idfile: MedicalActFiles | number;
+
+    @Column({ type: 'int', default: 1, nullable: false })
+    status_payment: number;
 
 }

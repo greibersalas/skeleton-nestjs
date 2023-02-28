@@ -15,7 +15,11 @@ import { ViewColumn, ViewEntity } from "typeorm";
   maa.created_at AS invoise_date,
   case when maa.idbankaccount is not null then
   concat_ws(' ', bk.name, co.code , ba.account_num)
-  else null end as bank_account
+  else null end as bank_account,
+  maa.idfile,
+  maf.fila_name AS file_name,
+  maf.file_ext,
+  maa.status_payment
 from medical_act_attention maa
 inner join clinic_history ch ON ch.id = maa."patientId"
 inner join business_line bl on bl.id = maa."businesslineId"
@@ -25,7 +29,8 @@ inner join doctor dc on dc.id = maa."doctorId"
 left join payment_method pm on pm.id = maa.idpaymentmethod
 inner join coin co on co.id = maa."coId"
 LEFT JOIN bank_accounts ba on ba.id = maa.idbankaccount
-LEFT JOIN banks bk on bk.id = ba.idbank`
+LEFT JOIN banks bk on bk.id = ba.idbank
+LEFT JOIN medical_act_files maf ON maf.id = maa.idfile`
 })
 export class ViewServiceOrder {
   @ViewColumn()
@@ -108,4 +113,16 @@ export class ViewServiceOrder {
 
   @ViewColumn()
   bank_account: string;
+
+  @ViewColumn()
+  idfile: number;
+
+  @ViewColumn()
+  file_name: string;
+
+  @ViewColumn()
+  file_ext: string;
+
+  @ViewColumn()
+  status_payment: number;
 }

@@ -29,4 +29,8 @@ export interface ServiceOrderDto {
     document_date: string;
     origin: string;
     idpaymentmethodcard: number;
+    idfile: number;
+    fila_name: string;
+    file_ext: string;
+    status_payment: number;
 }

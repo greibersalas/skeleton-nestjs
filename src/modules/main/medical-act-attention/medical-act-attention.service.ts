@@ -65,7 +65,7 @@ export class MedicalActAttentionService {
             .innerJoinAndSelect("sp.businessLines", "bl")
             .innerJoinAndSelect("mc.doctor", 'dc')
             .innerJoinAndSelect("mc.co", 'co')
-            .where("mc.state = 1 AND mc.medicalact = :id", { id })
+            .where("mc.state <> 0 AND mc.medicalact = :id", { id })
             .getMany();
 
         if (!medicalActAttention) {
@@ -122,6 +122,13 @@ export class MedicalActAttentionService {
             throw new NotFoundException();
         }
         return quantity;
+    }
+
+    async setFilePayment(id: number, idfile: number): Promise<any> {
+        const data = await this._medicalActAttentionRepository.findOne(id);
+        data.idfile = idfile;
+        data.save();
+        return data;
     }
 
     //Reports

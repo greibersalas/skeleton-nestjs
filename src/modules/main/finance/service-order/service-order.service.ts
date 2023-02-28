@@ -74,18 +74,9 @@ export class ServiceOrderService {
                     document_number: data.document_number,
                     document_date: data.document_date,
                     idpaymentmethod: data.idpaymentmethod,
-                    state: 2
+                    //state: 2
                 }).where({ id })
                 .execute();
-            /* attention.id = data.idpaymentmethod;
-            attention.bankaccount = data.idbankaccount;
-            attention.operation_number = data.operation_number;
-            attention.document_type = data.document_type;
-            attention.document_number = data.document_number;
-            attention.document_date = data.document_date;
-            attention.coin = data.idcoin;
-            attention.user = user;
-            attention.state = 2; */
             if (update) {
                 return true;
             }
@@ -114,6 +105,32 @@ export class ServiceOrderService {
                 throw new NotFoundException();
             }
             attention.state = status;
+            if (attention.save()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    async setValidatePayment(id: number, origin: string, status: number): Promise<boolean> {
+        if (origin === 'attention') {
+            const attention = await this.repositoryAttention.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            attention.status_payment = status;
+
+            if (attention.save()) {
+                return true;
+            }
+        }
+        if (origin === 'contract') {
+            const attention = await this.repositoryContractPay.findOne({ id });
+            if (!attention) {
+                throw new NotFoundException();
+            }
+            attention.status_payment = status;
             if (attention.save()) {
                 return true;
             }
