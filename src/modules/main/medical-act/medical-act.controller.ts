@@ -6,17 +6,24 @@ import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
 var moment = require('moment-timezone');
 
 import { editFileName, imageFileFilter } from '../../../utils/file-upload.utils';
+
 import { Audit } from '../../security/audit/audit.entity';
-import { MedicalAct } from './medical-act.entity';
-import { MedicalActService } from './medical-act.service';
 import { MedicalActFileGroup } from './medical-act-file-group.entity';
 import { MedicalActFiles } from './medical-act-files.entity';
+import { MedicalAct } from './medical-act.entity';
+import { MedicalActService } from './medical-act.service';
+import { MedicalActAttentionService } from '../medical-act-attention/medical-act-attention.service';
+import { ContractService } from '../finance/contract/contract.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-act')
 export class MedicalActController {
 
-    constructor(private readonly _medicalActService: MedicalActService) { }
+    constructor(
+        private readonly _medicalActService: MedicalActService,
+        private readonly _medicalActActteService: MedicalActAttentionService,
+        private readonly _contractService: ContractService,
+    ) { }
 
     @Get(':id')
     async getMedicalAct(@Param('id', ParseIntPipe) id: number): Promise<MedicalAct> {
@@ -103,7 +110,6 @@ export class MedicalActController {
     }
 
     @Post("upload/:group/:id")
-    //@UseInterceptors(FileInterceptor("file",{dest:"./uploads"}))
     @UseInterceptors(
         FileInterceptor('file', {
             storage: diskStorage({
@@ -125,16 +131,30 @@ export class MedicalActController {
             filename: file.filename,
             fileext: extname(file.originalname)
         };
+        let idclinichistory = null;
+        if (des.origin) {
+            idclinichistory = id;
+            id = null;
+        }
         //Data a guadar en la tabla
         const data = {
             fila_name: file.filename,
             file_ext: extname(file.originalname),
-            clinichistory: null,
-            medicalact: id,
+            clinichistory: idclinichistory,
+            medicalact: id === 0 ? null : id,
             filegroup: group,
             desciption: des.description
         };
         const fileinsert = await this._medicalActService.addFiles(data);
+        if (des.origin) {
+            if (des.origin === 'attention') {
+                await this._medicalActActteService.setFilePayment(Number(des.idorigin), fileinsert.id);
+            }
+            if (des.origin === 'contract') {
+                await this._contractService.setFilePayment(Number(des.idorigin), fileinsert.id);
+            }
+        }
+
         //Creamos los datos de la auditoria
         const audit = new Audit();
         audit.idregister = fileinsert.id;
