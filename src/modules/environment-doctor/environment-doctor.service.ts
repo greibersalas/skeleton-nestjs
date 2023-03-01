@@ -135,91 +135,160 @@ export class EnvironmentDoctorService {
                     const intervalo = i.time_cleaning === 0 ? (i.interval - 10) : i.interval; // Nuevo - 2022-04-02
                     const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(i.interval,'minutes').format('HH:mm:ss')}`;
                     const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo,'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
-                    //crear objeto para filtrar
-                    let filter = {
-                        environment_id: i.id,
-                        appointment: schedule,
-                    };
-                    if (doctor != 0)
-                        //filter["doctor_id"] = doctor;
-                    if (patient != 0)
-                        filter["patient_id"] = patient;
-                    if (state != 0)
-                        filter["state"] = state;
-                    const reserv = _.find(reser,filter);
-                    // Nuevo cambio 2022-04-02
-                    let filter2 = filter;
-                    filter2.appointment = schedule2;
-                    const reserv2 = _.find(reser,filter2);
-                    // Fin nuevo cambio
-                    let interval = 0;
-                    if(reserv || reserv2){
-                        //Si el rol es doctor o especialista OFM
-                        //Mostramos solo sus reservas y las demas las bloqueamos
-                        if(rol){
-                            if(reserv.doctor_id === doctor){
+                    
+                    // recorrer cada 10 minutos
+                    let first_reservation_hour = since;
+                    let boolean = false;
+                    const array_no_reservation = []
+                    let iterador = i.interval / 10
+                    while(iterador > 0){
+                        const reservation_hour = moment(first_reservation_hour).format('HH:mm:ss');
+                        let filter = {
+                            environment_id: i.id,
+                            since: reservation_hour,
+                        };
+                        if (doctor != 0)
+                            //filter["doctor_id"] = doctor;
+                        if (patient != 0)
+                            filter["patient_id"] = patient;
+                        if (state != 0)
+                            filter["state"] = state;
+                        const reserv = _.find(reser,filter);
+                        // Nuevo cambio 2022-04-02
+                        let filter2 = filter;
+                        filter2.since = schedule2;
+                        const reserv2 = _.find(reser,filter2);
+                        // Fin nuevo cambio
+                        if(reserv){
+                            boolean = true;
+                            iterador = 0;
+                            if(rol){
+                                if(reserv.doctor_id === doctor){
+                                    array_no_reservation.push({
+                                        since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                        until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                        rowspan: (reserv.interval/10)*20,
+                                        type: 4, //reservado,
+                                        data: reserv
+                                    });
+                                }else{
+                                    array_no_reservation.push({
+                                        since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                        until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                        rowspan: reserv.interval,
+                                        type: 0, //no disponible en el perfil
+                                        data: reserv
+                                    });
+                                }
+                            }else{
+                                //Si el otro perfil mostramos todo
+                                array_no_reservation.push({
+                                    since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                    until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                    rowspan: (reserv.interval/10)*20,
+                                    type: 4, //reservado,
+                                    data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
+                                });
+                            }
+                            since = moment(`${day} ${reserv.until}`);
+                        }else{
+                            let nextTime = moment(since).add(i.interval,'minutes');
+                            //Verifico si el siguiente horario supera la hora de refrigerio
+                            if(nextTime <= timetable.lunch_since){
+                                array_no_reservation.push({
+                                    since: moment(first_reservation_hour).format('HH:mm'),
+                                    until: moment(first_reservation_hour).add(10,'minutes').format('HH:mm'),
+                                    rowspan: 20,
+                                    type: moment(first_reservation_hour) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
+                                });
+                            //Si supera la hora de refrigerio queda inactivo
+                            }else{
+                                array_no_reservation.push({
+                                    since: moment(first_reservation_hour).format('HH:mm'),
+                                    until: moment(first_reservation_hour).add(10,'minutes').format('HH:mm'),
+                                    rowspan: 20,
+                                    type: moment(first_reservation_hour) < moment() ? 0 : 1
+                                });
+                            }
+                            first_reservation_hour = moment(first_reservation_hour).add(10,'minutes');
+                            iterador--;
+                        }
+                    }
+                    if(!boolean){
+                        //crear objeto para filtrar
+                        let filter = {
+                            environment_id: i.id,
+                            appointment: schedule,
+                        };
+                        if (doctor != 0)
+                            //filter["doctor_id"] = doctor;
+                        if (patient != 0)
+                            filter["patient_id"] = patient;
+                        if (state != 0)
+                            filter["state"] = state;
+                        const reserv = _.find(reser,filter);
+                        // Nuevo cambio 2022-04-02
+                        let filter2 = filter;
+                        filter2.appointment = schedule2;
+                        const reserv2 = _.find(reser,filter2);
+                        // Fin nuevo cambio
+                        let interval = 0;
+                        if(reserv || reserv2){
+                            //Si el rol es doctor o especialista OFM
+                            //Mostramos solo sus reservas y las demas las bloqueamos
+                            if(rol){
+                                if(reserv.doctor_id === doctor){
+                                    hours.push({
+                                        since: moment(since).format('HH:mm'),
+                                        until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                        rowspan: (i.interval/10)*20,
+                                        type: 4, //reservado,
+                                        data: reserv
+                                    });
+                                }else{
+                                    hours.push({
+                                        since: moment(since).format('HH:mm'),
+                                        until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                        rowspan: (i.interval/10)*20,
+                                        type: 0, //no disponible en el perfil
+                                        data: reserv
+                                    });
+                                }
+                            }else{
+                                //Si el otro perfil mostramos todo
                                 hours.push({
                                     since: moment(since).format('HH:mm'),
                                     until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                                     rowspan: (i.interval/10)*20,
                                     type: 4, //reservado,
-                                    data: reserv
+                                    data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
                                 });
-                            }else{
+                            }
+                        }else{
+                            let nextTime = moment(since).add(i.interval,'minutes');
+                            //Verifico si el siguiente horario supera la hora de refrigerio
+                            if(nextTime <= timetable.lunch_since){
+                                //if(moment(since) < moment())
                                 hours.push({
                                     since: moment(since).format('HH:mm'),
                                     until: moment(since).add(i.interval,'minutes').format('HH:mm'),
                                     rowspan: (i.interval/10)*20,
-                                    type: 0, //no disponible en el perfil
-                                    data: reserv
+                                    type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
+                                });
+                            //Si supera la hora de refrigerio queda inactivo
+                            }else{
+                                interval = i.interval-Number(moment(nextTime).format('mm'));
+                                hours.push({
+                                    since: moment(since).format('HH:mm'),
+                                    until: moment(since).add(interval,'minutes').format('HH:mm'),
+                                    rowspan: (interval/10)*20,
+                                    type: 0 //No disponible
                                 });
                             }
-                        }else{
-                            //Si el otro perfil mostramos todo
-                            hours.push({
-                                since: moment(since).format('HH:mm'),
-                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                                rowspan: (i.interval/10)*20,
-                                type: 4, //reservado,
-                                data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
-                            });
                         }
+                        since = interval === 0 ? moment(since).add(i.interval,'minutes') : moment(since).add(interval,'minutes')
                     }else{
-                        let nextTime = moment(since).add(i.interval,'minutes');
-                        //Verifico si el siguiente horario supera la hora de refrigerio
-                        if(nextTime <= timetable.lunch_since){
-                            //if(moment(since) < moment())
-                            hours.push({
-                                since: moment(since).format('HH:mm'),
-                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                                rowspan: (i.interval/10)*20,
-                                type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
-                            });
-                        //Si supera la hora de refrigerio queda inactivo
-                        }else{
-                            interval = i.interval-Number(moment(nextTime).format('mm'));
-                            hours.push({
-                                since: moment(since).format('HH:mm'),
-                                until: moment(since).add(interval,'minutes').format('HH:mm'),
-                                rowspan: (interval/10)*20,
-                                type: 0 //No disponible
-                            });
-                        }
-                    }
-                    since = interval === 0 ? moment(since).add(i.interval,'minutes') : moment(since).add(interval,'minutes')
-                    //Calculamos el tiempo de limpieza
-                    if(i.time_cleaning > 0){
-                        //SI la hora siguiente supera el refigerio no agrego el tiempo de limpeza
-                        let nextTime = moment(since).add(i.time_cleaning,'minutes');
-                        if(nextTime <= timetable.lunch_since){
-                            hours.push({
-                                since: moment(since).format('HH:mm'),
-                                until: moment(since).add(i.time_cleaning,'minutes').format('HH:mm'),
-                                rowspan: (i.time_cleaning/10)*19,
-                                type: 2 //limpieza
-                            });
-                            since = moment(since).add(i.time_cleaning,'minutes');
-                        }
+                        hours = [...hours, ...array_no_reservation]
                     }
                 }else if(i.lunch_since && timetable.lunch_since <= since && since < timetable.lunch_until){
                     //Calculamos el horario del refrigerio
@@ -236,50 +305,121 @@ export class EnvironmentDoctorService {
                     const intervalo = i.time_cleaning === 0 ? (i.interval - 10) : i.interval; // Nuevo - 2022-04-02
                     const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(i.interval,'minutes').format('HH:mm:ss')}`;
                     const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo,'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
-                    //crear objeto para filtrar
-                    let filter = {
-                        environment_id: i.id,
-                        appointment: schedule,
+                    // recorrer cada 10 minutos
+                    let first_reservation_hour = since;
+                    let boolean = false;
+                    const array_no_reservation = []
+                    let iterador = i.interval / 10
+                    while(iterador > 0){
+                        const reservation_hour = moment(first_reservation_hour).format('HH:mm:ss');
+                        let filter = {
+                            environment_id: i.id,
+                            since: reservation_hour,
+                        };
+                        if (doctor != 0)
+                            //filter["doctor_id"] = doctor;
+                        if (patient != 0)
+                            filter["patient_id"] = patient;
+                        if (state != 0)
+                            filter["state"] = state;
+                        const reserv = _.find(reser,filter);
+                        // Nuevo cambio 2022-04-02
+                        let filter2 = filter;
+                        filter2.since = schedule2;
+                        const reserv2 = _.find(reser,filter2);
+                        // Fin nuevo cambio
+                        if(reserv){
+                            boolean = true;
+                            iterador = 0;
+                            if(rol){
+                                if(reserv.doctor_id === doctor){
+                                    array_no_reservation.push({
+                                        since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                        until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                        rowspan: (reserv.interval/10)*20,
+                                        type: 4, //reservado,
+                                        data: reserv
+                                    });
+                                }else{
+                                    array_no_reservation.push({
+                                        since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                        until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                        rowspan: reserv.interval,
+                                        type: 0, //no disponible en el perfil
+                                        data: reserv
+                                    });
+                                }
+                            }else{
+                                //Si el otro perfil mostramos todo
+                                array_no_reservation.push({
+                                    since: moment(`${day} ${reserv.since}`).format('HH:mm'),
+                                    until: moment(`${day} ${reserv.until}`).format('HH:mm'),
+                                    rowspan: (reserv.interval/10)*20,
+                                    type: 4, //reservado,
+                                    data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
+                                });
+                            }
+                            since = moment(`${day} ${reserv.until}`);
+                        }else{
+                            let nextTime = moment(since).add(i.interval,'minutes');
+                            //Verifico si el siguiente horario supera la hora de refrigerio
+                            if(nextTime <= timetable.lunch_since){
+                                array_no_reservation.push({
+                                    since: moment(first_reservation_hour).format('HH:mm'),
+                                    until: moment(first_reservation_hour).add(10,'minutes').format('HH:mm'),
+                                    rowspan: 20,
+                                    type: moment(first_reservation_hour) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
+                                });
+                            //Si supera la hora de refrigerio queda inactivo
+                            }else{
+                                array_no_reservation.push({
+                                    since: moment(first_reservation_hour).format('HH:mm'),
+                                    until: moment(first_reservation_hour).add(10,'minutes').format('HH:mm'),
+                                    rowspan: 20,
+                                    type: moment(first_reservation_hour) < moment() ? 0 : 1
+                                });
+                            }
+                            first_reservation_hour = moment(first_reservation_hour).add(10,'minutes');
+                            iterador--;
+                        }
                     }
-                    if (doctor != 0)
-                        filter["doctor_id"] = doctor;
-                    if (patient != 0)
-                        filter["patient_id"] = patient;
-                    if (state != 0)
-                        filter["state"] = state;
-                    const reserv = _.find(reser,filter);
-                    // Nuevo cambio 2022-04-02
-                    let filter2 = filter;
-                    filter2.appointment = schedule2;
-                    const reserv2 = _.find(reser,filter2);
-                    // Fin nuevo cambio
-                    if(reserv || reserv2){
-                        hours.push({
-                            since: moment(since).format('HH:mm'),
-                            until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                            rowspan: (i.interval/10)*20,
-                            type: 4, //reservado,
-                            data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
-                        });
+                    if(!boolean){
+                        //crear objeto para filtrar
+                        let filter = {
+                            environment_id: i.id,
+                            appointment: schedule,
+                        }
+                        if (doctor != 0)
+                            filter["doctor_id"] = doctor;
+                        if (patient != 0)
+                            filter["patient_id"] = patient;
+                        if (state != 0)
+                            filter["state"] = state;
+                        const reserv = _.find(reser,filter);
+                        // Nuevo cambio 2022-04-02
+                        let filter2 = filter;
+                        filter2.appointment = schedule2;
+                        const reserv2 = _.find(reser,filter2);
+                        // Fin nuevo cambio
+                        if(reserv || reserv2){
+                            hours.push({
+                                since: moment(since).format('HH:mm'),
+                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                rowspan: (i.interval/10)*20,
+                                type: 4, //reservado,
+                                data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
+                            });
+                        }else{
+                            hours.push({
+                                since: moment(since).format('HH:mm'),
+                                until: moment(since).add(i.interval,'minutes').format('HH:mm'),
+                                rowspan: (i.interval/10)*20,
+                                type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
+                            });
+                        }
+                        since = moment(since).add(i.interval,'minutes');
                     }else{
-                        hours.push({
-                            since: moment(since).format('HH:mm'),
-                            until: moment(since).add(i.interval,'minutes').format('HH:mm'),
-                            rowspan: (i.interval/10)*20,
-                            type: moment(since) < moment() ? 0 : 1 //Verifico que la hora sea mayor a la hora actual 1: disponible
-                        });
-                    }
-                    
-                    since = moment(since).add(i.interval,'minutes');
-                    //Calculamos el tiempo de limpieza
-                    if(i.time_cleaning > 0){
-                        hours.push({
-                            since: moment(since).format('HH:mm'),
-                            until: moment(since).add(i.time_cleaning,'minutes').format('HH:mm'),
-                            rowspan: (i.time_cleaning/10)*20,
-                            type: 2 //limpieza
-                        });
-                        since = moment(since).add(i.time_cleaning,'minutes');
+                        hours = [...hours, ...array_no_reservation]
                     }
                 }else{
                     hours.push({
