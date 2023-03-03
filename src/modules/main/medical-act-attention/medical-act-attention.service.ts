@@ -263,7 +263,7 @@ export class MedicalActAttentionService {
     async getDoctorProduction(params: any): Promise<any> {
         const { since, until, iddoctor } = params;
         let where = `maa.date::DATE BETWEEN '${since}' AND '${until}'
-        AND maa.state = 1`;
+        AND maa.state = 2`;
         if (iddoctor > 0) {
             where += `AND "maa"."doctorId" = ${iddoctor}`;
         }
