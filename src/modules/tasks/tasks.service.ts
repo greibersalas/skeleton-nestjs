@@ -15,7 +15,7 @@ export class TasksService {
   @Interval(60000)
   async handleInterval() {
     let now = moment().format("YYYY-MM-DD");
-    let reservation = await this._reservation.getByDateWithOutNotify(now)
+    /* let reservation = await this._reservation.getByDateWithOutNotify(now)
     reservation.forEach(element => {
       let hour = element.appointment.split("-")[0]
       hour = hour.replace(':', '').substring(0, 4)
@@ -53,6 +53,6 @@ export class TasksService {
           })
         })
       }
-    });
+    }); */
   }
 }
