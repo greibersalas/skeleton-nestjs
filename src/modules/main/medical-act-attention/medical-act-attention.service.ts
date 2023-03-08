@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getManager } from 'typeorm';
+import { AttetionsTariffQuantityDto } from './dtos/attentions-tariff-quantity-dto';
 import { MedicalActAttention } from './medical-act-attention.entity';
 import { MedicalActAttentionRepository } from './medical-act-attention.repository';
 
@@ -74,13 +75,16 @@ export class MedicalActAttentionService {
         return medicalActAttention;
     }
 
-    async getByCH(id: number, iddoctor: number): Promise<MedicalActAttention[]> {
+    async getByCH(id: number, idoption: number, option: string): Promise<MedicalActAttention[]> {
         if (!id) {
             throw new BadRequestException('id must be send.');
         }
         let where: string = `mc.state <> 0 AND "mc"."patientId" = ${id}`;
-        if (iddoctor > 0) {
-            where += ` AND dc.id = ${iddoctor}`;
+        if (option === 'D' && idoption > 0) {
+            where += ` AND dc.id = ${idoption}`;
+        }
+        if (option === 'T' && idoption > 0) {
+            where += ` AND tr.id = ${idoption}`;
         }
         const medicalActAttention = await this._medicalActAttentionRepository.createQueryBuilder('mc')
             .innerJoinAndSelect("mc.tariff", "tr")
@@ -116,6 +120,27 @@ export class MedicalActAttentionService {
             .where(`"ma"."patientId" = :id AND ma.state <> 0`, { id })
             .groupBy(`dc.id,"dc"."nameQuote"`)
             .orderBy(`"dc"."nameQuote"`)
+            .getRawMany();
+
+        if (!quantity) {
+            throw new NotFoundException();
+        }
+        return quantity;
+    }
+
+    /**
+     * Lista de tratamientos por paciente
+     */
+    async getQuantityAttentionsTariff(id: number): Promise<AttetionsTariffQuantityDto[]> {
+        if (!id) {
+            throw new BadRequestException('id must be send.');
+        }
+        const quantity = await this._medicalActAttentionRepository.createQueryBuilder('ma')
+            .select(`tr.id AS idtariff, tr.name AS tariff, count(tr.id) AS quantity`)
+            .innerJoin('tariff', 'tr', 'tr.id = "ma"."tariffId"')
+            .where(`"ma"."patientId" = :id AND ma.state <> 0`, { id })
+            .groupBy(`tr.id,tr.name`)
+            .orderBy(`tr.name`)
             .getRawMany();
 
         if (!quantity) {

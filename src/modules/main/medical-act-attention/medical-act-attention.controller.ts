@@ -10,6 +10,7 @@ import { PdfPayPatient } from './pdf/pdf-pay-patient';
 import { PdfDoctorProduction } from './pdf/pdf-doctor-production';
 //Excel4Node
 import * as xl from 'excel4node';
+import { AttetionsTariffQuantityDto } from './dtos/attentions-tariff-quantity-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-act-attention')
@@ -99,13 +100,13 @@ export class MedicalActAttentionController {
         return medicalActAttention;
     }
 
-    @Get('by-clinic-history/:id/:iddoctor')
+    @Get('by-clinic-history/:idpatient/:idoption/:option')
     async getByCH(
-        @Param('id', ParseIntPipe) id: number,
-        @Param('iddoctor', ParseIntPipe) iddoctor: number
+        @Param('idpatient', ParseIntPipe) idpatient: number,
+        @Param('idoption', ParseIntPipe) idoption: number,
+        @Param('option') option: string
     ): Promise<MedicalActAttention[]> {
-        const medicalActAttention = await this._medicalActAttentionService.getByCH(id, iddoctor);
-        return medicalActAttention;
+        return await this._medicalActAttentionService.getByCH(idpatient, idoption, option);
     }
 
     @Get('attention-cant/:month/:year')
@@ -122,6 +123,13 @@ export class MedicalActAttentionController {
     ): Promise<MedicalActAttention[]> {
         const quantity = await this._medicalActAttentionService.getQuantityAttentions(id);
         return quantity;
+    }
+
+    @Get('get-quantity-attentions/tariff/:id')
+    async getQuantityAttentionsTariff(
+        @Param('id', ParseIntPipe) id: number
+    ): Promise<AttetionsTariffQuantityDto[]> {
+        return await this._medicalActAttentionService.getQuantityAttentionsTariff(id);
     }
 
     //Reports
