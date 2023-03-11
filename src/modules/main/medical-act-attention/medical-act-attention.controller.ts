@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, Request, Res, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/strategies/jwt-auth.guard';
 var moment = require('moment-timezone');
 
@@ -11,6 +11,8 @@ import { PdfDoctorProduction } from './pdf/pdf-doctor-production';
 //Excel4Node
 import * as xl from 'excel4node';
 import { AttetionsTariffQuantityDto } from './dtos/attentions-tariff-quantity-dto';
+// xls
+import { ReportTreatmentPatient } from './xls/report-treatment-patient';
 
 @UseGuards(JwtAuthGuard)
 @Controller('medical-act-attention')
@@ -107,6 +109,30 @@ export class MedicalActAttentionController {
         @Param('option') option: string
     ): Promise<MedicalActAttention[]> {
         return await this._medicalActAttentionService.getByCH(idpatient, idoption, option);
+    }
+
+    @Get('report/xls/attentions/:idpatient/:idoption/:option')
+    async getReportAttentionsByCH(
+        @Param('idpatient', ParseIntPipe) idpatient: number,
+        @Param('idoption', ParseIntPipe) idoption: number,
+        @Param('option') option: string,
+        @Res() response,
+    ): Promise<any> {
+        const data = await this._medicalActAttentionService.getByCH(idpatient, idoption, option);
+        if (data) {
+            const xlsx = new ReportTreatmentPatient();
+            xlsx.onCreate(data).then(function (buffer: any) {
+                response.set({
+                    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition': 'attachment; filename=tratamientos-paciente.xlsx',
+                    'Content-Length': buffer.length
+                })
+
+                response.end(buffer);
+            });
+        } else {
+            throw new BadRequestException();
+        }
     }
 
     @Get('attention-cant/:month/:year')
