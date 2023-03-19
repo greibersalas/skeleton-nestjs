@@ -11,6 +11,7 @@ import { ClinicHistory } from "../../clinic-history/clinic-history.entity";
 import { BankAccounts } from "src/modules/mat/finance/bank-accounts/entity/bank-accounts.entity";
 import { PaymentMethodCard } from "src/modules/mat/finance/payment-method-card/entity/payment-method-card.entity";
 import { MedicalActFiles } from "../medical-act/medical-act-files.entity";
+import { DiscountType } from '../../mat/finance/discount-type/entity/discount-type.entity'
 
 @Entity('medical_act_attention')
 export class MedicalActAttention extends BaseEntity {
@@ -106,4 +107,14 @@ export class MedicalActAttention extends BaseEntity {
 
     @Column({ type: 'int', default: 1, nullable: false })
     status_payment: number;
+
+    @ManyToOne(type => DiscountType, fi => fi.id, { cascade: true, nullable: true, eager: false })
+    @JoinColumn({ name: 'iddiscounttype' })
+    iddiscounttype: DiscountType | number;
+
+    @Column({ type: 'char', length: 1, nullable: true, comment: 'A: Monto, P: Porcentaje' })
+    discount_type: string;
+
+    @Column({ type: 'float', default: null, nullable: true })
+    discount_amount: number;
 }

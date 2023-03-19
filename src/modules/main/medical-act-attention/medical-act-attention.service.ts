@@ -94,6 +94,7 @@ export class MedicalActAttentionService {
             .innerJoinAndSelect("mc.co", 'co')
             .innerJoinAndSelect("mc.medicalact", 'ma')
             .innerJoinAndSelect("mc.patient", 'pa')
+            .leftJoinAndSelect("mc.iddiscounttype", 'dt')
             .where(`${where}`)
             .getMany();
 
