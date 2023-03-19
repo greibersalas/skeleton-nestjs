@@ -27,4 +27,10 @@ export interface DailyIncomeDto {
     document_type: string;
     document_number: string;
     document_date: string;
+    iddiscounttype: number;
+    discount_type_name: string;
+    discount_type: string;
+    discount_amount: number;
+    created_hour: string;
+    username: string;
 }
