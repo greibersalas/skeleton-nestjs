@@ -11,11 +11,9 @@ import { ServiceOrderDto } from './dto/service-order-dto';
 
 // Service
 import { ServiceOrderService } from './service-order.service';
-import { DailyIncomeDto } from './dto/daily-income-view-dto';
 
 // xls
 import { ReportDailyPayment } from './xls/report-daily-payments';
-import { ReportDailyIncome } from './xls/report-daily-income';
 import { ReportClinicalAssistance } from './xls/report-clinical-assistance';
 import { ReportPayment } from './xls/report-daily-income';
 
