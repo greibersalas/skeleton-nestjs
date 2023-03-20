@@ -17,6 +17,7 @@ import { DailyIncomeDto } from './dto/daily-income-view-dto';
 import { ReportDailyPayment } from './xls/report-daily-payments';
 import { ReportDailyIncome } from './xls/report-daily-income';
 import { ReportClinicalAssistance } from './xls/report-clinical-assistance';
+import { ReportPayment } from './xls/report-daily-income';
 
 @UseGuards(JwtAuthGuard)
 @Controller('service-order')
@@ -126,14 +127,13 @@ export class ServiceOrderController {
     ): Promise<any> {
         const data = await this.service.getDailyIncome(since, until, status);
         if (data) {
-            const xlsx = new ReportDailyIncome();
+            const xlsx = new ReportPayment();
             xlsx.onCreate(since, until, status, data).then(function (buffer: any) {
                 response.set({
                     'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'Content-Disposition': 'attachment; filename=daily-income.xlsx',
+                    'Content-Disposition': 'attachment; filename=pagos-pendientes.xlsx',
                     'Content-Length': buffer.length
                 })
-
                 response.end(buffer);
             });
         } else {

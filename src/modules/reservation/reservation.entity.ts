@@ -68,4 +68,12 @@ export class Reservation extends BaseEntity {
     @JoinColumn({ name: 'idcoin' })
     coin: Coin;
 
+    @Column({ type: 'varchar', default: false })
+    since: string;
+
+    @Column({ type: 'varchar', default: false })
+    until: string;
+
+    @Column({ type: 'int4', default: false })
+    interval: number;
 }
