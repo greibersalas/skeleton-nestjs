@@ -33,4 +33,9 @@ export interface ServiceOrderDto {
     fila_name: string;
     file_ext: string;
     status_payment: number;
+    iddiscounttype: number;
+    discount_type_name: string;
+    discount_type: string;
+    discount_amount: number;
+    total: number;
 }

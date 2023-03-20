@@ -19,7 +19,11 @@ import { ViewColumn, ViewEntity } from "typeorm";
   maa.idfile,
   maf.fila_name AS file_name,
   maf.file_ext,
-  maa.status_payment
+  maa.status_payment,
+  maa.iddiscounttype,
+  dt.name AS discount_type_name,
+  maa.discount_type,
+  maa.discount_amount
 from medical_act_attention maa
 inner join clinic_history ch ON ch.id = maa."patientId"
 inner join business_line bl on bl.id = maa."businesslineId"
@@ -30,7 +34,8 @@ left join payment_method pm on pm.id = maa.idpaymentmethod
 inner join coin co on co.id = maa."coId"
 LEFT JOIN bank_accounts ba on ba.id = maa.idbankaccount
 LEFT JOIN banks bk on bk.id = ba.idbank
-LEFT JOIN medical_act_files maf ON maf.id = maa.idfile`
+LEFT JOIN medical_act_files maf ON maf.id = maa.idfile
+LEFT JOIN discount_type dt ON dt.id = maa.iddiscounttype`
 })
 export class ViewServiceOrder {
   @ViewColumn()
@@ -125,4 +130,16 @@ export class ViewServiceOrder {
 
   @ViewColumn()
   status_payment: number;
+
+  @ViewColumn()
+  iddiscounttype: number;
+
+  @ViewColumn()
+  discount_type_name: string;
+
+  @ViewColumn()
+  discount_type: string;
+
+  @ViewColumn()
+  discount_amount: number;
 }

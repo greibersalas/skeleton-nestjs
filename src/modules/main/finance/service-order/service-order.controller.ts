@@ -11,7 +11,6 @@ import { ServiceOrderDto } from './dto/service-order-dto';
 
 // Service
 import { ServiceOrderService } from './service-order.service';
-import { DailyIncomeDto } from './dto/daily-income-view-dto';
 
 // xls
 import { ReportDailyPayment } from './xls/report-daily-payments';
@@ -32,7 +31,20 @@ export class ServiceOrderController {
         @Param('until') until: string,
         @Param('status', ParseIntPipe) status: number
     ): Promise<ServiceOrderDto[]> {
-        return await this.service.getDataPending(since, until, status);
+        let data = await this.service.getDataPending(since, until, status);
+        data = data.map(ele => {
+            let total = ele.quantity * ele.amount;
+            if (ele.discount_amount > 0) {
+                if (ele.discount_type === 'P') {
+                    total = total - ((total * ele.discount_amount / 100));
+                } else {
+                    total -= ele.discount_amount;
+                }
+            }
+            ele.total = total;
+            return ele;
+        });
+        return data;
     }
 
     @Put(':id')
@@ -125,7 +137,6 @@ export class ServiceOrderController {
         } else {
             throw new BadRequestException();
         }
-
     }
 
     @Get('/get-report-daily-payment-xlsx/:since/:until')
