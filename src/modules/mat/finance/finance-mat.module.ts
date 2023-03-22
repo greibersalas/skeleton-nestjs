@@ -12,21 +12,27 @@ import { PaymentMethodCardService } from './payment-method-card/payment-method-c
 // Entity
 import { BankAccounts } from './bank-accounts/entity/bank-accounts.entity';
 import { PaymentMethodCard } from './payment-method-card/entity/payment-method-card.entity';
+import { DiscountTypeController } from './discount-type/discount-type.controller';
+import { DiscountTypeService } from './discount-type/discount-type.service';
+import { DiscountType } from './discount-type/entity/discount-type.entity';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             BankAccounts,
-            PaymentMethodCard
+            PaymentMethodCard,
+            DiscountType
         ])
     ],
     controllers: [
         BankAccountsController,
-        PaymentMethodCardController
+        PaymentMethodCardController,
+        DiscountTypeController
     ],
     providers: [
         BankAccountsService,
-        PaymentMethodCardService
+        PaymentMethodCardService,
+        DiscountTypeService
     ]
 })
 export class FinanceMatModule { }
