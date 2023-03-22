@@ -23,10 +23,10 @@ export class DoctorProgrammingService {
             .innerJoin('dp.iddoctor', 'dr')
             .innerJoin('dp.idenvironmentdoctor', 'ed')
             .innerJoin('dp.idcampus', 'ca')
-            .where('dp.state <> 0')
+            .where('dp.status <> 0')
             .andWhere(`dp.iddoctor = ${iddoctor}`)
             .orderBy('dp.date_since', 'DESC')
-            .addOrderBy('dt.time_since', 'ASC')
+            .addOrderBy('dp.time_since', 'ASC')
             .getRawMany();
     }
 
