@@ -31,9 +31,9 @@ export class DoctorProgrammingService {
     }
 
     getOne(id: number): Promise<DoctorProgrammingDto> {
-        return this.repository.createQueryBuilder('cn')
+        return this.repository.createQueryBuilder('dp')
             .select(`dp.id, dp.iddoctor, dr."nameQuote" as doctor, dp.idenvironmentdoctor,
-            ed.name as environmentdoctor, dp.date_since, dp.date_until, dp.time_since,
+            ed.name as environmentdoctor, dp.date_since::DATE, dp.date_until::DATE, dp.time_since,
             dp.time_until, dp.interval, dp.idcampus, ca.name as campus, dp.status`)
             .innerJoin('dp.iddoctor', 'dr')
             .innerJoin('dp.idenvironmentdoctor', 'ed')
@@ -52,8 +52,8 @@ export class DoctorProgrammingService {
             throw new NotFoundException();
         }
         item.idenvironmentdoctor = data.idenvironmentdoctor;
-        item.date_since = new Date(data.date_since);
-        item.date_until = new Date(data.date_until);
+        item.date_since = data.date_since;
+        item.date_until = data.date_until;
         item.time_since = data.time_since;
         item.time_until = data.time_until;
         item.interval = data.interval;
@@ -69,6 +69,6 @@ export class DoctorProgrammingService {
         if (!item) {
             throw new NotFoundException();
         }
-        await this.repository.update(id, { state: 0 });
+        await this.repository.update(id, { status: 0 });
     }
 }

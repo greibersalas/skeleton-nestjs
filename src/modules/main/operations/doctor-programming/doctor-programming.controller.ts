@@ -38,8 +38,8 @@ export class DoctorProgrammingController {
         const item: DoctorProgramming = new DoctorProgramming();
         item.iddoctor = data.iddoctor;
         item.idenvironmentdoctor = data.idenvironmentdoctor;
-        item.date_since = new Date(data.date_since);
-        item.date_until = new Date(data.date_until);
+        item.date_since = data.date_since;
+        item.date_until = data.date_until;
         item.time_since = data.time_since;
         item.time_until = data.time_until;
         item.interval = data.interval;

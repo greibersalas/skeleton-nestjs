@@ -29,10 +29,10 @@ export class DoctorProgramming extends BaseEntity {
     idenvironmentdoctor: EnvironmentDoctor | number;
 
     @Column({ type: 'date', nullable: false })
-    date_since: Date;
+    date_since: string;
 
     @Column({ type: 'date', nullable: false })
-    date_until: Date;
+    date_until: string;
 
     @Column({ type: 'text', nullable: false })
     time_since: string;
@@ -48,7 +48,7 @@ export class DoctorProgramming extends BaseEntity {
     idcampus: Campus | number;
 
     @Column({ type: 'int2', default: 1, nullable: false })
-    state: number;
+    status: number;
 
     @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
     createdAt: Date;
