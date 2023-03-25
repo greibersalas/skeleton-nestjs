@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
+import { ReservationService } from 'src/modules/reservation/reservation.service';
 const moment = require('moment-timezone');
 import { Audit } from 'src/modules/security/audit/audit.entity';
 
@@ -13,7 +14,8 @@ export class DoctorProgrammingController {
 
     protected module = 'doctor-programming';
     constructor(
-        private service: DoctorProgrammingService
+        private service: DoctorProgrammingService,
+        private readonly _reservationService: ReservationService
     ) { }
 
     @Get('/doctor/:iddoctor')
@@ -73,5 +75,22 @@ export class DoctorProgrammingController {
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.service.delete(id);
+    }
+
+    @Get('programmin-day/:date/:campus')
+    async getProgrammingDay(
+        @Param('date') date: string,
+        @Param('campus', ParseIntPipe) campus: number,
+        @Request() req: any
+    ): Promise<any> {
+        const { user } = req;
+        //idroles 4 y 5 Doctor y Especialista OFM
+        let rol: boolean = false;
+        if (user.roles.idrole === 4 || user.roles.idrole === 4) {
+            rol = true;
+        }
+        const reser = await this._reservationService.getByDay(date, campus);
+        const programmming = await this.service.programmingDay(campus, date, reser);
+        return programmming;
     }
 }
