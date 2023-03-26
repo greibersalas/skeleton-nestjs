@@ -86,7 +86,7 @@ export class DoctorProgrammingService {
             until: '09:20:00'
         }];*/
         // Busco los doctores programados en la sede y fecha seleccionados
-        const doctors = await this.repositoryView.createQueryBuilder('vp')
+        const doctors: DoctorProgrammingDto[] = await this.repositoryView.createQueryBuilder('vp')
             .select('*')
             .where(`date_since < '${dateDay}'`)
             .andWhere(`date_until > '${dateDay}'`)
@@ -112,7 +112,6 @@ export class DoctorProgrammingService {
             }
 
             // Horario programado
-
             const schedule_since = moment(`${dateDay} ${ele.time_since}`);
             const schedule_until = moment(`${dateDay} ${ele.time_until}`);
             let hasShedule = false;
@@ -125,7 +124,6 @@ export class DoctorProgrammingService {
                     //Busco si hay reserva en la hora
                     const intervalo = ele.interval; // Nuevo - 2022-04-02
 
-                    const schedule = `${moment(since).format('HH:mm:ss')}-${moment(since).add(ele.interval, 'minutes').format('HH:mm:ss')}`;
                     const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo, 'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
 
                     let first_reservation_hour = since;
@@ -157,6 +155,9 @@ export class DoctorProgrammingService {
                                 until: moment(`${dateDay} ${reserv.until}`).format('HH:mm'),
                                 rowspan: (reserv.interval / 10) * 20,
                                 type: 4, //reservado,
+                                environtment: ele.idenvironmentdoctor,
+                                environtment_name: ele.environmentdoctor,
+                                interval: ele.interval,
                                 data: reserv ? reserv : reserv2 // Nuevo cambio 2022-04-02
                             });
                             since = moment(`${dateDay} ${reserv.until}`);
@@ -165,7 +166,10 @@ export class DoctorProgrammingService {
                                 since: moment(first_reservation_hour).format('HH:mm'),
                                 until: moment(first_reservation_hour).add(10, 'minutes').format('HH:mm'),
                                 rowspan: 20,
-                                type: moment(first_reservation_hour) < moment() ? 0 : 1
+                                environtment: ele.idenvironmentdoctor,
+                                environtment_name: ele.environmentdoctor,
+                                type: moment(first_reservation_hour) < moment() ? 0 : 1,
+                                interval: ele.interval
                             });
                             first_reservation_hour = moment(first_reservation_hour).add(10, 'minutes');
                             iterador--;
@@ -182,12 +186,15 @@ export class DoctorProgrammingService {
                         //console.log({ doc: doc.length, cant });
 
                         if (doc.length > cant) {
-                            hours.push({
+                            /* hours.push({
                                 since: moment(since).format('HH:mm'),
                                 until: moment(since).add(10, 'minutes').format('HH:mm'),
                                 rowspan: 19.5,
-                                type: 0 //No disponible
-                            });
+                                type: 0, //No disponible
+                                environtment: ele.idenvironmentdoctor,
+                                environtment_name: ele.environmentdoctor,
+                                interval: ele.interval
+                            }); */
                             since = moment(since).add(10, 'minutes');
                             sameDoctor = true;
                             hasShedule = false;
@@ -199,7 +206,10 @@ export class DoctorProgrammingService {
                         since: moment(since).format('HH:mm'),
                         until: moment(since).add(10, 'minutes').format('HH:mm'),
                         rowspan: 19.5,
-                        type: 0 //No disponible
+                        type: 0, //No disponible
+                        environtment: ele.idenvironmentdoctor,
+                        environtment_name: ele.environmentdoctor,
+                        interval: ele.interval
                     });
                     since = moment(since).add(10, 'minutes');
                 }
