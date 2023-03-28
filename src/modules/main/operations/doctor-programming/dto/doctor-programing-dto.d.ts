@@ -12,4 +12,12 @@ export interface DoctorProgrammingDto {
     idcampus: number;
     campus: string;
     status: number;
+    mon: boolean;
+    tue: boolean;
+    wed: boolean;
+    thu: boolean;
+    fri: boolean;
+    sat: boolean;
+    sun: boolean;
+    schedule_type: string;
 }

@@ -59,4 +59,28 @@ export class DoctorProgramming extends BaseEntity {
     @ManyToOne(type => User, us => us.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iduser' })
     user: User | number;
+
+    @Column({ type: 'boolean', default: false, comment: 'Lunes' })
+    mon: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Martes' })
+    tue: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Miercoles' })
+    wed: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Jueves' })
+    thu: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Viernes' })
+    fri: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Sábado' })
+    sat: boolean;
+
+    @Column({ type: 'boolean', default: false, comment: 'Domingo' })
+    sun: boolean;
+
+    @Column({ type: 'char', default: null, comment: 'M: morning, A: afternoon' })
+    schedule_type: string;
 }

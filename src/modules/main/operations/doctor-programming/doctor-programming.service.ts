@@ -25,7 +25,8 @@ export class DoctorProgrammingService {
         return this.repository.createQueryBuilder('dp')
             .select(`dp.id, dp.iddoctor, dr."nameQuote" as doctor, dp.idenvironmentdoctor,
             ed.name as environmentdoctor, dp.date_since, dp.date_until, dp.time_since,
-            dp.time_until, dp.interval, dp.idcampus, ca.name as campus, dp.status`)
+            dp.time_until, dp.interval, dp.idcampus, ca.name as campus, dp.status,
+            dp.schedule_type, dp.mon, dp.tue, dp.wed, dp.thu, dp.fri, dp.sat, dp.sun`)
             .innerJoin('dp.iddoctor', 'dr')
             .innerJoin('dp.idenvironmentdoctor', 'ed')
             .innerJoin('dp.idcampus', 'ca')
@@ -40,7 +41,8 @@ export class DoctorProgrammingService {
         return this.repository.createQueryBuilder('dp')
             .select(`dp.id, dp.iddoctor, dr."nameQuote" as doctor, dp.idenvironmentdoctor,
             ed.name as environmentdoctor, dp.date_since::DATE, dp.date_until::DATE, dp.time_since,
-            dp.time_until, dp.interval, dp.idcampus, ca.name as campus, dp.status`)
+            dp.time_until, dp.interval, dp.idcampus, ca.name as campus, dp.status,
+            dp.schedule_type, dp.mon, dp.tue, dp.wed, dp.thu, dp.fri, dp.sat, dp.sun`)
             .innerJoin('dp.iddoctor', 'dr')
             .innerJoin('dp.idenvironmentdoctor', 'ed')
             .innerJoin('dp.idcampus', 'ca')
@@ -64,6 +66,14 @@ export class DoctorProgrammingService {
         item.time_until = data.time_until;
         item.interval = data.interval;
         item.idcampus = data.idcampus;
+        item.mon = data.mon;
+        item.tue = data.tue;
+        item.wed = data.wed;
+        item.thu = data.thu;
+        item.fri = data.fri;
+        item.sat = data.sat;
+        item.sun = data.sun;
+        item.schedule_type = data.schedule_type;
         item.user = iduser;
         item.updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
         await item.save();
@@ -79,17 +89,41 @@ export class DoctorProgrammingService {
     }
 
     async programmingDay(idcampus: number, dateDay: string, reser: any): Promise<any> {
-        // Temp
-        /*const reser = [{
-            iddoctor: 1,
-            since: '09:00:00',
-            until: '09:20:00'
-        }];*/
         // Busco los doctores programados en la sede y fecha seleccionados
+        const dayNum = new Date(dateDay).getDay();
+        let whereDay = '';
+        switch (dayNum) {
+            case 0:
+                whereDay = 'mon = true';
+                break;
+            case 1:
+                whereDay = 'tue = true';
+                break;
+            case 2:
+                whereDay = 'wed = true';
+                break;
+            case 3:
+                whereDay = 'thu = true';
+                break;
+            case 4:
+                whereDay = 'fri = true';
+                break;
+            case 5:
+                whereDay = 'sat = true';
+                break;
+            case 6:
+                whereDay = 'sun = true';
+                break;
+
+            default:
+                break;
+        }
+
         const doctors: DoctorProgrammingDto[] = await this.repositoryView.createQueryBuilder('vp')
             .select('*')
-            .where(`date_since < '${dateDay}'`)
-            .andWhere(`date_until > '${dateDay}'`)
+            .where(`date_since <= '${dateDay}'`)
+            //.andWhere(`date_until >= '${dateDay}'`)
+            .andWhere(`${whereDay}`)
             .andWhere(`idcampus = '${idcampus}'`)
             .getRawMany();
         // console.log({ doctors });
@@ -102,9 +136,11 @@ export class DoctorProgrammingService {
         let since = moment(`${dateDay} 08:00:00`);
         let until = moment(`${dateDay} 21:00:00`);
         let cant = 0;
+        let doctorId = 0;
         outer: while (i < doctors.length) {
             const ele = doctors[i];
-            cant++;
+            cant = doctorId === ele.iddoctor ? cant + 1 : 1;
+            doctorId = ele.iddoctor;
             if (!sameDoctor) {
                 hours = [];
                 since = moment(`${dateDay} 08:00:00`);
@@ -127,7 +163,6 @@ export class DoctorProgrammingService {
                     const schedule2 = `${moment(since).format('HH:mm:ss')}-${moment(since).add(intervalo, 'minutes').format('HH:mm:ss')}`; // Nuevo - 2022-04-02
 
                     let first_reservation_hour = since;
-                    let boolean = false;
                     const array_no_reservation = [];
                     let iterador = ele.interval / 10;
                     while (iterador > 0) {
@@ -147,7 +182,6 @@ export class DoctorProgrammingService {
                         const reserv2 = _.find(reser, filter2);
                         // Fin nuevo cambio
                         if (reserv) {
-                            boolean = true;
                             iterador = 0;
                             //Si el otro perfil mostramos todo
                             array_no_reservation.push({
@@ -179,14 +213,14 @@ export class DoctorProgrammingService {
                     hours = [...hours, ...array_no_reservation];
                 } else {
                     if (hasShedule) {
-                        //console.log('has');
+                        // console.log('has');
 
                         sameDoctor = false;
                         const doc = doctors.filter(el => el.iddoctor === ele.iddoctor);
-                        //console.log({ doc: doc.length, cant });
+                        // console.log({ doc: doc.length, cant });
 
                         if (doc.length > cant) {
-                            /* hours.push({
+                            hours.push({
                                 since: moment(since).format('HH:mm'),
                                 until: moment(since).add(10, 'minutes').format('HH:mm'),
                                 rowspan: 19.5,
@@ -194,7 +228,7 @@ export class DoctorProgrammingService {
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
                                 interval: ele.interval
-                            }); */
+                            });
                             since = moment(since).add(10, 'minutes');
                             sameDoctor = true;
                             hasShedule = false;

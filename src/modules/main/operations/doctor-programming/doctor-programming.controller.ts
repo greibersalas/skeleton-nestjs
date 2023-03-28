@@ -46,6 +46,14 @@ export class DoctorProgrammingController {
         item.time_until = data.time_until;
         item.interval = data.interval;
         item.idcampus = data.idcampus;
+        item.mon = data.mon;
+        item.tue = data.tue;
+        item.wed = data.wed;
+        item.thu = data.thu;
+        item.fri = data.fri;
+        item.sat = data.sat;
+        item.sun = data.sun;
+        item.schedule_type = data.schedule_type;
         item.user = req.user.id;
         const create = await this.service.create(item);
         //Creamos los datos de la auditoria
