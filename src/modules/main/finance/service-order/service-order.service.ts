@@ -55,6 +55,7 @@ export class ServiceOrderService {
             attention.document_number = data.document_number;
             attention.document_date = data.document_date;
             attention.card = data.idpaymentmethodcard;
+            attention.idexchangerate = data.idexchangerate;
             attention.state = 2;
             if (attention.save()) {
                 return true;
