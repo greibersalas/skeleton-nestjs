@@ -137,6 +137,7 @@ export class DoctorProgrammingService {
         let until = moment(`${dateDay} 21:00:00`);
         let cant = 0;
         let doctorId = 0;
+        const intervalBase = 5;
         outer: while (i < doctors.length) {
             const ele = doctors[i];
             cant = doctorId === ele.iddoctor ? cant + 1 : 1;
@@ -156,7 +157,7 @@ export class DoctorProgrammingService {
                 // Si el horario programado esta dentro del rango vamos agregando bloques
                 if (schedule_since <= since && since < schedule_until) {
                     hasShedule = true;
-                    // recorrer cada 10 minutos
+                    // recorrer cada 5 minutos
                     //Busco si hay reserva en la hora
                     const intervalo = ele.interval; // Nuevo - 2022-04-02
 
@@ -164,7 +165,7 @@ export class DoctorProgrammingService {
 
                     let first_reservation_hour = since;
                     const array_no_reservation = [];
-                    let iterador = ele.interval / 10;
+                    let iterador = ele.interval / intervalBase;
                     while (iterador > 0) {
                         const reservation_hour = moment(first_reservation_hour).format('HH:mm:ss');
                         //console.log({ reservation_hour });
@@ -187,7 +188,7 @@ export class DoctorProgrammingService {
                             array_no_reservation.push({
                                 since: moment(`${dateDay} ${reserv.since}`).format('HH:mm'),
                                 until: moment(`${dateDay} ${reserv.until}`).format('HH:mm'),
-                                rowspan: (reserv.interval / 10) * 20,
+                                rowspan: (reserv.interval / intervalBase) * 20,
                                 type: 4, //reservado,
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
@@ -198,38 +199,34 @@ export class DoctorProgrammingService {
                         } else {
                             array_no_reservation.push({
                                 since: moment(first_reservation_hour).format('HH:mm'),
-                                until: moment(first_reservation_hour).add(10, 'minutes').format('HH:mm'),
+                                until: moment(first_reservation_hour).add(intervalBase, 'minutes').format('HH:mm'),
                                 rowspan: 20,
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
                                 type: moment(first_reservation_hour) < moment() ? 0 : 1,
                                 interval: ele.interval
                             });
-                            first_reservation_hour = moment(first_reservation_hour).add(10, 'minutes');
+                            first_reservation_hour = moment(first_reservation_hour).add(intervalBase, 'minutes');
                             iterador--;
-                            since = moment(since).add(10, 'minutes');
+                            since = moment(since).add(intervalBase, 'minutes');
                         }
                     }
                     hours = [...hours, ...array_no_reservation];
                 } else {
                     if (hasShedule) {
-                        // console.log('has');
-
                         sameDoctor = false;
                         const doc = doctors.filter(el => el.iddoctor === ele.iddoctor);
-                        // console.log({ doc: doc.length, cant });
-
                         if (doc.length > cant) {
                             hours.push({
                                 since: moment(since).format('HH:mm'),
-                                until: moment(since).add(10, 'minutes').format('HH:mm'),
+                                until: moment(since).add(intervalBase, 'minutes').format('HH:mm'),
                                 rowspan: 19.5,
                                 type: 0, //No disponible
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
                                 interval: ele.interval
                             });
-                            since = moment(since).add(10, 'minutes');
+                            since = moment(since).add(intervalBase, 'minutes');
                             sameDoctor = true;
                             hasShedule = false;
                             i++;
@@ -238,14 +235,14 @@ export class DoctorProgrammingService {
                     }
                     hours.push({
                         since: moment(since).format('HH:mm'),
-                        until: moment(since).add(10, 'minutes').format('HH:mm'),
+                        until: moment(since).add(intervalBase, 'minutes').format('HH:mm'),
                         rowspan: 19.5,
                         type: 0, //No disponible
                         environtment: ele.idenvironmentdoctor,
                         environtment_name: ele.environmentdoctor,
                         interval: ele.interval
                     });
-                    since = moment(since).add(10, 'minutes');
+                    since = moment(since).add(intervalBase, 'minutes');
                 }
 
             }
@@ -256,33 +253,7 @@ export class DoctorProgrammingService {
                 schedule: hours
             });
             i++;
-            // Busco si ya el doctor tiene programación
-            //const doc = programming.findIndex(el => el.iddoctor === ele.iddoctor);
-            //console.log({ doc });
-
-            /*if (doc >= 0) {
-                //
-                programming[doc].schedule.push({
-                    since: moment(since).format('HH:mm'),
-                    until: moment(since).add(10, 'minutes').format('HH:mm'),
-                    rowspan: 19.5,
-                    type: 1 //No disponible
-                });
-            } else {
-                hours.push({
-                    since: moment(since).format('HH:mm'),
-                    until: moment(since).add(10, 'minutes').format('HH:mm'),
-                    rowspan: 19.5,
-                    type: 0 //No disponible
-                });
-                programming.push({
-                    iddoctor: ele.iddoctor,
-                    date: dateDay,
-                    schedule: hours
-                });
-            }*/
         };
-        // console.log({ programming });
 
         return programming;
     }
