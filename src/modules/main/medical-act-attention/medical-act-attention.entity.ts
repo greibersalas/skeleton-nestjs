@@ -12,7 +12,7 @@ import { BankAccounts } from "src/modules/mat/finance/bank-accounts/entity/bank-
 import { PaymentMethodCard } from "src/modules/mat/finance/payment-method-card/entity/payment-method-card.entity";
 import { MedicalActFiles } from "../medical-act/medical-act-files.entity";
 import { DiscountType } from '../../mat/finance/discount-type/entity/discount-type.entity'
-import { ExchangeRate } from "src/modules/exchange-rate/exchange-rate.entity";
+import { ExchangeRate } from "src/modules/mat/finance/exchange-rate/entity/exchange-rate.entity";
 
 @Entity('medical_act_attention')
 export class MedicalActAttention extends BaseEntity {
