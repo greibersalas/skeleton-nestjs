@@ -11,7 +11,7 @@ import { ExchangeRate } from './entity/exchange-rate.entity';
 import { ExchangeRateService } from './exchange-rate.service';
 import { ExchangeRateDto } from './dto/exchange-rate-dto';
 import { Audit } from 'src/modules/security/audit/audit.entity';
-import moment from 'moment';
+const moment = require('moment-timezone');
 
 @UseGuards(JwtAuthGuard)
 @Controller('exchange-rate')
