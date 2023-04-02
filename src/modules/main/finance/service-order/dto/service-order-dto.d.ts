@@ -38,4 +38,7 @@ export interface ServiceOrderDto {
     discount_type: string;
     discount_amount: number;
     total: number;
+    idexchangerate: number;
+    exchangerate_value: number;
+    exchangerate_date: string;
 }

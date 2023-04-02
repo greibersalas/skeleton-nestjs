@@ -23,7 +23,10 @@ import { ViewColumn, ViewEntity } from "typeorm";
   maa.iddiscounttype,
   dt.name AS discount_type_name,
   maa.discount_type,
-  maa.discount_amount
+  maa.discount_amount,
+  maa.idexchangerate,
+  er.value AS exchangerate_value,
+  er.date AS exchangerate_date
 from medical_act_attention maa
 inner join clinic_history ch ON ch.id = maa."patientId"
 inner join business_line bl on bl.id = maa."businesslineId"
@@ -35,7 +38,8 @@ inner join coin co on co.id = maa."coId"
 LEFT JOIN bank_accounts ba on ba.id = maa.idbankaccount
 LEFT JOIN banks bk on bk.id = ba.idbank
 LEFT JOIN medical_act_files maf ON maf.id = maa.idfile
-LEFT JOIN discount_type dt ON dt.id = maa.iddiscounttype`
+LEFT JOIN discount_type dt ON dt.id = maa.iddiscounttype
+LEFT JOIN exchange_rate er ON er.id = maa.idexchangerate`
 })
 export class ViewServiceOrder {
   @ViewColumn()
@@ -142,4 +146,13 @@ export class ViewServiceOrder {
 
   @ViewColumn()
   discount_amount: number;
+
+  @ViewColumn()
+  idexchangerate: number;
+
+  @ViewColumn()
+  exchangerate_value: number;
+
+  @ViewColumn()
+  exchangerate_date: string;
 }
