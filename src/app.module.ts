@@ -62,6 +62,7 @@ import { ContractNotesModule } from './modules/main/finance/contract-notes/contr
 import { SubModuleModule } from './modules/security/sub-module/sub-module.module';
 import { FinanceMatModule } from './modules/mat/finance/finance-mat.module';
 import { ModulesUserModule } from './modules/security/modules-user/modules-user.module';
+import { DoctorProgrammingModule } from './modules/main/operations/doctor-programming/doctor-programming.module';
 
 
 @Module({
@@ -124,7 +125,8 @@ import { ModulesUserModule } from './modules/security/modules-user/modules-user.
     ContractNotesModule,
     SubModuleModule,
     FinanceMatModule,
-    ModulesUserModule
+    ModulesUserModule,
+    DoctorProgrammingModule
   ],
   controllers: [AppController],
   providers: [AppService],
