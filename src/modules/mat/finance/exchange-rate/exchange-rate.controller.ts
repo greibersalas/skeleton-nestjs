@@ -26,7 +26,7 @@ export class ExchangeRateController {
     }
 
     @Get('/last/rate')
-    async getExchangeRateLast(): Promise<ExchangeRateDto> {
+    async getExchangeRateLast(): Promise<ExchangeRateDto[]> {
         return await this._ExchangeRateService.getLast();
     }
 

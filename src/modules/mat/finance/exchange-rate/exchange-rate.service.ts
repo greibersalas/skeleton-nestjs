@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ExchangeRate } from './entity/exchange-rate.entity';
@@ -33,7 +33,7 @@ export class ExchangeRateService {
         return ExchangeRate;
     }
 
-    async getLast(): Promise<ExchangeRateDto> {
+    async getLast(): Promise<ExchangeRateDto[]> {
         const ExchangeRate = await this.repository.createQueryBuilder('er')
             .select(`er.id, er.value, er.date, er.state,
                 er.coins as idcoin, co.code AS coin,
@@ -42,13 +42,28 @@ export class ExchangeRateService {
             .leftJoin('exchange_house', 'eh', `eh.id = er.idexchangehouse`)
             .where(`er.state = 1`)
             .orderBy('er.id', 'DESC')
-            .getRawOne();
+            .getRawMany();
 
         if (!ExchangeRate) {
             throw new NotFoundException();
         }
 
         return ExchangeRate;
+    }
+
+    async getLastByExchangeHouse(idexchangehouse: number): Promise<ExchangeRate> {
+        const item = await this.repository.findOne({
+            where: {
+                exchangehouse: idexchangehouse,
+                state: 1
+            }
+        });
+
+        if (!item) {
+            return null;
+        }
+
+        return item;
     }
 
     async getAll(): Promise<ExchangeRateDto[]> {
@@ -64,7 +79,17 @@ export class ExchangeRateService {
     }
 
     async create(data: ExchangeRate): Promise<ExchangeRate> {
-        return await this.repository.save(data);
+        const last = await this.getLastByExchangeHouse(Number(data.exchangehouse));
+        const save = await this.repository.save(data);
+        if (save) {
+            if (last) {
+                await this.changeStatus(last.id, 2);
+            }
+            return save;
+        } else {
+            throw new BadRequestException()
+        }
+
     }
 
     async update(id: number, data: ExchangeRateDto, iduser: number): Promise<ExchangeRate> {
@@ -82,11 +107,24 @@ export class ExchangeRateService {
     }
 
     async delete(id: number): Promise<void> {
-        const ExchangeRateExists = await this.repository.findOne(id);
-        if (!ExchangeRateExists) {
+        const exists = await this.repository.findOne(id);
+        if (!exists) {
             throw new NotFoundException();
         }
 
         await this.repository.update(id, { state: 0 });
+    }
+
+    async changeStatus(id: number, status: number): Promise<ExchangeRate> {
+        const item = await this.repository.findOne({ id });
+
+        if (!item) {
+            throw new NotFoundException();
+        }
+
+        item.state = status;
+        item.save();
+        return item;
+
     }
 }
