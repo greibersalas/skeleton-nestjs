@@ -122,7 +122,7 @@ export class DoctorProgrammingService {
         const doctors: DoctorProgrammingDto[] = await this.repositoryView.createQueryBuilder('vp')
             .select('*')
             .where(`date_since <= '${dateDay}'`)
-            //.andWhere(`date_until >= '${dateDay}'`)
+            .andWhere(`date_until >= '${dateDay}'`)
             .andWhere(`${whereDay}`)
             .andWhere(`idcampus = '${idcampus}'`)
             .getRawMany();
