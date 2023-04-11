@@ -63,6 +63,7 @@ import { SubModuleModule } from './modules/security/sub-module/sub-module.module
 import { FinanceMatModule } from './modules/mat/finance/finance-mat.module';
 import { ModulesUserModule } from './modules/security/modules-user/modules-user.module';
 import { DoctorProgrammingModule } from './modules/main/operations/doctor-programming/doctor-programming.module';
+import { IncidentsModule } from './modules/main/operations/incidents/incidents.module';
 
 
 @Module({
@@ -126,7 +127,8 @@ import { DoctorProgrammingModule } from './modules/main/operations/doctor-progra
     SubModuleModule,
     FinanceMatModule,
     ModulesUserModule,
-    DoctorProgrammingModule
+    DoctorProgrammingModule,
+    IncidentsModule
   ],
   controllers: [AppController],
   providers: [AppService],

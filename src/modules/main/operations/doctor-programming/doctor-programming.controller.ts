@@ -77,6 +77,17 @@ export class DoctorProgrammingController {
         @Body() body: DoctorProgrammingDto,
         @Request() req: any
     ) {
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = this.module;
+        audit.description = 'Update registro';
+        audit.data = JSON.stringify(body);
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
         return await this.service.update(id, body, Number(req.user.id));
     }
 
