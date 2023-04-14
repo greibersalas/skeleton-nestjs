@@ -157,6 +157,7 @@ export class DoctorProgrammingService {
                 // Si el horario programado esta dentro del rango vamos agregando bloques
                 if (schedule_since <= since && since < schedule_until) {
                     hasShedule = true;
+                    sameDoctor = false;
                     // recorrer cada 5 minutos
                     //Busco si hay reserva en la hora
                     const intervalo = ele.interval; // Nuevo - 2022-04-02
