@@ -82,7 +82,22 @@ export class IncidentsController {
     }
 
     @Delete(':id')
-    async delete(@Param('id', ParseIntPipe) id: number) {
+    async delete(
+        @Param('id', ParseIntPipe) id: number,
+        @Request() req: any
+    ) {
+        //Creamos los datos de la auditoria
+        const audit = new Audit();
+        audit.idregister = id;
+        audit.title = this.module;
+        audit.description = 'Delete registro';
+        audit.data = null;
+        audit.iduser = Number(req.user.id);
+        audit.datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+        audit.state = 1;
+        //Guardamos la auditoria
+        await audit.save();
+        //Respondemos al usuario
         return await this.service.delete(id);
     }
 }

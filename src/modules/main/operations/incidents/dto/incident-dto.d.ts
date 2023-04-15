@@ -15,4 +15,6 @@ export interface IncidentDto {
     status: number;
     idreservation: number;
     appointment: string;
+    history: string;
+    patient_num_document: string;
 }
