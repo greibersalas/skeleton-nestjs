@@ -16,7 +16,9 @@ import { ViewColumn, ViewEntity } from "typeorm";
     us.username as user,
     ic.status,
 	ic.idreservation,
-	re.appointment
+	re.appointment,
+  ch.history,
+  ch."documentNumber" as patient_num_document
 from incidents ic
 inner join clinic_history ch on ch.id = ic.idclinichistory
 inner join users us on us.id = ic.iduser
@@ -71,4 +73,10 @@ export class ViewIncidents {
 
   @ViewColumn()
   appointment: string;
+
+  @ViewColumn()
+  history: string;
+
+  @ViewColumn()
+  patient_num_document: string;
 }

@@ -53,6 +53,14 @@ export class ReservationController {
         return await this._reservationService.getResumenDayByChar(id);
     }
 
+    @Get('/patient/day/:idpatient/:date')
+    async getReservationPatientDay(
+        @Param('idpatient', ParseIntPipe) idpatient: number,
+        @Param('date') date: string,
+    ): Promise<Reservation[]> {
+        return await this._reservationService.getReservationPatientDate(idpatient, date);
+    }
+
     @Get('/environments/available/:day/:month/:year')
     async getEnvironmentAvailable(@Param('day', ParseIntPipe) day: number,
         @Param('month', ParseIntPipe) month: number,

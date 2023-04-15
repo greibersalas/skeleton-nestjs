@@ -396,14 +396,23 @@ export class ReservationService {
             .orderBy('date')
             .getRawMany();
         return data;
-        /**
-         * Metodo que me retorna la cantidad de
-         * Controles confirmados y atendidos
-         * en un mes
-         * @params int month, int year
-         */
+
     }
 
+    async getReservationPatientDate(idpatient: number, date: string): Promise<Reservation[]> {
+        return this._reservationRepository.find({
+            where: {
+                patient: idpatient,
+                date
+            }
+        });
+    }
+    /**
+     * Metodo que me retorna la cantidad de
+     * Controles confirmados y atendidos
+     * en un mes
+     * @params int month, int year
+     */
     async cantControls(month: number, year: number): Promise<any> {
         const data = await this._reservationRepository.createQueryBuilder('re')
             .select(`sum(case when state = 1 then 1 else 0 end) as sin_confirmar,
