@@ -10,6 +10,7 @@ import { QuotationService } from './quotation.service';
 //Reports PDF
 import { Pdf_of } from './pdf-of';
 import { Pdf_ap } from './pdf-ap';
+import { Pdf_ap2 } from './pdf-ap2';
 import { Pdf_oi } from './pdf-oi';
 
 @UseGuards(JwtAuthGuard)
@@ -195,15 +196,21 @@ export class QuotationController {
     @Get('pdf/:id/:format')
     async getPdf(@Param('id', ParseIntPipe) id: number, @Param('format') format: string): Promise<any> {
         const data = await this._quotationService.dataPdf(id);
-        if (format === 'OF') {
-            const pdf = new Pdf_of();
-            return pdf.print(data);
-        } else if (format === 'AP') {
-            const pdf = new Pdf_ap();
+
+        if (data.detail[0].tariff.id === 131) {
+            const pdf = new Pdf_ap2();
             return pdf.print(data);
         } else {
-            const pdf = new Pdf_oi();
-            return pdf.print(data);
+            if (format === 'OF') {
+                const pdf = new Pdf_of();
+                return pdf.print(data);
+            } else if (format === 'AP') {
+                const pdf = new Pdf_ap();
+                return pdf.print(data);
+            } else {
+                const pdf = new Pdf_oi();
+                return pdf.print(data);
+            }
         }
     }
 }
