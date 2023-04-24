@@ -10,7 +10,6 @@ var moment = require('moment-timezone');
  */
 export class PdfContractChildren {
     print(data: any) {
-        console.log({ data });
 
         const pdf = new FPDF('P', 'mm', 'A4');
         let y: number = 20;

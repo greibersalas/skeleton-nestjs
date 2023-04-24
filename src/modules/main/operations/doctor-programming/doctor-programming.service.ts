@@ -127,13 +127,27 @@ export class DoctorProgrammingService {
             .andWhere(`idcampus = '${idcampus}'`)
             .getRawMany();
         // console.log({ doctors });
+        let timeSince = '08:00:00';
+        /* const doctorOrder = doctors.sort((a, b) => {
+            if (a.time_since > b.time_since) {
+                return 1;
+            }
+            if (a.time_since < b.time_since) {
+                return -1;
+            }
+            return 0;
+        });
+        if (doctorOrder.length > 0) {
+            timeSince = doctorOrder[0].time_since;
+        } */
+
         const programming: ProgrammingDto[] = [];
         // Recorremos cada doctor programado
         let i = 0;
         //doctors.forEach((ele: ViewDoctorProgramming) => {
         let sameDoctor = false;
         let hours: any[] = []; // Lista de horas
-        let since = moment(`${dateDay} 08:00:00`);
+        let since = moment(`${dateDay} ${timeSince}`);
         let until = moment(`${dateDay} 21:00:00`);
         let cant = 0;
         let doctorId = 0;
@@ -144,7 +158,7 @@ export class DoctorProgrammingService {
             doctorId = ele.iddoctor;
             if (!sameDoctor) {
                 hours = [];
-                since = moment(`${dateDay} 08:00:00`);
+                since = moment(`${dateDay} ${timeSince}`);
                 until = moment(`${dateDay} 21:00:00`);
             }
 
@@ -169,14 +183,11 @@ export class DoctorProgrammingService {
                     let iterador = ele.interval / intervalBase;
                     while (iterador > 0) {
                         const reservation_hour = moment(first_reservation_hour).format('HH:mm:ss');
-                        //console.log({ reservation_hour });
-
                         let filter = {
                             doctor_id: ele.iddoctor,
                             since: reservation_hour,
                         };
                         const reserv = _.find(reser, filter);
-                        //console.log({ reserv });
 
                         // Nuevo cambio 2022-04-02
                         let filter2 = filter;
@@ -190,7 +201,7 @@ export class DoctorProgrammingService {
                                 since: moment(`${dateDay} ${reserv.since}`).format('HH:mm'),
                                 until: moment(`${dateDay} ${reserv.until}`).format('HH:mm'),
                                 rowspan: (reserv.interval / intervalBase) * 20,
-                                type: 4, //reservado,
+                                type: 4, // reservado,
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
                                 interval: ele.interval,
@@ -200,16 +211,16 @@ export class DoctorProgrammingService {
                         } else {
                             array_no_reservation.push({
                                 since: moment(first_reservation_hour).format('HH:mm'),
-                                until: moment(first_reservation_hour).add(intervalBase, 'minutes').format('HH:mm'),
-                                rowspan: 20,
+                                until: moment(first_reservation_hour).add((ele.interval / intervalBase) * intervalBase, 'minutes').format('HH:mm'),
+                                rowspan: (ele.interval / intervalBase) * 20,
                                 environtment: ele.idenvironmentdoctor,
                                 environtment_name: ele.environmentdoctor,
                                 type: moment(first_reservation_hour) < moment() ? 0 : 1,
                                 interval: ele.interval
                             });
-                            first_reservation_hour = moment(first_reservation_hour).add(intervalBase, 'minutes');
-                            iterador--;
-                            since = moment(since).add(intervalBase, 'minutes');
+                            first_reservation_hour = moment(first_reservation_hour).add((ele.interval / intervalBase) * intervalBase, 'minutes');
+                            iterador = iterador - (ele.interval / intervalBase);
+                            since = moment(since).add((ele.interval / intervalBase) * intervalBase, 'minutes');
                         }
                     }
                     hours = [...hours, ...array_no_reservation];
