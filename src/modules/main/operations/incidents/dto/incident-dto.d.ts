@@ -17,4 +17,6 @@ export interface IncidentDto {
     appointment: string;
     history: string;
     patient_num_document: string;
+    iddoctor: number;
+    doctor: string;
 }
