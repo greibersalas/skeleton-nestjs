@@ -103,13 +103,13 @@ export class ReservationService {
 
     async validateCupo(rese: Reservation): Promise<Reservation> {
         const reservation = await this._reservationRepository.createQueryBuilder('re')
-            .where(`re.date = :date AND re.appointment = :appointment AND re.state <> 0
-        AND re.environment_id = :environment`, {
+            .where(`re.date = :date AND re.appointment = :appointment AND re.state <> 0`, {
                 date: rese.date,
                 appointment: rese.appointment,
-                environment: rese.environment
             })
             .getOne();
+        // AND re.environment_id = :environment
+        // environment: rese.environment
         return reservation
     }
 

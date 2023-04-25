@@ -71,27 +71,6 @@ export class ContractService {
         if (status > 0) {
             where = `t1.state = ${status}`;
         }
-        // return await this.repository
-        //   .createQueryBuilder('so')
-        //   .select(
-        //     `so.id, so.type, so.idclinichistory, so.state, so.date,
-        //     so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
-        //     so.amount_controls, so.num,ch.history, "ch"."documentNumber" AS patient_doc,
-        //     concat_ws(' ',"ch"."lastNameFather", "ch"."lastNameMother", ch.name) AS patient,
-        //     SUM(cd.balance) AS balance`,
-        //   )
-        //   .innerJoin('so.clinichistory', 'ch')
-        //   .innerJoin('contract_detail', 'cd', 'cd.idcontract = so.id')
-        //   .where(where)
-        //   .andWhere(
-        //     `so.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'`,
-        //   )
-        //   .groupBy(
-        //     `so.id, so.type, so.idclinichistory, so.state, so.date,
-        //     so.duration,so.amount,so.quota,so.exchange_house,so.exchange_house_url,
-        //     so.amount_controls, so.num,ch.history, "ch"."documentNumber","ch"."lastNameFather", "ch"."lastNameMother", ch.name`,
-        //   )
-        //   .getRawMany();
         return await this.repositoryDetail.query(`
             SELECT 
                 t1.id,
@@ -117,6 +96,53 @@ export class ContractService {
             inner Join state_contract t4 on t1.id_state_contract = t4.id
             where  t1.created_at::DATE BETWEEN '${filters.since}' AND '${filters.until}'
             and ${where}
+            group By
+                t1.id,
+                t1.type,
+                t1.idclinichistory,
+                t1.state,
+                t1.date,
+                t1.duration,
+                t1.amount,
+                t1.quota,
+                t1.exchange_house,
+                t1.exchange_house_url,
+                t1.amount_controls,
+                t1.num,t2.history,
+                t2."documentNumber",
+                t2."lastNameFather",
+                t2."lastNameMother",
+                t2.name,
+                t4.description;
+        `);
+    }
+
+    async getDataByClinicHistory(idclinichistory: number): Promise<ContractDto[]> {
+        let where = `t1.state <> 0 and t1.idclinichistory = ${idclinichistory}`;
+        return await this.repositoryDetail.query(`
+            SELECT 
+                t1.id,
+                t1.type,
+                t1.idclinichistory,
+                t1.state,
+                t1.date,
+                t1.duration,
+                t1.amount,
+                t1.quota,
+                t1.exchange_house,
+                t1.exchange_house_url,
+                t1.amount_controls,
+                t1.num,
+                t2.history,
+                t2."documentNumber" AS patient_doc,
+                concat_ws(' ',t2."lastNameFather", t2."lastNameMother", t2.name) AS patient,
+                SUM(t3.balance) AS balance,
+                t4.description
+            from contract t1
+            join clinic_history t2 ON t1.idclinichistory = t2.id
+            inner Join contract_detail t3 on t3.idcontract = t1.id
+            inner Join state_contract t4 on t1.id_state_contract = t4.id
+            where  ${where}
             group By
                 t1.id,
                 t1.type,

@@ -44,6 +44,7 @@ export class IncidentsService {
         item.reason = data.reason;
         item.observations = data.observations;
         item.idreservation = data.idreservation;
+        item.iddoctor = data.iddoctor;
         item.user = iduser;
         item.updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
         await item.save();
