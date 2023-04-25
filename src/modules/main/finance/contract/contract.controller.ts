@@ -74,6 +74,13 @@ export class ContractController {
         return await this.service.getDataFilters(body);
     }
 
+    @Get('/clinic-history/:idclinichistory')
+    async getDataByClinicHistory(
+        @Param('idclinichistory', ParseIntPipe) idclinichistory: number
+    ): Promise<ContractDto[]> {
+        return await this.service.getDataByClinicHistory(idclinichistory);
+    }
+
     @Post('/pending')
     async getDataFiltersPending(
         @Body() body: any
