@@ -293,10 +293,10 @@ export class ReservationController {
         @Request() req: any
     ): Promise<Reservation> {
         //Validamos que no este ocupado el cupo
-        const validate = await this._reservationService.validateCupo(reservation);
+        /* const validate = await this._reservationService.validateCupo(reservation);
         if (typeof validate !== 'undefined') {
             throw new BadRequestException('El cupo ya no esta disponible.');
-        }
+        } */
         const create = await this._reservationService.create(reservation);
         //Creamos los datos de la auditoria
         const audit = new Audit();
