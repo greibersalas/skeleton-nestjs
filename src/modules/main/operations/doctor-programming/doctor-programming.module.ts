@@ -10,6 +10,7 @@ import { DoctorProgrammingService } from './doctor-programming.service';
 
 import { ViewDoctorProgramming } from './entity/doctor-programming-view.entity';
 import { DoctorProgramming } from './entity/doctor-programming.entity';
+import { DiaryLock } from '../../diary-lock/diary-lock.entity';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DoctorProgramming } from './entity/doctor-programming.entity';
       ViewDoctorProgramming,
       DiaryLockRepository,
       ReservationRepository,
+      DiaryLock
     ]),
     MailModule
   ],

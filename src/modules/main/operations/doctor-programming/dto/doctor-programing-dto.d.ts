@@ -20,4 +20,6 @@ export interface DoctorProgrammingDto {
     sat: boolean;
     sun: boolean;
     schedule_type: string;
+    lock_time_since: string;
+    lock_time_until: string;
 }
