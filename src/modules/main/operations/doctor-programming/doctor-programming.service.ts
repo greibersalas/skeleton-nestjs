@@ -9,6 +9,7 @@ import { ProgrammingDto } from './dto/programmimg-dto';
 
 import { ViewDoctorProgramming } from './entity/doctor-programming-view.entity';
 import { DoctorProgramming } from './entity/doctor-programming.entity';
+import { DiaryLock } from '../../diary-lock/diary-lock.entity';
 
 @Injectable()
 export class DoctorProgrammingService {
@@ -18,6 +19,8 @@ export class DoctorProgrammingService {
         private readonly repository: Repository<DoctorProgramming>,
         @InjectRepository(ViewDoctorProgramming)
         private readonly repositoryView: Repository<ViewDoctorProgramming>,
+        @InjectRepository(DiaryLock)
+        private readonly repoDiaryLock: Repository<DiaryLock>,
     ) { }
 
     // Obtenemos todas las programaciones por iddoctor
@@ -94,25 +97,25 @@ export class DoctorProgrammingService {
         let whereDay = '';
         switch (dayNum) {
             case 0:
-                whereDay = 'mon = true';
+                whereDay = 'vp.mon = true';
                 break;
             case 1:
-                whereDay = 'tue = true';
+                whereDay = 'vp.tue = true';
                 break;
             case 2:
-                whereDay = 'wed = true';
+                whereDay = 'vp.wed = true';
                 break;
             case 3:
-                whereDay = 'thu = true';
+                whereDay = 'vp.thu = true';
                 break;
             case 4:
-                whereDay = 'fri = true';
+                whereDay = 'vp.fri = true';
                 break;
             case 5:
-                whereDay = 'sat = true';
+                whereDay = 'vp.sat = true';
                 break;
             case 6:
-                whereDay = 'sun = true';
+                whereDay = 'vp.sun = true';
                 break;
 
             default:
@@ -120,26 +123,16 @@ export class DoctorProgrammingService {
         }
 
         const doctors: DoctorProgrammingDto[] = await this.repositoryView.createQueryBuilder('vp')
-            .select('*')
-            .where(`date_since <= '${dateDay}'`)
-            .andWhere(`date_until >= '${dateDay}'`)
+            .select('vp.*, dl.time_since as lock_time_since, dl.time_until as lock_time_until')
+            .leftJoin('diary_lock', 'dl', `dl.doctor = vp.iddoctor and dl.date = '${dateDay}' and dl.time_since >= vp.time_since and dl.time_until <= vp.time_until
+            and dl.state = 1 and dl.campus = vp.idcampus`)
+            .where(`vp.date_since <= '${dateDay}'`)
+            .andWhere(`vp.date_until >= '${dateDay}'`)
             .andWhere(`${whereDay}`)
-            .andWhere(`idcampus = '${idcampus}'`)
+            .andWhere(`vp.idcampus = '${idcampus}'`)
             .getRawMany();
         // console.log({ doctors });
         let timeSince = '08:00:00';
-        /* const doctorOrder = doctors.sort((a, b) => {
-            if (a.time_since > b.time_since) {
-                return 1;
-            }
-            if (a.time_since < b.time_since) {
-                return -1;
-            }
-            return 0;
-        });
-        if (doctorOrder.length > 0) {
-            timeSince = doctorOrder[0].time_since;
-        } */
 
         const programming: ProgrammingDto[] = [];
         // Recorremos cada doctor programado
@@ -167,7 +160,25 @@ export class DoctorProgrammingService {
             const schedule_until = moment(`${dateDay} ${ele.time_until}`);
             let hasShedule = false;
             // Ciclo del horario
-            while (since <= until) {
+            outer2: while (since <= until) {
+                // Verifico si el doctor tiene bloqueo en la agenda
+                if (ele.lock_time_since) {
+                    const lock_time_since = moment(`${dateDay} ${ele.lock_time_since}`);
+                    const lock_time_until = moment(`${dateDay} ${ele.lock_time_until}`);
+                    if (lock_time_since <= since && since < lock_time_until) {
+                        hours.push({
+                            since: moment(since).format('HH:mm'),
+                            until: moment(since).add(intervalBase, 'minutes').format('HH:mm'),
+                            rowspan: 19.5,
+                            type: 0, //No disponible
+                            environtment: ele.idenvironmentdoctor,
+                            environtment_name: ele.environmentdoctor,
+                            interval: ele.interval
+                        });
+                        since = moment(since).add(intervalBase, 'minutes');
+                        continue outer2;
+                    }
+                }
                 // Si el horario programado esta dentro del rango vamos agregando bloques
                 if (schedule_since <= since && since < schedule_until) {
                     hasShedule = true;
