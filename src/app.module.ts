@@ -64,6 +64,7 @@ import { FinanceMatModule } from './modules/mat/finance/finance-mat.module';
 import { ModulesUserModule } from './modules/security/modules-user/modules-user.module';
 import { DoctorProgrammingModule } from './modules/main/operations/doctor-programming/doctor-programming.module';
 import { IncidentsModule } from './modules/main/operations/incidents/incidents.module';
+import { OperationsModule } from './modules/mat/operations/operations.module';
 
 
 @Module({
@@ -128,7 +129,8 @@ import { IncidentsModule } from './modules/main/operations/incidents/incidents.m
     FinanceMatModule,
     ModulesUserModule,
     DoctorProgrammingModule,
-    IncidentsModule
+    IncidentsModule,
+    OperationsModule
   ],
   controllers: [AppController],
   providers: [AppService],
