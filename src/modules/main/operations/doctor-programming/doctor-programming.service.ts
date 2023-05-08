@@ -130,6 +130,9 @@ export class DoctorProgrammingService {
             .andWhere(`vp.date_until >= '${dateDay}'`)
             .andWhere(`${whereDay}`)
             .andWhere(`vp.idcampus = '${idcampus}'`)
+            .orderBy('doctor')
+            .addOrderBy('time_since')
+            .addOrderBy('environmentdoctor')
             .getRawMany();
         // console.log({ doctors });
         let timeSince = '08:00:00';
