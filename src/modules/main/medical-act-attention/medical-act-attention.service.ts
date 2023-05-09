@@ -295,7 +295,7 @@ export class MedicalActAttentionService {
         }
         return await this._medicalActAttentionRepository.createQueryBuilder('maa')
             .select(`maa.quantity,maa.id AS idattention,
-        maa.value,
+        maa.value, maa.discount_type, maa.discount_amount,
         "maa"."businesslineId",
         "maa"."specialtyId",
         "maa"."tariffId",
@@ -313,7 +313,7 @@ export class MedicalActAttentionService {
         tr.cost,
         tr.price_usd,
         tr.cost_usd,
-        concat_ws(' ',"ch"."lastNameFather","ch"."lastNameMother","ch"."name") AS patient,
+        concat_ws(' ',"ch"."name","ch"."lastNameFather","ch"."lastNameMother") AS patient,
         co.code as coin_code,
         co.id as idcoin,
         maa.lab_cost,
