@@ -38,6 +38,16 @@ export class TreatmentStagesService {
             .getRawMany();
     }
 
+    async getByTreatment(id: number): Promise<TreatmentStagesDto[]> {
+        return await this.repository.createQueryBuilder('ts')
+            .select(`ts.*, tr.name as tariff`)
+            .innerJoin('tariff', 'tr', 'tr.id = ts.idtariff')
+            .where(`ts.status = 1`)
+            .andWhere(`ts.idtariff = ${id}`)
+            .orderBy('ts.name', 'ASC')
+            .getRawMany();
+    }
+
     async create(data: TreatmentStages): Promise<TreatmentStages> {
         return await this.repository.save(data);
     }

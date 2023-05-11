@@ -65,6 +65,7 @@ import { ModulesUserModule } from './modules/security/modules-user/modules-user.
 import { DoctorProgrammingModule } from './modules/main/operations/doctor-programming/doctor-programming.module';
 import { IncidentsModule } from './modules/main/operations/incidents/incidents.module';
 import { OperationsModule } from './modules/mat/operations/operations.module';
+import { ClinicHistoryTreatmentStagesModule } from './modules/main/operations/clinic-history-treatment-stages/clinic-history-treatment-stages.module';
 
 
 @Module({
@@ -130,7 +131,8 @@ import { OperationsModule } from './modules/mat/operations/operations.module';
     ModulesUserModule,
     DoctorProgrammingModule,
     IncidentsModule,
-    OperationsModule
+    OperationsModule,
+    ClinicHistoryTreatmentStagesModule
   ],
   controllers: [AppController],
   providers: [AppService],
