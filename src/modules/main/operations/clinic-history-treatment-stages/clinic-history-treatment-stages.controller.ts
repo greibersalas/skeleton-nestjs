@@ -1,49 +1,36 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards, Request, Put, Delete } from '@nestjs/common';
-const moment = require('moment-timezone');
 import { JwtAuthGuard } from 'src/modules/auth/strategies/jwt-auth.guard';
+const moment = require('moment-timezone');
 
-import { TreatmentStagesService } from './treatment-stages.service';
-import { TreatmentStagesDto } from './dtos/treatment-stages-dto';
-import { TreatmentStages } from './entity/treatment-stages.entity';
 import { Audit } from 'src/modules/security/audit/audit.entity';
+import { ClinicHistoryTreatmentStagesService } from './clinic-history-treatment-stages.service';
+import { ClinicHistoryTreatmentStagesDto } from './dto/clinic-history-treatment-stages-dto';
+import { ClinicHistoryTreatmentStages } from './entity/clinic-history-treatment-stages.entity';
 
 @UseGuards(JwtAuthGuard)
-@Controller('treatment-stages')
-export class TreatmentStagesController {
+@Controller('clinic-history-treatment-stages')
+export class ClinicHistoryTreatmentStagesController {
 
-    private module = 'treatment-stages';
+    protected module = 'clinic-history-treatment-stages';
     constructor(
-        private service: TreatmentStagesService
+        private service: ClinicHistoryTreatmentStagesService
     ) { }
 
-    @Get(':id')
-    async get(
+    @Get('clinic-history/:id')
+    async getListByClinicHistory(
         @Param('id', ParseIntPipe) id: number
-    ): Promise<TreatmentStagesDto> {
-        return await this.service.get(id);
-    }
-
-    @Get()
-    async getAll(): Promise<TreatmentStagesDto[]> {
-        return await this.service.getAll();
-    }
-
-    @Get('treatment/:id')
-    async getByTreatment(
-        @Param('id', ParseIntPipe) id: number
-    ): Promise<TreatmentStagesDto[]> {
-        return await this.service.getByTreatment(id);
+    ): Promise<ClinicHistoryTreatmentStagesDto[]> {
+        return await this.service.getByClinicHistory(id);
     }
 
     @Post()
     async create(
-        @Body() data: TreatmentStagesDto,
+        @Body() data: ClinicHistoryTreatmentStagesDto,
         @Request() req: any
-    ): Promise<TreatmentStages> {
-        const item: TreatmentStages = new TreatmentStages();
-        item.idtariff = data.idtariff;
-        item.name = data.name;
-        item.description = data.description;
+    ): Promise<ClinicHistoryTreatmentStages> {
+        const item: ClinicHistoryTreatmentStages = new ClinicHistoryTreatmentStages();
+        item.idclinichistory = data.idclinichistory;
+        item.idtreatmentstage = data.idtreatmentstage;
         item.user = req.user.id;
         const create = await this.service.create(item);
         //Creamos los datos de la auditoria
@@ -64,7 +51,7 @@ export class TreatmentStagesController {
     @Put(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() body: TreatmentStagesDto,
+        @Body() body: ClinicHistoryTreatmentStagesDto,
         @Request() req: any
     ) {
         //Creamos los datos de la auditoria
