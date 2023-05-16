@@ -19,4 +19,6 @@ export interface IncidentDto {
     patient_num_document: string;
     iddoctor: number;
     doctor: string;
+    idenvirontmentdoctor: number;
+    environtmentdoctor: string;
 }

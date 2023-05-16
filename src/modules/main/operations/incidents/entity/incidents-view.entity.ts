@@ -20,12 +20,15 @@ import { ViewColumn, ViewEntity } from "typeorm";
   ch.history,
   ch."documentNumber" as patient_num_document,
   ic.iddoctor,
-  doc."nameQuote" AS doctor
+  doc."nameQuote" AS doctor,
+  ic.idenvirontmentdoctor,
+  ed.name AS environtmentdoctor
 from incidents ic
 inner join clinic_history ch on ch.id = ic.idclinichistory
 inner join users us on us.id = ic.iduser
 inner join reservation re on re.id = ic.idreservation
 LEFT JOIN doctor doc ON doc.id = ic.iddoctor
+LEFT JOIN environment_doctor ed ON ed.id = ic.idenvirontmentdoctor
 where ic.status <> 0`
 })
 export class ViewIncidents {
@@ -88,4 +91,10 @@ export class ViewIncidents {
 
   @ViewColumn()
   doctor: string;
+
+  @ViewColumn()
+  idenvirontmentdoctor: number;
+
+  @ViewColumn()
+  environtmentdoctor: string;
 }

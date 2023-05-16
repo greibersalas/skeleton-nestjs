@@ -45,6 +45,7 @@ export class IncidentsController {
         item.observations = data.observations;
         item.idreservation = data.idreservation;
         item.iddoctor = data.iddoctor;
+        item.idenvirontmentdoctor = data.idenvirontmentdoctor;
         item.user = req.user.id;
         const create = await this.service.create(item);
         //Creamos los datos de la auditoria

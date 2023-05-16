@@ -12,6 +12,7 @@ import { User } from "src/modules/user/user.entity";
 import { ClinicHistory } from "src/modules/clinic-history/clinic-history.entity";
 import { Reservation } from "src/modules/reservation/reservation.entity";
 import { Doctor } from "src/modules/doctor/doctor.entity";
+import { EnvironmentDoctor } from "src/modules/environment-doctor/environment-doctor.entity";
 
 
 @Entity('incidents')
@@ -68,5 +69,9 @@ export class Incidents extends BaseEntity {
     @ManyToOne(type => Doctor, dr => dr.id, { cascade: true, nullable: false, eager: false })
     @JoinColumn({ name: 'iddoctor' })
     iddoctor: Doctor | number;
+
+    @ManyToOne(type => EnvironmentDoctor, ed => ed.id, { cascade: true, nullable: false, eager: false })
+    @JoinColumn({ name: 'idenvirontmentdoctor' })
+    idenvirontmentdoctor: EnvironmentDoctor | number;
 
 }
